@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <string name="app_name">My Events</string>
+
+    <!-- Navigation drawer -->
+    <string name="nav_home">Home</string>
+    <string name="nav_events">Events</string>
+    <string name="nav_bookings">Bookings</string>
+    <string name="nav_expenses">Expenses</string>
+    <string name="nav_invitees">Invitees</string>
+    <string name="nav_checklist">Checklist</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Security / Lock -->
+    <string name="pin_setup_title">Set Your PIN</string>
+    <string name="pin_setup_subtitle">Choose a 4-digit PIN to secure your app</string>
+    <string name="pin_confirm_title">Confirm Your PIN</string>
+    <string name="pin_confirm_subtitle">Enter the same PIN again</string>
+    <string name="pin_enter_title">Enter PIN</string>
+    <string name="pin_enter_subtitle">Use your PIN or fingerprint to unlock</string>
+    <string name="pin_mismatch">PINs do not match. Try again.</string>
+    <string name="pin_incorrect">Incorrect PIN</string>
+    <string name="pin_attempts_left">%d attempts remaining</string>
+    <string name="pin_locked_out">Too many attempts. Try again in %d seconds.</string>
+    <string name="fingerprint_prompt_title">Unlock My Events</string>
+    <string name="fingerprint_prompt_subtitle">Use your fingerprint to unlock</string>
+    <string name="fingerprint_use_pin">Use PIN instead</string>
+
+    <!-- Home -->
+    <string name="home_title">My Events</string>
+    <string name="home_card_event_dates">Event Dates</string>
+    <string name="home_card_bookings_done">Bookings Done</string>
+    <string name="home_card_booking_amount">Booking Amount</string>
+    <string name="home_card_budget">Budget vs Spent</string>
+    <string name="home_card_dues">Pending Dues</string>
+    <string name="home_card_invitees">Invitees</string>
+    <string name="home_card_items">Items Pending</string>
+    <string name="home_days_left">%d days left</string>
+    <string name="home_today">Today</string>
+    <string name="home_no_events">No upcoming events</string>
+
+    <!-- Events -->
+    <string name="events_title">Events</string>
+    <string name="events_add_title">Add Event</string>
+    <string name="events_edit_title">Edit Event</string>
+    <string name="events_empty">No events yet.\nLong-press a date to add one.</string>
+    <string name="events_field_title">Event title</string>
+    <string name="events_field_name">Event name</string>
+    <string name="events_field_date">Event date</string>
+    <string name="events_field_icon">Event icon</string>
+    <string name="events_field_budget">Budget (₹)</string>
+    <string name="events_field_invitees_required">Invitees required</string>
+    <string name="events_delete_title">Delete event?</string>
+    <string name="events_delete_body">This will also delete all bookings, expenses, invitees and tasks linked to this event.</string>
+    <string name="events_deleted">Event deleted</string>
+    <string name="events_one_per_date">Only one event per date is allowed.</string>
+
+    <!-- Bookings -->
+    <string name="bookings_title">Bookings</string>
+    <string name="bookings_add_title">Add Booking</string>
+    <string name="bookings_edit_title">Edit Booking</string>
+    <string name="bookings_empty">No bookings yet.\nTap + to add one.</string>
+    <string name="bookings_field_title">Booking title</string>
+    <string name="bookings_field_name">Booking name</string>
+    <string name="bookings_field_icon">Booking icon</string>
+    <string name="bookings_field_event">For event</string>
+    <string name="bookings_field_contact">Contact person</string>
+    <string name="bookings_field_phone">Phone</string>
+    <string name="bookings_field_total">Total amount (₹)</string>
+    <string name="bookings_field_paid">Amount paid (₹)</string>
+    <string name="bookings_field_due_date">Next due date</string>
+    <string name="bookings_deleted">Booking deleted</string>
+
+    <!-- Expenses -->
+    <string name="expenses_title">Expenses</string>
+    <string name="expenses_add_title">Add Expense</string>
+    <string name="expenses_edit_title">Edit Expense</string>
+    <string name="expenses_empty">No expenses for this event yet.</string>
+    <string name="expenses_field_purpose">Purpose</string>
+    <string name="expenses_field_paid">Amount paid (₹)</string>
+    <string name="expenses_field_due">Amount due (₹)</string>
+    <string name="expenses_field_items">Items</string>
+    <string name="expenses_field_all_received">All items received</string>
+    <string name="expenses_deleted">Expense deleted</string>
+
+    <!-- Invitees -->
+    <string name="invitees_title">Invitees</string>
+    <string name="invitees_tab_guests">Guests</string>
+    <string name="invitees_tab_gifts">Gifts</string>
+    <string name="invitees_add_title">Add Invitee</string>
+    <string name="invitees_empty">No invitees yet.\nTap + to add one.</string>
+    <string name="invitees_field_name">Relative name</string>
+    <string name="invitees_field_count">Expected count</string>
+    <string name="invitees_field_address">Address</string>
+    <string name="invitees_field_invited">Invited</string>
+    <string name="invitees_deleted">Invitee deleted</string>
+    <string name="gifts_empty">No gifts recorded yet.</string>
+
+    <!-- Checklist -->
+    <string name="checklist_title">Checklist</string>
+    <string name="checklist_add_title">Add Task</string>
+    <string name="checklist_empty">No tasks yet.\nTap + to add one.</string>
+    <string name="checklist_field_title">Task title</string>
+    <string name="checklist_field_due">Due date (optional)</string>
+    <string name="checklist_deleted">Task deleted</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_palette">Colour scheme</string>
+    <string name="settings_palette_a">Toxic Violet</string>
+    <string name="settings_palette_b">Machine Red</string>
+    <string name="settings_palette_c">Hyper Cobalt</string>
+    <string name="settings_palette_d">Dark Aubergine</string>
+    <string name="settings_change_pin">Change PIN</string>
+    <string name="settings_fingerprint">Fingerprint unlock</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_sample_data">Load sample data</string>
+    <string name="settings_clear_sample">Clear sample data</string>
+    <string name="settings_export_csv">Export to CSV</string>
+    <string name="settings_about">About</string>
+    <string name="settings_version">Version</string>
+
+    <!-- Common actions -->
+    <string name="action_save">Save</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_add">Add</string>
+    <string name="action_undo">UNDO</string>
+    <string name="action_confirm">Confirm</string>
+    <string name="action_done">Done</string>
+    <string name="action_close">Close</string>
+    <string name="action_search">Search</string>
+    <string name="action_clear">Clear</string>
+
+    <!-- Common labels -->
+    <string name="label_amount_left">Amount left</string>
+    <string name="label_total">Total</string>
+    <string name="label_paid">Paid</string>
+    <string name="label_due">Due</string>
+    <string name="label_families">families</string>
+    <string name="label_guests">guests</string>
+    <string name="label_over_budget">Over by %s</string>
+    <string name="label_of">of</string>
+
+    <!-- Filter chips -->
+    <string name="filter_all">All</string>
+    <string name="filter_due_pending">Due pending</string>
+    <string name="filter_items_pending">Items pending</string>
+    <string name="filter_invited">Invited</string>
+    <string name="filter_not_invited">Not invited</string>
+</resources>
