@@ -10,6 +10,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import sabuj.m.myevents.feature.home.HomeScreen
 import sabuj.m.myevents.feature.placeholder.PlaceholderScreen
+import sabuj.m.myevents.feature.settings.SettingsScreen
 
 /**
  * Root NavHost wrapped in [AppDrawer].
@@ -64,7 +65,7 @@ fun AppNavHost(
                 PlaceholderScreen(title = "Checklist", onMenuClick = openDrawer)
             }
             composable(Routes.SETTINGS) {
-                PlaceholderScreen(title = "Settings", onMenuClick = openDrawer)
+                SettingsScreen(onMenuClick = openDrawer)
             }
         }
     }
