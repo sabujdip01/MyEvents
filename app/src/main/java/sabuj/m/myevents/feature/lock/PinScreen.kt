@@ -77,13 +77,15 @@ fun PinScreen(
     onBackspace: () -> Unit = {},
     onFingerprint: () -> Unit = {},
 ) {
-    // Shake animation for error
+    // Shake animation for error — shakeKey increments on every new error so
+    // the effect fires even if hasError stays true (two wrong PINs in a row)
+    val shakeKey = remember(hasError) { if (hasError) System.currentTimeMillis() else 0L }
     val shakeOffset = remember { Animatable(0f) }
-    LaunchedEffect(hasError) {
-        if (hasError) {
-            repeat(3) {
-                launch { shakeOffset.animateTo(6f, tween(50)) }
-                launch { shakeOffset.animateTo(-6f, tween(50)) }
+    LaunchedEffect(shakeKey) {
+        if (shakeKey != 0L) {
+            repeat(4) {
+                shakeOffset.animateTo( 10f, tween(50))
+                shakeOffset.animateTo(-10f, tween(50))
             }
             shakeOffset.animateTo(0f, tween(50))
         }

@@ -1,7 +1,7 @@
 package sabuj.m.myevents
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -30,7 +30,7 @@ import sabuj.m.myevents.navigation.AppNavHost
  *  4. Authenticated → NavHost (drawer + all screens)
  */
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
 
     private val lockViewModel: LockViewModel by viewModels()
 
