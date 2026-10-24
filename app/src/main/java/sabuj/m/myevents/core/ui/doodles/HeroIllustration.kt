@@ -4,16 +4,17 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import sabuj.m.myevents.core.theme.AppColor
@@ -64,7 +65,7 @@ private fun DrawScope.drawCalendar(
     drawOval(
         color      = doodle.copy(alpha = 0.12f),
         topLeft    = Offset(calLeft + calW * 0.1f, calBottom - s * 0.03f),
-        size       = androidx.compose.ui.geometry.Size(calW * 0.8f, s * 0.06f),
+        size       = Size(calW * 0.8f, s * 0.06f),
     )
 
     // Left leaf sprig (bottom-left)
@@ -88,7 +89,7 @@ private fun DrawScope.drawCalendar(
     // Calendar body (white/surface rounded rectangle)
     val bodyPath = Path().apply {
         addRoundRect(
-            androidx.compose.ui.geometry.RoundRect(
+            RoundRect(
                 left   = calLeft,   top    = calTop,
                 right  = calRight,  bottom = calBottom,
                 radiusX = cornerR,  radiusY = cornerR,
@@ -100,13 +101,10 @@ private fun DrawScope.drawCalendar(
     // Top strip (primary, same rounded top, flat bottom)
     val stripPath = Path().apply {
         addRoundRect(
-            androidx.compose.ui.geometry.RoundRect(
-                left   = calLeft,          top    = calTop,
-                right  = calRight,         bottom = calTop + stripH,
-                topLeftRadius  = androidx.compose.ui.geometry.CornerRadius(cornerR),
-                topRightRadius = androidx.compose.ui.geometry.CornerRadius(cornerR),
-                bottomLeftRadius  = androidx.compose.ui.geometry.CornerRadius(0f),
-                bottomRightRadius = androidx.compose.ui.geometry.CornerRadius(0f),
+            RoundRect(
+                rect = Rect(calLeft, calTop, calRight, calTop + stripH),
+                topLeft = CornerRadius(cornerR),
+                topRight = CornerRadius(cornerR),
             )
         )
     }
@@ -136,7 +134,7 @@ private fun DrawScope.drawCalendar(
     drawRect(
         color   = primary.copy(alpha = 0.55f),
         topLeft = Offset(calRight - edgeW, calTop + cornerR),
-        size    = androidx.compose.ui.geometry.Size(edgeW, calH - cornerR),
+        size    = Size(edgeW, calH - cornerR),
     )
 
     // Floating small hearts

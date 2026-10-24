@@ -6,7 +6,7 @@ import androidx.compose.material.icons.rounded.AccountBalanceWallet
 import androidx.compose.material.icons.rounded.AssignmentTurnedIn
 import androidx.compose.material.icons.rounded.BarChart
 import androidx.compose.material.icons.rounded.BeachAccess
-import androidx.compose.material.icons.rounded.Briefcase
+import androidx.compose.material.icons.rounded.Work
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.CardGiftcard
 import androidx.compose.material.icons.rounded.Celebration
@@ -89,5 +89,5 @@ enum class BookingIcon(
     Jewellery(Icons.Rounded.Favorite),    // bk-jewellery
     Clothing(Icons.Rounded.Favorite),     // bk-clothing
     Cards(Icons.Rounded.CardGiftcard),    // bk-cards
-    Other(Icons.Rounded.Briefcase),       // bk-other
+    Other(Icons.Rounded.Work),            // bk-other
 }

@@ -41,6 +41,7 @@ import sabuj.m.myevents.core.theme.AppColor
 import sabuj.m.myevents.core.theme.AppTheme
 import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
+import sabuj.m.myevents.core.theme.display
 import sabuj.m.myevents.core.theme.numberL
 import sabuj.m.myevents.core.theme.titleL
 import sabuj.m.myevents.core.ui.doodles.BgBlobs
