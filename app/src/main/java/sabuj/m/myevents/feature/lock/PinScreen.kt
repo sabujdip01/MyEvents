@@ -109,7 +109,7 @@ fun PinScreen(
             // Title
             Text(
                 text      = title,
-                style     = titleL,
+                style     = display,
                 color     = AppColor.text,
                 textAlign = TextAlign.Center,
             )
@@ -203,7 +203,7 @@ private fun PinKeypad(
         verticalArrangement   = Arrangement.spacedBy(Spacing.md),
     ) {
         rows.forEach { row ->
-            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.lg)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xl3)) {
                 row.forEach { digit ->
                     PinKey(
                         label   = digit.toString(),
@@ -214,7 +214,7 @@ private fun PinKeypad(
             }
         }
         // Bottom row: fingerprint | 0 | backspace
-        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.lg)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xl3)) {
             // Fingerprint (unlock) or empty (setup)
             PinKey(
                 icon    = if (showFingerprint) Icons.Rounded.Fingerprint else null,
