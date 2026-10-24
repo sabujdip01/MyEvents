@@ -24,8 +24,6 @@ fun AppNavHost(
     val backStack by navController.currentBackStackEntryAsState()
     val currentRoute = backStack?.destination?.route ?: Routes.HOME
 
-    val openDrawer = LocalOpenDrawer.current
-
     AppDrawer(
         currentRoute = currentRoute,
         onNavigate   = { route ->
@@ -38,6 +36,9 @@ fun AppNavHost(
             }
         },
     ) {
+        // Read INSIDE the content lambda — AppDrawer provides LocalOpenDrawer here
+        val openDrawer = LocalOpenDrawer.current
+
         NavHost(
             navController    = navController,
             startDestination = Routes.HOME,
