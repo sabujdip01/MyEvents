@@ -61,7 +61,7 @@ fun SettingsScreen(
             Spacer(Modifier.height(Spacing.lg))
 
             SettingsSection("ABOUT") {
-                SettingsRow("Version", "V0.1.3") // TODO: read from BuildConfig.APP_VERSION
+                SettingsRow("Version", sabuj.m.myevents.BuildConfig.APP_VERSION)
             }
         }
     }

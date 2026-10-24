@@ -1,9 +1,26 @@
+import java.io.File
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.google.services)
+}
+
+/**
+ * Reads the current app version from version.md.
+ * Looks for the line starting with "Current: " and returns the version string
+ * (e.g. "V0.1.4"). Falls back to "V0.0.0" if the file or line is missing.
+ */
+fun readAppVersion(): String {
+    val versionFile = rootProject.file("version.md")
+    if (!versionFile.exists()) return "V0.0.0"
+    return versionFile.readLines()
+        .firstOrNull { it.startsWith("Current:") }
+        ?.removePrefix("Current:")
+        ?.trim()
+        ?: "V0.0.0"
 }
 
 android {
@@ -15,7 +32,10 @@ android {
         minSdk = 29
         targetSdk = 37
         versionCode = 1
-        versionName = "1.0"
+        versionName = readAppVersion()
+
+        // Exposes the version to Kotlin code as BuildConfig.APP_VERSION
+        buildConfigField("String", "APP_VERSION", "\"${readAppVersion()}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
