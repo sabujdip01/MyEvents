@@ -49,26 +49,39 @@ val LocalAppColors = staticCompositionLocalOf<AppColors> {
 // Fixed status colours (identical in every palette, design.md 3.3)
 // ---------------------------------------------------------------------------
 
-internal val StatusLight = object {
-    val danger           = Color(0xFFDC2626)
-    val dangerContainer  = Color(0xFFFEE2E2)
-    val onDangerContainer= Color(0xFF7F1D1D)
-    val success          = Color(0xFF16A34A)
-    val successContainer = Color(0xFFDCFCE7)
-    val onSuccessContainer= Color(0xFF14532D)
-    val warning          = Color(0xFFD97706)
-    val warningContainer = Color(0xFFFEF3C7)
-    val onWarningContainer= Color(0xFF78350F)
-}
+/** Named holder so Kotlin can resolve properties when assigned to a local val. */
+internal data class StatusColors(
+    val danger: Color,
+    val dangerContainer: Color,
+    val onDangerContainer: Color,
+    val success: Color,
+    val successContainer: Color,
+    val onSuccessContainer: Color,
+    val warning: Color,
+    val warningContainer: Color,
+    val onWarningContainer: Color,
+)
 
-internal val StatusDark = object {
-    val danger           = Color(0xFFF87171)
-    val dangerContainer  = Color(0xFF3F1214)
-    val onDangerContainer= Color(0xFFFECACA)
-    val success          = Color(0xFF4ADE80)
-    val successContainer = Color(0xFF0F3A22)
-    val onSuccessContainer= Color(0xFFBBF7D0)
-    val warning          = Color(0xFFFBBF24)
-    val warningContainer = Color(0xFF3D2A06)
-    val onWarningContainer= Color(0xFFFDE68A)
-}
+internal val StatusLight = StatusColors(
+    danger             = Color(0xFFDC2626),
+    dangerContainer    = Color(0xFFFEE2E2),
+    onDangerContainer  = Color(0xFF7F1D1D),
+    success            = Color(0xFF16A34A),
+    successContainer   = Color(0xFFDCFCE7),
+    onSuccessContainer = Color(0xFF14532D),
+    warning            = Color(0xFFD97706),
+    warningContainer   = Color(0xFFFEF3C7),
+    onWarningContainer = Color(0xFF78350F),
+)
+
+internal val StatusDark = StatusColors(
+    danger             = Color(0xFFF87171),
+    dangerContainer    = Color(0xFF3F1214),
+    onDangerContainer  = Color(0xFFFECACA),
+    success            = Color(0xFF4ADE80),
+    successContainer   = Color(0xFF0F3A22),
+    onSuccessContainer = Color(0xFFBBF7D0),
+    warning            = Color(0xFFFBBF24),
+    warningContainer   = Color(0xFF3D2A06),
+    onWarningContainer = Color(0xFFFDE68A),
+)
