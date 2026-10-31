@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import sabuj.m.myevents.feature.bookings.BookingsScreen
 import sabuj.m.myevents.feature.events.EventsScreen
 import sabuj.m.myevents.feature.home.HomeScreen
 import sabuj.m.myevents.feature.placeholder.PlaceholderScreen
@@ -55,7 +56,7 @@ fun AppNavHost(
                 EventsScreen(onMenuClick = openDrawer)
             }
             composable(Routes.BOOKINGS) {
-                PlaceholderScreen(title = "Bookings", onMenuClick = openDrawer)
+                BookingsScreen(onMenuClick = openDrawer)
             }
             composable(Routes.EXPENSES) {
                 PlaceholderScreen(title = "Expenses", onMenuClick = openDrawer)

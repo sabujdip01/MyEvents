@@ -2,6 +2,8 @@ package sabuj.m.myevents.core.preview
 
 import sabuj.m.myevents.core.icons.BookingIcon
 import sabuj.m.myevents.core.icons.EventIcon
+import sabuj.m.myevents.domain.model.Booking
+import sabuj.m.myevents.domain.model.BookingPayment
 import sabuj.m.myevents.domain.model.Event
 import sabuj.m.myevents.domain.model.SyncState
 import java.time.LocalDate
@@ -37,7 +39,7 @@ object PreviewData {
     /** A handful of sample [Event]s for calendar previews. */
     val sampleEvents: List<Event> = listOf(
         Event(
-            id               = UUID.randomUUID().toString(),
+            id               = "evt-preview-1",
             title            = "Engagement",
             eventName        = "Engagement",
             date             = LocalDate.now().plusDays(10),
@@ -49,7 +51,7 @@ object PreviewData {
             syncState        = SyncState.PENDING,
         ),
         Event(
-            id               = UUID.randomUUID().toString(),
+            id               = "evt-preview-2",
             title            = "Riya & Raj Wedding",
             eventName        = "Wedding",
             date             = LocalDate.now().plusDays(45),
@@ -64,4 +66,44 @@ object PreviewData {
 
     val sampleEventsByDate: Map<Long, Event> =
         sampleEvents.associateBy { it.date.toEpochDay() }
+
+    /** Sample payments for the booking preview. */
+    private val samplePayments: List<BookingPayment> = listOf(
+        BookingPayment(
+            id          = "pay-preview-1",
+            bookingId   = "bk-preview-1",
+            date        = LocalDate.now().minusDays(20),
+            amountPaise = 20_000_00L,
+            note        = "Advance",
+            createdAt   = System.currentTimeMillis(),
+            updatedAt   = System.currentTimeMillis(),
+        ),
+        BookingPayment(
+            id          = "pay-preview-2",
+            bookingId   = "bk-preview-1",
+            date        = LocalDate.now().minusDays(5),
+            amountPaise = 20_000_00L,
+            note        = "Second instalment",
+            createdAt   = System.currentTimeMillis(),
+            updatedAt   = System.currentTimeMillis(),
+        ),
+    )
+
+    /** A sample [Booking] with two payments for preview composables. */
+    val sampleBooking: Booking = Booking(
+        id               = "bk-preview-1",
+        eventId          = "evt-preview-2",
+        title            = "Photography",
+        bookingType      = "Camera",
+        bookingIcon      = BookingIcon.Camera,
+        contactName      = "Rahul Sharma",
+        phone            = "9876543210",
+        totalAmountPaise = 80_000_00L,
+        nextDueDate      = LocalDate.now().plusDays(15),
+        payments         = samplePayments,
+        createdAt        = System.currentTimeMillis(),
+        updatedAt        = System.currentTimeMillis(),
+        syncState        = SyncState.PENDING,
+        deleted          = false,
+    )
 }
