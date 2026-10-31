@@ -1,9 +1,10 @@
 # Version History
 
-Current: V0.1.7
+Current: V0.2.1
 
 | Version | Phase | Build | Commit     | Summary                                                                                             |
 | ------- | ----- | ----- |------------|-----------------------------------------------------------------------------------------------------|
+| V0.2.1  | 2     | 1     | —          | Domain models (Event, HomeSummary, SyncState), Room entity, DAO, DB, repository impl               |
 | V0.1.7  | 1     | 7     | bfafa4b    | fix(lock): add missing display typography import in PinScreen.kt                                    |
 | V0.1.6  | 1     | 6     | 7561838    | Fix BiometricPrompt (FragmentActivity) + sequential shake animation on wrong PIN                    |
 | V0.1.5h | 1     | 5h    | 27cd86b    | Read LocalOpenDrawer inside AppDrawer content lambda (S1-10 drawer fix)                             |
