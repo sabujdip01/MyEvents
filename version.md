@@ -1,10 +1,11 @@
 # Version History
 
-Current: V0.2.2
+Current: V0.2.3
 
 | Version | Phase | Build | Commit     | Summary                                                                                             |
 | ------- | ----- | ----- |------------|-----------------------------------------------------------------------------------------------------|
-| V0.2.2  | 2     | 2     | —          | Hilt DatabaseModule + RepositoryModule; binds EventRepository                                      |
+| V0.2.3  | 2     | 3     | —          | Use cases: ObserveEvents, AddEvent, EditEvent, SoftDelete/Restore/HardDelete, ObserveHomeSummary   |
+| V0.2.2  | 2     | 2     | 7575420    | Hilt DatabaseModule + RepositoryModule; binds EventRepository                                      |
 | V0.2.1  | 2     | 1     | 8795e3d    | Domain models (Event, HomeSummary, SyncState), Room entity, DAO, DB, repository impl               |
 | V0.1.7  | 1     | 7     | bfafa4b    | fix(lock): add missing display typography import in PinScreen.kt                                    |
 | V0.1.6  | 1     | 6     | 7561838    | Fix BiometricPrompt (FragmentActivity) + sequential shake animation on wrong PIN                    |
