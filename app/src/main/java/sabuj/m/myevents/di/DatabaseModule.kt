@@ -8,6 +8,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import sabuj.m.myevents.data.db.AppDatabase
+import sabuj.m.myevents.data.db.dao.BookingDao
 import sabuj.m.myevents.data.db.dao.EventDao
 import javax.inject.Singleton
 
@@ -26,9 +27,13 @@ object DatabaseModule {
             context,
             AppDatabase::class.java,
             "myevents.db",
-        ).build()
+        )
+            .addMigrations(AppDatabase.MIGRATION_1_2)
+            .build()
 
     @Provides
     fun provideEventDao(db: AppDatabase): EventDao = db.eventDao()
-}
 
+    @Provides
+    fun provideBookingDao(db: AppDatabase): BookingDao = db.bookingDao()
+}
