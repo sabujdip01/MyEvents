@@ -1,10 +1,11 @@
 # Version History
 
-Current: V0.2.4
+Current: V0.2.5
 
 | Version | Phase | Build | Commit     | Summary                                                                                             |
 | ------- | ----- | ----- |------------|-----------------------------------------------------------------------------------------------------|
-| V0.2.4  | 2     | 4     | —          | EventsScreen: calendar pager, details sheet, add/edit form, delete dialog, ViewModel               |
+| V0.2.5  | 2     | 5     | —          | Wire EventsScreen into NavHost; update PreviewData; mark Phase 2 complete in phases.md              |
+| V0.2.4  | 2     | 4     | 210e691    | EventsScreen: calendar pager, details sheet, add/edit form, delete dialog, ViewModel               |
 | V0.2.3  | 2     | 3     | 6169408    | Use cases: ObserveEvents, AddEvent, EditEvent, SoftDelete/Restore/HardDelete, ObserveHomeSummary   |
 | V0.2.2  | 2     | 2     | 7575420    | Hilt DatabaseModule + RepositoryModule; binds EventRepository                                      |
 | V0.2.1  | 2     | 1     | 8795e3d    | Domain models (Event, HomeSummary, SyncState), Room entity, DAO, DB, repository impl               |
