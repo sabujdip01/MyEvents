@@ -1,10 +1,11 @@
 # Version History
 
-Current: V0.2.3
+Current: V0.2.4
 
 | Version | Phase | Build | Commit     | Summary                                                                                             |
 | ------- | ----- | ----- |------------|-----------------------------------------------------------------------------------------------------|
-| V0.2.3  | 2     | 3     | —          | Use cases: ObserveEvents, AddEvent, EditEvent, SoftDelete/Restore/HardDelete, ObserveHomeSummary   |
+| V0.2.4  | 2     | 4     | —          | EventsScreen: calendar pager, details sheet, add/edit form, delete dialog, ViewModel               |
+| V0.2.3  | 2     | 3     | 6169408    | Use cases: ObserveEvents, AddEvent, EditEvent, SoftDelete/Restore/HardDelete, ObserveHomeSummary   |
 | V0.2.2  | 2     | 2     | 7575420    | Hilt DatabaseModule + RepositoryModule; binds EventRepository                                      |
 | V0.2.1  | 2     | 1     | 8795e3d    | Domain models (Event, HomeSummary, SyncState), Room entity, DAO, DB, repository impl               |
 | V0.1.7  | 1     | 7     | bfafa4b    | fix(lock): add missing display typography import in PinScreen.kt                                    |
