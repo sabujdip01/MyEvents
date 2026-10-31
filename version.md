@@ -1,9 +1,13 @@
 # Version History
 
-Current: V0.2.5
+Current: V0.3.4
 
 | Version | Phase | Build | Commit     | Summary                                                                                             |
 | ------- | ----- | ----- |------------|-----------------------------------------------------------------------------------------------------|
+| V0.3.4  | 3     | 4     | —          | chore(phase): complete phase 3 — Bookings; testcases appended                                      |
+| V0.3.3  | 3     | 3     | a2e7819    | BookingsScreen, BookingCard, AddEditBookingSheet, PaymentDialog, DeleteBookingDialog, NavHost wired |
+| V0.3.2  | 3     | 2     | 889192a    | ObserveBookings, AddBooking, EditBooking, DeleteBooking, AddPayment use cases                       |
+| V0.3.1  | 3     | 1     | b15697a    | BookingEntity, BookingPaymentEntity, BookingDao, AppDatabase v2 migration, RepositoryImpl           |
 | V0.2.5  | 2     | 5     | —          | Wire EventsScreen into NavHost; update PreviewData; mark Phase 2 complete in phases.md              |
 | V0.2.4  | 2     | 4     | 210e691    | EventsScreen: calendar pager, details sheet, add/edit form, delete dialog, ViewModel               |
 | V0.2.3  | 2     | 3     | 6169408    | Use cases: ObserveEvents, AddEvent, EditEvent, SoftDelete/Restore/HardDelete, ObserveHomeSummary   |

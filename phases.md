@@ -89,12 +89,12 @@ Dependencies: 0 → 1 → 2 → (3, 4, 5 in order) → 6 → 7 → 8 → 9 → 1
 
 **Goal:** vendor bookings with part-payments.
 
-- [ ] Booking cards: title (top 10%), event icon (left 15% of remainder), amount/budget, booking icon (right 10%), per-card gradients
-- [ ] FAB opens Add Booking popup: title, booking name, booking icon, for-event dropdown (name and icon), contact person, phone, total, paid, amount left, next due date
-- [ ] Payment log per booking (date, amount, note); paid = sum; amount left = total − paid
-- [ ] Event dropdown reads from Events
-- [ ] Long-press card: edit mode with delete icons
-- [ ] Booking count per event feeds the Events details popup
+- [x] Booking cards: title (top 10%), event icon (left 15% of remainder), amount/budget, booking icon (right 10%), per-card gradients
+- [x] FAB opens Add Booking popup: title, booking name, booking icon, for-event dropdown (name and icon), contact person, phone, total, paid, amount left, next due date
+- [x] Payment log per booking (date, amount, note); paid = sum; amount left = total − paid
+- [x] Event dropdown reads from Events
+- [x] Long-press card: edit mode with delete icons
+- [x] Booking count per event feeds the Events details popup
 
 **Done when:** bookings can be added, paid in parts, edited and deleted, and amounts update everywhere they are shown.
 
