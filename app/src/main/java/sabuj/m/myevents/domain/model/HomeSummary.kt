@@ -1,0 +1,36 @@
+package sabuj.m.myevents.domain.model
+
+import java.time.LocalDate
+
+/**
+ * Derived summary used by the Home screen dashboard.
+ * All amounts in paise. Counts are raw numbers.
+ * Never stored — computed by [ObserveHomeSummaryUseCase].
+ */
+data class HomeSummary(
+    val events: List<EventSummary> = emptyList(),
+    /** Total budget across all events in paise. */
+    val totalBudgetPaise: Long = 0L,
+    /** Total spent (booking payments + expenses paid) in paise. */
+    val totalSpentPaise: Long = 0L,
+    /** Total pending dues (booking leftover + expense dues) in paise. */
+    val totalDuesPaise: Long = 0L,
+    /** Sum of expected invitee counts. */
+    val totalGuests: Int = 0,
+    /** Number of invitee rows (families). */
+    val totalFamilies: Int = 0,
+    /** Number of expense/checklist items still pending. */
+    val itemsPending: Int = 0,
+    /** Bookings completed vs total. */
+    val bookingsDone: Int = 0,
+    val bookingsTotal: Int = 0,
+)
+
+/** Per-event mini-summary for the Home upcoming-events card. */
+data class EventSummary(
+    val id: String,
+    val title: String,
+    val date: LocalDate,
+    val icon: sabuj.m.myevents.core.icons.EventIcon,
+)
+

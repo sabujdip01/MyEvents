@@ -2,7 +2,10 @@ package sabuj.m.myevents.core.preview
 
 import sabuj.m.myevents.core.icons.BookingIcon
 import sabuj.m.myevents.core.icons.EventIcon
+import sabuj.m.myevents.domain.model.Event
+import sabuj.m.myevents.domain.model.SyncState
 import java.time.LocalDate
+import java.util.UUID
 
 /**
  * Fake data used exclusively in @Preview composables.
@@ -30,4 +33,35 @@ object PreviewData {
 
     val sampleTaskTitle = "Book mandap decorator"
     val sampleTaskDue   = LocalDate.now().plusDays(10)
+
+    /** A handful of sample [Event]s for calendar previews. */
+    val sampleEvents: List<Event> = listOf(
+        Event(
+            id               = UUID.randomUUID().toString(),
+            title            = "Engagement",
+            eventName        = "Engagement",
+            date             = LocalDate.now().plusDays(10),
+            icon             = EventIcon.Engagement,
+            budgetPaise      = 2_00_000_00L,
+            inviteesRequired = true,
+            createdAt        = System.currentTimeMillis(),
+            updatedAt        = System.currentTimeMillis(),
+            syncState        = SyncState.PENDING,
+        ),
+        Event(
+            id               = UUID.randomUUID().toString(),
+            title            = "Riya & Raj Wedding",
+            eventName        = "Wedding",
+            date             = LocalDate.now().plusDays(45),
+            icon             = EventIcon.Wedding,
+            budgetPaise      = 5_00_000_00L,
+            inviteesRequired = true,
+            createdAt        = System.currentTimeMillis(),
+            updatedAt        = System.currentTimeMillis(),
+            syncState        = SyncState.PENDING,
+        ),
+    )
+
+    val sampleEventsByDate: Map<Long, Event> =
+        sampleEvents.associateBy { it.date.toEpochDay() }
 }
