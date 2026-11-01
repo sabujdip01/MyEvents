@@ -204,12 +204,12 @@ Dependencies: 0 → 1 → 2 → (3, 4, 5 in order) → 6 → 7 → 8 → 9 → 1
 
 **Goal:** quietly back up and sync data when online.
 
-- [ ] Firebase project, Anonymous Auth, Firestore rules locked to the signed-in anonymous user
-- [ ] Sync worker: upload pending local changes, pull remote changes
-- [ ] Conflict rule: last write wins by `updatedAt`
-- [ ] Sync state per row (pending, synced, failed) with retry and back-off
-- [ ] Offline test: add data in airplane mode, reconnect, confirm upload
-- [ ] No backup/restore UI (single phone)
+- [x] Firebase project, Anonymous Auth, Firestore rules locked to the signed-in anonymous user
+- [x] Sync worker: upload pending local changes, pull remote changes
+- [x] Conflict rule: last write wins by `updatedAt`
+- [x] Sync state per row (pending, synced, failed) with retry and back-off
+- [x] Offline test: add data in airplane mode, reconnect, confirm upload
+- [x] No backup/restore UI (single phone)
 
 **Done when:** offline edits reach Firestore after reconnecting, with no user action and no duplicates.
 

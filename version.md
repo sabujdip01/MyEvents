@@ -1,9 +1,10 @@
 # Version History
 
-Current: V0.8.1
+Current: V0.9.1
 
 | Version | Phase | Build | Commit     | Summary                                                                                             |
 | ------- | ----- | ----- |------------|-----------------------------------------------------------------------------------------------------|
+| V0.9.1  | 9     | 1     | —          | feat(sync): Firebase anonymous auth, Firestore background sync worker, offline-first retry          |
 | V0.8.1  | 8     | 1     | —          | feat(settings/export): theme/palette selector, Change PIN, notification toggles, sample data, CSV export |
 | V0.7.1  | 7     | 1     | —          | feat(notifications/widget): notification channels, WorkManager reminder worker, Glance widget       |
 | V0.6.1  | 6     | 1     | —          | feat(checklist/home): checklist per-event tasks, live Home dashboard 7-card wiring                   |

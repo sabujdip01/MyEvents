@@ -139,3 +139,14 @@
 | S8-06 | Clear sample data | Tap "Clear Demo Data"                                                                  | Removes all sample data without affecting user data                             | [Works] | [Works] | Pass |
 | S8-07 | CSV export        | Tap "Export Event Data (CSV)" → select Event → tap Export                              | Generates UTF-8 BOM CSV for Expenses & Invitees and opens system share sheet    | [Works] | [Works] | Pass |
 | S8-08 | Version           | Check Settings → About                                                                 | Displays current app version from `BuildConfig.APP_VERSION`                     | [Works] | [Works] | Pass |
+
+## Sprint 9: Firebase Sync (V0.9.1)
+
+| ID    | Area              | Steps                                                                                  | Expected result                                                                 | Light | Dark | Status  |
+| ----- | ----------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ----- | ---- | ------- |
+| S9-01 | Anonymous Auth    | Launch app online                                                                      | Firebase Anonymous Auth signs in user seamlessly in background                  | [Works] | [Works] | Pass |
+| S9-02 | Pending state     | Add/Edit events, bookings, expenses, invitees, gifts, or tasks                         | Local rows stored with syncState = PENDING                                      | [Works] | [Works] | Pass |
+| S9-03 | Firestore upload  | Connect to network                                                                     | SyncWorker uploads pending documents to Firestore under user collection          | [Works] | [Works] | Pass |
+| S9-04 | Synced state      | After successful sync                                                                  | Local rows updated with syncState = SYNCED                                      | [Works] | [Works] | Pass |
+| S9-05 | Offline mode      | Add/Edit data in Airplane mode                                                         | Full app functionality maintained offline without blocking or crashes            | [Works] | [Works] | Pass |
+| S9-06 | Auto reconnect    | Turn off Airplane mode                                                                 | SyncWorker automatically triggers upload upon network connection                | [Works] | [Works] | Pass |

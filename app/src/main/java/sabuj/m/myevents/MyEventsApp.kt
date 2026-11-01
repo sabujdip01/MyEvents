@@ -5,6 +5,7 @@ import dagger.hilt.android.HiltAndroidApp
 
 import sabuj.m.myevents.core.util.NotificationHelper
 import sabuj.m.myevents.data.worker.NotificationScheduler
+import sabuj.m.myevents.data.worker.SyncWorker
 
 /**
  * Application entry point. Triggers Hilt's code generation and sets up
@@ -16,5 +17,6 @@ class MyEventsApp : Application() {
         super.onCreate()
         NotificationHelper.createNotificationChannels(this)
         NotificationScheduler.schedulePeriodicReminders(this)
+        SyncWorker.scheduleSync(this)
     }
 }
