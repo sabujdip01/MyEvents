@@ -1,5 +1,7 @@
 package sabuj.m.myevents.feature.settings
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,11 +12,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -28,7 +36,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import sabuj.m.myevents.core.preview.LightDarkPreviews
@@ -41,6 +52,7 @@ import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.labelM
 import sabuj.m.myevents.core.theme.labelS
+import sabuj.m.myevents.core.theme.paletteColors
 import sabuj.m.myevents.core.theme.titleL
 import sabuj.m.myevents.core.theme.titleM
 import sabuj.m.myevents.core.ui.AppButton
@@ -159,19 +171,48 @@ fun SettingsScreenContent(
 
                     Text("Colour Scheme", style = labelM, color = AppColor.text2)
                     Spacer(Modifier.height(Spacing.xs))
-                    Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-                        PaletteOptionRow("Palette A: Toxic Violet", isSelected = uiState.settings.paletteId == PaletteId.A) {
-                            onPaletteId(PaletteId.A)
-                        }
-                        PaletteOptionRow("Palette B: Machine Red", isSelected = uiState.settings.paletteId == PaletteId.B) {
-                            onPaletteId(PaletteId.B)
-                        }
-                        PaletteOptionRow("Palette C: Hyper Cobalt", isSelected = uiState.settings.paletteId == PaletteId.C) {
-                            onPaletteId(PaletteId.C)
-                        }
-                        PaletteOptionRow("Palette D: Dark Aubergine", isSelected = uiState.settings.paletteId == PaletteId.D) {
-                            onPaletteId(PaletteId.D)
-                        }
+
+                    // 4 Palette Swatch Tiles
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        PaletteTileCard(
+                            paletteId      = PaletteId.A,
+                            name           = "Toxic Violet",
+                            primaryColor   = paletteColors(PaletteId.A, isDark = false).primary,
+                            containerColor = paletteColors(PaletteId.A, isDark = false).primaryContainer,
+                            isSelected     = uiState.settings.paletteId == PaletteId.A,
+                            onClick        = { onPaletteId(PaletteId.A) },
+                            modifier       = Modifier.weight(1f),
+                        )
+                        PaletteTileCard(
+                            paletteId      = PaletteId.B,
+                            name           = "Machine Red",
+                            primaryColor   = paletteColors(PaletteId.B, isDark = false).primary,
+                            containerColor = paletteColors(PaletteId.B, isDark = false).primaryContainer,
+                            isSelected     = uiState.settings.paletteId == PaletteId.B,
+                            onClick        = { onPaletteId(PaletteId.B) },
+                            modifier       = Modifier.weight(1f),
+                        )
+                        PaletteTileCard(
+                            paletteId      = PaletteId.C,
+                            name           = "Hyper Cobalt",
+                            primaryColor   = paletteColors(PaletteId.C, isDark = false).primary,
+                            containerColor = paletteColors(PaletteId.C, isDark = false).primaryContainer,
+                            isSelected     = uiState.settings.paletteId == PaletteId.C,
+                            onClick        = { onPaletteId(PaletteId.C) },
+                            modifier       = Modifier.weight(1f),
+                        )
+                        PaletteTileCard(
+                            paletteId      = PaletteId.D,
+                            name           = "Dark Aubergine",
+                            primaryColor   = paletteColors(PaletteId.D, isDark = false).primary,
+                            containerColor = paletteColors(PaletteId.D, isDark = false).primaryContainer,
+                            isSelected     = uiState.settings.paletteId == PaletteId.D,
+                            onClick        = { onPaletteId(PaletteId.D) },
+                            modifier       = Modifier.weight(1f),
+                        )
                     }
                 }
 
@@ -264,6 +305,80 @@ fun SettingsScreenContent(
 }
 
 @Composable
+private fun PaletteTileCard(
+    paletteId: PaletteId,
+    name: String,
+    primaryColor: Color,
+    containerColor: Color,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+            .clickable(onClick = onClick)
+            .padding(vertical = Spacing.xs),
+    ) {
+        Box(
+            modifier = Modifier
+                .width(72.dp)
+                .height(96.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .border(
+                    width = if (isSelected) 2.5.dp else 1.dp,
+                    color = if (isSelected) AppColor.primary else AppColor.outlineVariant,
+                    shape = RoundedCornerShape(20.dp),
+                ),
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                // Top 56 dp is primary brand color
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .background(primaryColor),
+                )
+                // Bottom 40 dp is soft primaryContainer color
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(40.dp)
+                        .background(containerColor),
+                )
+            }
+
+            if (isSelected) {
+                Surface(
+                    shape = CircleShape,
+                    color = AppColor.primary,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(4.dp)
+                        .size(20.dp),
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = Icons.Rounded.Check,
+                            contentDescription = "Selected",
+                            tint = AppColor.onPrimary,
+                            modifier = Modifier.size(14.dp),
+                        )
+                    }
+                }
+            }
+        }
+        Spacer(Modifier.height(Spacing.xs))
+        Text(
+            text = name,
+            style = labelM,
+            color = if (isSelected) AppColor.primary else AppColor.text2,
+            textAlign = TextAlign.Center,
+        )
+    }
+}
+
+@Composable
 private fun ThemeOptionChip(
     label: String,
     isSelected: Boolean,
@@ -278,30 +393,6 @@ private fun ThemeOptionChip(
     ) {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(vertical = 10.dp)) {
             Text(text = label, style = labelL, color = if (isSelected) AppColor.primary else AppColor.text2)
-        }
-    }
-}
-
-@Composable
-private fun PaletteOptionRow(
-    label: String,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-) {
-    Surface(
-        onClick  = onClick,
-        shape    = RoundedCornerShape(Radius.field),
-        color    = if (isSelected) AppColor.primaryContainer else AppColor.surfaceVariant.copy(alpha = 0.5f),
-        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
-    ) {
-        Row(
-            modifier          = Modifier.padding(horizontal = Spacing.md, vertical = Spacing.sm),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(text = label, style = titleM, color = if (isSelected) AppColor.primary else AppColor.text, modifier = Modifier.weight(1f))
-            if (isSelected) {
-                Text(text = "Selected", style = labelM, color = AppColor.primary)
-            }
         }
     }
 }
