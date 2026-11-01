@@ -1,9 +1,10 @@
 # Version History
 
-Current: V0.10.0
+Current: V0.10.1
 
 | Version | Phase | Build | Commit    | Summary                                                                                             |
 | ------- | ----- | ----- |-----------|-----------------------------------------------------------------------------------------------------|
+| V0.10.1 | 10    | 2     | c9d80e9   | fix(security): resolve all security audit findings (SEC-001 through SEC-010)                        |
 | V0.10.0 | 10    | 1     | 5bc7e02   | chore(phase): complete phase 10 — UI/UX polish, accessibility, performance & release                |
 | V0.9.1  | 9     | 1     | 0731313   | feat(sync): Firebase anonymous auth, Firestore background sync worker, offline-first retry          |
 | V0.8.1  | 8     | 1     | c776125   | feat(settings/export): theme/palette selector, Change PIN, notification toggles, sample data, CSV export |

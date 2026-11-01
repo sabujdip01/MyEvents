@@ -123,6 +123,7 @@ class MainActivity : FragmentActivity() {
         val info = BiometricPrompt.PromptInfo.Builder()
             .setTitle("Unlock MyEvents")
             .setSubtitle("Use your fingerprint to continue")
+            .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
             .setNegativeButtonText("Use PIN")
             .build()
         prompt.authenticate(info)

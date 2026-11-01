@@ -31,6 +31,21 @@ class LockViewModel @Inject constructor(
     private val _state = MutableStateFlow(LockUiState())
     val state: StateFlow<LockUiState> = _state.asStateFlow()
 
+    init {
+        checkPersistedLockout()
+    }
+
+    private fun checkPersistedLockout() {
+        val lockoutUntil = pinStore.lockoutUntilEpochMs
+        val now = System.currentTimeMillis()
+        if (lockoutUntil > now) {
+            val secsLeft = ((lockoutUntil - now) / 1000L).toInt().coerceAtLeast(1)
+            startLockout(secsLeft)
+        } else {
+            _state.update { it.copy(failedAttempts = pinStore.failedAttempts) }
+        }
+    }
+
     // -----------------------------------------------------------------------
     // Derived helpers read once at init
     // -----------------------------------------------------------------------
@@ -87,6 +102,8 @@ class LockViewModel @Inject constructor(
             // Confirmation entry
             if (pin == s.setupFirstPin) {
                 pinStore.savePin(pinHasher.hash(pin))
+                pinStore.failedAttempts = 0
+                pinStore.lockoutUntilEpochMs = 0L
                 _state.update { it.copy(isUnlocked = true) }
             } else {
                 // Mismatch — shake and restart
@@ -102,17 +119,23 @@ class LockViewModel @Inject constructor(
     private fun verifyPin(pin: String) {
         val hash = pinStore.getHash() ?: return
         if (pinHasher.verify(pin, hash)) {
+            pinStore.failedAttempts = 0
+            pinStore.lockoutUntilEpochMs = 0L
             onUnlockSuccess()
         } else {
-            val newAttempts = _state.value.failedAttempts + 1
+            val newAttempts = pinStore.failedAttempts + 1
+            pinStore.failedAttempts = newAttempts
             if (newAttempts >= MAX_ATTEMPTS) {
-                startLockout()
+                val lockoutUntil = System.currentTimeMillis() + (LOCKOUT_SECS * 1000L)
+                pinStore.lockoutUntilEpochMs = lockoutUntil
+                startLockout(LOCKOUT_SECS.toInt())
             } else {
+                val remaining = MAX_ATTEMPTS - newAttempts
                 _state.update {
                     it.copy(
                         pin           = "",
                         failedAttempts = newAttempts,
-                        error         = "Incorrect PIN. ${MAX_ATTEMPTS - newAttempts} attempt${if (MAX_ATTEMPTS - newAttempts == 1) "" else "s"} remaining.",
+                        error         = "Incorrect PIN. $remaining attempt${if (remaining == 1) "" else "s"} remaining.",
                     )
                 }
             }
@@ -126,28 +149,44 @@ class LockViewModel @Inject constructor(
     /**
      * Re-locks the app when [LockEvent.ReLock] is received.
      * Only acts if a PIN is actually set (no PIN → no lock).
+     * Preserves failed attempts & lockout state.
      */
     private fun reLock() {
         if (pinStore.isPinSet) {
+            val now = System.currentTimeMillis()
+            val lockoutUntil = pinStore.lockoutUntilEpochMs
+            val isLockedOut = lockoutUntil > now
+            val secsLeft = if (isLockedOut) ((lockoutUntil - now) / 1000L).toInt().coerceAtLeast(1) else 0
+
             _state.update {
                 it.copy(
-                    isUnlocked     = false,
-                    pin            = "",
-                    error          = null,
-                    failedAttempts = 0,
-                    isLockedOut    = false,
+                    isUnlocked         = false,
+                    pin                = "",
+                    error              = null,
+                    failedAttempts     = pinStore.failedAttempts,
+                    isLockedOut        = isLockedOut,
+                    lockoutSecondsLeft = secsLeft,
                 )
+            }
+
+            if (isLockedOut) {
+                startLockout(secsLeft)
             }
         }
     }
 
-    private fun startLockout() {
-        _state.update { it.copy(pin = "", isLockedOut = true, lockoutSecondsLeft = LOCKOUT_SECS.toInt(), error = null) }
+    private fun startLockout(seconds: Int = LOCKOUT_SECS.toInt()) {
+        _state.update { it.copy(pin = "", isLockedOut = true, lockoutSecondsLeft = seconds, error = null) }
         viewModelScope.launch {
-            repeat(LOCKOUT_SECS.toInt()) {
+            repeat(seconds) {
                 delay(1_000)
-                _state.update { it.copy(lockoutSecondsLeft = it.lockoutSecondsLeft - 1) }
+                _state.update {
+                    val next = (it.lockoutSecondsLeft - 1).coerceAtLeast(0)
+                    it.copy(lockoutSecondsLeft = next)
+                }
             }
+            pinStore.failedAttempts = 0
+            pinStore.lockoutUntilEpochMs = 0L
             _state.update { it.copy(isLockedOut = false, failedAttempts = 0) }
         }
     }

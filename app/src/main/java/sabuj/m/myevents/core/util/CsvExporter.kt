@@ -18,7 +18,8 @@ object CsvExporter {
         invitees: List<Invitee>,
     ) {
         val fileName = "${eventTitle.replace("\\s+".toRegex(), "_")}_Export.csv"
-        val file = File(context.cacheDir, fileName)
+        val exportDir = File(context.cacheDir, "csv_exports").apply { mkdirs() }
+        val file = File(exportDir, fileName)
 
         val bom = "\uFEFF"
         val sb = StringBuilder()

@@ -62,8 +62,18 @@ class PinStore @Inject constructor(
     fun getBackgroundTime(): Long = prefs.getLong(KEY_BG_TIME, -1L)
 
     companion object {
-        private const val KEY_PIN_HASH  = "pin_hash"
-        private const val KEY_BIOMETRIC = "biometric_enabled"
-        private const val KEY_BG_TIME   = "background_time"
+        private const val KEY_PIN_HASH        = "pin_hash"
+        private const val KEY_BIOMETRIC       = "biometric_enabled"
+        private const val KEY_BG_TIME         = "background_time"
+        private const val KEY_FAILED_ATTEMPTS = "failed_attempts"
+        private const val KEY_LOCKOUT_UNTIL   = "lockout_until"
     }
+
+    var failedAttempts: Int
+        get() = prefs.getInt(KEY_FAILED_ATTEMPTS, 0)
+        set(value) { prefs.edit().putInt(KEY_FAILED_ATTEMPTS, value).apply() }
+
+    var lockoutUntilEpochMs: Long
+        get() = prefs.getLong(KEY_LOCKOUT_UNTIL, 0L)
+        set(value) { prefs.edit().putLong(KEY_LOCKOUT_UNTIL, value).apply() }
 }

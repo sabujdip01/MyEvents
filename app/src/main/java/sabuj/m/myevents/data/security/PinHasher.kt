@@ -32,9 +32,12 @@ class PinHasher @Inject constructor() {
         return Base64.encodeToString(bytes, Base64.NO_WRAP)
     }
 
-    /** Returns true if [pin] hashes to [storedHash]. */
-    fun verify(pin: String, storedHash: String): Boolean =
-        hash(pin) == storedHash
+    /** Returns true if [pin] hashes to [storedHash] using constant-time comparison. */
+    fun verify(pin: String, storedHash: String): Boolean {
+        val h1 = hash(pin).toByteArray(Charsets.UTF_8)
+        val h2 = storedHash.toByteArray(Charsets.UTF_8)
+        return java.security.MessageDigest.isEqual(h1, h2)
+    }
 
     // ---------------------------------------------------------------------------
     // Keystore helpers

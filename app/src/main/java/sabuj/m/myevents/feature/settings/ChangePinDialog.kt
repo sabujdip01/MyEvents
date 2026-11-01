@@ -42,6 +42,7 @@ fun ChangePinDialog(
     var newPin by remember { mutableStateOf("") }
     var confirmPin by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var failedAttempts by remember { mutableStateOf(0) }
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -118,7 +119,12 @@ fun ChangePinDialog(
                             } else {
                                 val success = onConfirm(currentPin, newPin)
                                 if (!success) {
-                                    errorMessage = "Current PIN is incorrect"
+                                    failedAttempts++
+                                    if (failedAttempts >= 3) {
+                                        onDismiss()
+                                    } else {
+                                        errorMessage = "Current PIN is incorrect (${3 - failedAttempts} attempts left)"
+                                    }
                                 }
                             }
                         },
