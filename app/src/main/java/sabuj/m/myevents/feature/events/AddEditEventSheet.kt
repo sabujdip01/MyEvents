@@ -30,9 +30,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -65,7 +64,8 @@ import java.time.ZoneId
 /**
  * Bottom sheet for adding or editing an event.
  * [existingEvent] null → Add mode; non-null → Edit mode.
- * [prefilledDate] is used as the initial date for Add mode.
+ * [prefilledDate] is the initial date; defaults to today in Add mode.
+ * [saveError] non-null shows an inline error (e.g. date already taken).
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -73,22 +73,31 @@ fun AddEditEventSheet(
     prefilledDate: LocalDate,
     existingEvent: Event?,
     onDismiss: () -> Unit,
+    saveError: String? = null,
     onSave: (title: String, eventName: String, date: LocalDate, icon: EventIcon, budgetPaise: Long, inviteesRequired: Boolean) -> Unit,
 ) {
     val isEdit = existingEvent != null
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
+    // Use today as default when prefilledDate is somehow null-equivalent (add from Home)
+    val defaultDate = if (existingEvent != null) existingEvent.date else prefilledDate
+
     // Form state
     var title by remember { mutableStateOf(existingEvent?.title ?: "") }
     var eventName by remember { mutableStateOf(existingEvent?.eventName ?: "") }
-    var selectedDate by remember { mutableStateOf(existingEvent?.date ?: prefilledDate) }
+    var selectedDate by remember { mutableStateOf(defaultDate) }
     var selectedIcon by remember { mutableStateOf(existingEvent?.icon ?: EventIcon.Wedding) }
-    var budgetText by remember { mutableStateOf(if (existingEvent != null) (existingEvent.budgetPaise / 100L).toString() else "") }
-    var inviteesRequired by remember { mutableStateOf(existingEvent?.inviteesRequired ?: false) }
+    // Budget stored as plain rupee string (digits only) for input; formatted for display
+    var budgetRupees by remember {
+        mutableStateOf(
+            if (existingEvent != null) (existingEvent.budgetPaise / 100L).toString() else ""
+        )
+    }
+    var inviteesRequired by remember { mutableStateOf(existingEvent?.inviteesRequired ?: true) }
     var showDatePicker by remember { mutableStateOf(false) }
 
     val isFormValid = title.isNotBlank() && eventName.isNotBlank()
-    val budgetPaise = budgetText.toLongOrNull()?.let { it * 100L } ?: 0L
+    val budgetPaise = budgetRupees.replace(",", "").toLongOrNull()?.let { it * 100L } ?: 0L
 
     ModalBottomSheet(
         onDismissRequest    = onDismiss,
@@ -103,19 +112,19 @@ fun AddEditEventSheet(
                 .padding(horizontal = Spacing.lg, vertical = Spacing.md),
             verticalArrangement = Arrangement.spacedBy(Spacing.lg),
         ) {
-            // Title bar
+            // Sheet title
             Text(
-                text  = if (isEdit) "Edit event" else "Add event",
+                text  = if (isEdit) "Edit Event" else "Add Event",
                 style = titleL,
                 color = AppColor.text,
             )
 
             // Title field
             AppTextField(
-                value       = title,
+                value         = title,
                 onValueChange = { title = it },
-                label       = "Title",
-                placeholder = "e.g. Riya & Raj",
+                label         = "Event title",
+                placeholder   = "e.g. Riya & Raj",
             )
 
             // Event name field
@@ -126,7 +135,7 @@ fun AddEditEventSheet(
                 placeholder   = "e.g. Wedding",
             )
 
-            // Date picker (read-only field)
+            // Date picker (read-only field, opens DatePickerDialog on tap)
             AppTextField(
                 value         = DateUtils.formatDisplay(selectedDate),
                 onValueChange = {},
@@ -142,96 +151,118 @@ fun AddEditEventSheet(
                 },
             )
 
-            // Event icon picker
-            Text(text = "Event icon", style = labelM, color = AppColor.text2)
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement   = Arrangement.spacedBy(8.dp),
-            ) {
-                EventIcon.entries.forEach { icon ->
-                    val isSelected = icon == selectedIcon
-                    Box(
-                        modifier = Modifier
-                            .size(52.dp)
-                            .clip(RoundedCornerShape(14.dp))
-                            .background(if (isSelected) AppColor.primaryContainer else AppColor.surfaceVariant)
-                            .border(
-                                width = if (isSelected) 2.dp else 0.dp,
-                                color = if (isSelected) AppColor.primary else AppColor.surface,
-                                shape = RoundedCornerShape(14.dp),
+            // Event icon picker — FlowRow of 52dp chips
+            Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                Text(text = "Event icon", style = labelM, color = AppColor.text2)
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                    verticalArrangement   = Arrangement.spacedBy(Spacing.sm),
+                ) {
+                    EventIcon.entries.forEach { icon ->
+                        val isSelected = icon == selectedIcon
+                        Box(
+                            modifier = Modifier
+                                .size(52.dp)
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(
+                                    if (isSelected) AppColor.primaryContainer else AppColor.surfaceVariant
+                                )
+                                .border(
+                                    width = if (isSelected) 2.dp else 0.dp,
+                                    color = if (isSelected) AppColor.primary else AppColor.surface,
+                                    shape = RoundedCornerShape(14.dp),
+                                )
+                                .clickable { selectedIcon = icon },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            IconChip(
+                                icon               = icon.fallback,
+                                contentDescription = icon.name,
+                                size               = IconChipSize.Default,
+                                containerColor     = if (isSelected) AppColor.primaryContainer else AppColor.surfaceVariant,
+                                iconColor          = if (isSelected) AppColor.primary else AppColor.text2,
                             )
-                            .clickable { selectedIcon = icon },
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        IconChip(
-                            icon               = icon.fallback,
-                            contentDescription = icon.name,
-                            size               = IconChipSize.Default,
-                            containerColor     = if (isSelected) AppColor.primaryContainer else AppColor.surfaceVariant,
-                            iconColor          = if (isSelected) AppColor.primary else AppColor.text2,
-                        )
+                        }
                     }
                 }
             }
 
-            // Budget field
+            // Budget field — digits only; display with Indian grouping (₹ prefix not shown in field)
             AppTextField(
-                value         = budgetText,
-                onValueChange = { budgetText = it.filter { c -> c.isDigit() } },
+                value         = budgetRupees,
+                onValueChange = { raw ->
+                    // Keep only digits; cap length at 10 to avoid overflow
+                    budgetRupees = raw.filter { it.isDigit() }.take(10)
+                },
                 label         = "Budget (₹)",
                 placeholder   = "0",
                 keyboardType  = KeyboardType.Number,
+                prefix        = { Text("₹", style = bodyM, color = AppColor.text2) },
             )
 
-            // Invitees required segmented control
-            Text(text = "Invitees required", style = labelM, color = AppColor.text2)
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                listOf("No", "Yes").forEachIndexed { idx, label ->
-                    val isSelected = (idx == 1) == inviteesRequired
-                    SegmentedButton(
-                        selected = isSelected,
-                        onClick  = { inviteesRequired = idx == 1 },
-                        shape    = SegmentedButtonDefaults.itemShape(idx, 2),
-                        colors   = SegmentedButtonDefaults.colors(
-                            activeContainerColor   = AppColor.primaryContainer,
-                            activeContentColor     = AppColor.onPrimaryContainer,
-                            inactiveContainerColor = AppColor.surfaceVariant,
-                            inactiveContentColor   = AppColor.text2,
-                        ),
-                    ) {
-                        Text(label, style = labelL)
-                    }
+            // Invitees required toggle (replaces segmented control — simpler)
+            Row(
+                modifier          = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text     = "Invitees required",
+                    style    = labelL,
+                    color    = AppColor.text,
+                    modifier = Modifier.weight(1f),
+                )
+                Switch(
+                    checked         = inviteesRequired,
+                    onCheckedChange = { inviteesRequired = it },
+                    colors          = SwitchDefaults.colors(
+                        checkedThumbColor       = AppColor.onPrimary,
+                        checkedTrackColor       = AppColor.primary,
+                        uncheckedThumbColor     = AppColor.text3,
+                        uncheckedTrackColor     = AppColor.surfaceVariant,
+                        uncheckedBorderColor    = AppColor.outline,
+                    ),
+                )
+            }
+
+            // Inline error (e.g. date already taken — shown above buttons so user sees it)
+            if (saveError != null) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(AppColor.dangerContainer)
+                        .padding(horizontal = Spacing.md, vertical = Spacing.sm),
+                ) {
+                    Text(text = saveError, style = bodyM, color = AppColor.danger)
                 }
             }
 
-            // Action buttons
+            // Action buttons — Cancel (ghost) | Add/Save (primary)
             Row(
                 modifier              = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(Spacing.md),
             ) {
                 Button(
                     onClick  = onDismiss,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).height(52.dp),
                     colors   = ButtonDefaults.buttonColors(
                         containerColor = AppColor.primaryContainer,
                         contentColor   = AppColor.onPrimaryContainer,
                     ),
-                    shape    = RoundedCornerShape(14.dp),
+                    shape    = RoundedCornerShape(16.dp),
                 ) { Text("Cancel", style = labelL) }
 
                 Button(
                     onClick  = {
-                        if (isFormValid) {
-                            onSave(title, eventName, selectedDate, selectedIcon, budgetPaise, inviteesRequired)
-                        }
+                        if (isFormValid) onSave(title, eventName, selectedDate, selectedIcon, budgetPaise, inviteesRequired)
                     },
                     enabled  = isFormValid,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).height(52.dp),
                     colors   = ButtonDefaults.buttonColors(
                         containerColor = AppColor.primary,
                         contentColor   = AppColor.onPrimary,
                     ),
-                    shape    = RoundedCornerShape(14.dp),
+                    shape    = RoundedCornerShape(16.dp),
                 ) { Text(if (isEdit) "Save" else "Add", style = labelL) }
             }
 
@@ -279,6 +310,7 @@ private fun AppTextField(
     readOnly: Boolean = false,
     keyboardType: KeyboardType = KeyboardType.Text,
     trailingIcon: @Composable (() -> Unit)? = null,
+    prefix: @Composable (() -> Unit)? = null,
 ) {
     OutlinedTextField(
         value         = value,
@@ -288,6 +320,7 @@ private fun AppTextField(
         modifier      = modifier.fillMaxWidth(),
         readOnly      = readOnly,
         trailingIcon  = trailingIcon,
+        prefix        = prefix,
         singleLine    = true,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         shape         = RoundedCornerShape(14.dp),

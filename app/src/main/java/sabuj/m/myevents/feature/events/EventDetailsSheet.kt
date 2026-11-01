@@ -1,6 +1,8 @@
 package sabuj.m.myevents.feature.events
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,10 +11,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Group
+import androidx.compose.material.icons.rounded.Label
+import androidx.compose.material.icons.rounded.MonetizationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,13 +31,15 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import sabuj.m.myevents.core.theme.AppColor
 import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.labelM
-import sabuj.m.myevents.core.theme.numberXl
+import sabuj.m.myevents.core.theme.numberL
 import sabuj.m.myevents.core.theme.titleL
 import sabuj.m.myevents.core.theme.titleS
 import sabuj.m.myevents.core.ui.IconChip
@@ -40,8 +49,10 @@ import sabuj.m.myevents.core.util.MoneyFormatter
 import sabuj.m.myevents.domain.model.Event
 
 /**
- * Bottom sheet showing event details.
- * Displays invitees/bookings stats tiles, a detail list, and Edit/Delete buttons.
+ * Bottom sheet showing event details — matches design.md Event screen sample.
+ * Stat tiles (Invitees, Bookings) each have an icon.
+ * Detail rows have a small icon prefix matching the field type.
+ * Buttons: "Edit Event" (primary container) + "Delete Event" (danger tint).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,12 +105,14 @@ fun EventDetailsSheet(
                 horizontalArrangement = Arrangement.spacedBy(Spacing.md),
             ) {
                 StatTile(
+                    icon    = Icons.Rounded.Group,
                     label   = "Invitees",
                     value   = if (event.inviteesRequired) "0" else "—",
                     caption = if (event.inviteesRequired) "people" else "Not required",
                     modifier = Modifier.weight(1f),
                 )
                 StatTile(
+                    icon    = event.icon.fallback,     // booking icon mirrors event type
                     label   = "Bookings",
                     value   = "0",
                     caption = "bookings",
@@ -110,13 +123,26 @@ fun EventDetailsSheet(
             Spacer(Modifier.height(Spacing.lg))
 
             // ── Detail list ─────────────────────────────────────────
-            DetailRow(label = "Event Name", value = event.eventName)
-            HorizontalDivider(color = AppColor.outlineVariant, thickness = 0.5.dp)
-            DetailRow(label = "Date", value = DateUtils.formatDisplay(event.date))
-            HorizontalDivider(color = AppColor.outlineVariant, thickness = 0.5.dp)
-            DetailRow(label = "Budget", value = MoneyFormatter.format(event.budgetPaise))
+            DetailRow(
+                icon  = Icons.Rounded.Label,
+                label = "Event Name",
+                value = event.eventName,
+            )
             HorizontalDivider(color = AppColor.outlineVariant, thickness = 0.5.dp)
             DetailRow(
+                icon  = Icons.Rounded.CalendarMonth,
+                label = "Date",
+                value = DateUtils.formatDisplay(event.date),
+            )
+            HorizontalDivider(color = AppColor.outlineVariant, thickness = 0.5.dp)
+            DetailRow(
+                icon  = Icons.Rounded.MonetizationOn,
+                label = "Budget",
+                value = MoneyFormatter.format(event.budgetPaise),
+            )
+            HorizontalDivider(color = AppColor.outlineVariant, thickness = 0.5.dp)
+            DetailRow(
+                icon  = Icons.Rounded.Group,
                 label = "Invitees Required",
                 value = if (event.inviteesRequired) "Yes" else "No",
             )
@@ -130,12 +156,12 @@ fun EventDetailsSheet(
             ) {
                 Button(
                     onClick  = onEdit,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).height(52.dp),
                     colors   = ButtonDefaults.buttonColors(
                         containerColor = AppColor.primaryContainer,
                         contentColor   = AppColor.onPrimaryContainer,
                     ),
-                    shape    = RoundedCornerShape(14.dp),
+                    shape    = RoundedCornerShape(16.dp),
                 ) {
                     Icon(Icons.Rounded.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
@@ -143,16 +169,16 @@ fun EventDetailsSheet(
                 }
                 Button(
                     onClick  = onDelete,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).height(52.dp),
                     colors   = ButtonDefaults.buttonColors(
-                        containerColor = AppColor.danger.copy(alpha = 0.12f),
+                        containerColor = AppColor.dangerContainer,
                         contentColor   = AppColor.danger,
                     ),
-                    shape    = RoundedCornerShape(14.dp),
+                    shape    = RoundedCornerShape(16.dp),
                 ) {
                     Icon(Icons.Rounded.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text("Delete", style = labelL)
+                    Text("Delete Event", style = labelL)
                 }
             }
 
@@ -161,27 +187,44 @@ fun EventDetailsSheet(
     }
 }
 
+/** Stat tile with icon, big number, label and caption — used for Invitees / Bookings. */
 @Composable
 private fun StatTile(
+    icon: ImageVector,
     label: String,
     value: String,
     caption: String,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier            = modifier
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(AppColor.surfaceVariant.copy(alpha = 0.5f))
             .padding(Spacing.md),
-        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(text = label, style = labelM, color = AppColor.text2)
-        Spacer(Modifier.height(4.dp))
-        Text(text = value, style = numberXl, color = AppColor.text)
-        Text(text = caption, style = bodyM, color = AppColor.text2)
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+            // Icon chip
+            Box(
+                modifier        = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(AppColor.primaryContainer),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(icon, contentDescription = null, tint = AppColor.primary, modifier = Modifier.size(22.dp))
+            }
+            Spacer(Modifier.height(Spacing.sm))
+            Text(text = label, style = labelM, color = AppColor.text2)
+            Spacer(Modifier.height(2.dp))
+            Text(text = value, style = numberL, color = AppColor.text)
+            Text(text = caption, style = bodyM, color = AppColor.text2)
+        }
     }
 }
 
+/** Detail row with a leading icon, left label and right value. */
 @Composable
-private fun DetailRow(label: String, value: String) {
+private fun DetailRow(icon: ImageVector, label: String, value: String) {
     Row(
         modifier          = Modifier
             .fillMaxWidth()
@@ -189,6 +232,8 @@ private fun DetailRow(label: String, value: String) {
             .padding(horizontal = Spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        Icon(icon, contentDescription = null, tint = AppColor.primary, modifier = Modifier.size(20.dp))
+        Spacer(Modifier.width(Spacing.sm))
         Text(
             text     = label,
             style    = bodyM,

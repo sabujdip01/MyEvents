@@ -1,10 +1,11 @@
 # Version History
 
-Current: V0.3.5
+Current: V0.3.6
 
 | Version | Phase | Build | Commit     | Summary                                                                                             |
 | ------- | ----- | ----- |------------|-----------------------------------------------------------------------------------------------------|
-| V0.3.5  | 3     | 5     | —          | fix(home): Sprint 1 fixes — splash light/dark, 60s re-lock, card heights, app name, dues colour    |
+| V0.3.6  | 3     | 6     | —          | fix(events): S1-15 header, S2-07 budget/switch, S2-08 cell colour, S2-09 detail sheet, S2-11 inline error |
+| V0.3.5  | 3     | 5     | 7091e50    | fix(home): Sprint 1 fixes — splash light/dark, 60s re-lock, card heights, app name, dues colour    |
 | V0.3.4b | 3     | 4b    | —          | fix(ui): make IconChip contentDescription nullable String? = null                                  |
 | V0.3.4a | 3     | 4a    | 4602c98    | fix(bookings): fix rememberModalBottomSheetState parameter name skipPartiallyExpanded              |
 | V0.3.4  | 3     | 4     | 3f43b47    | chore(phase): complete phase 3 — Bookings; testcases appended                                      |

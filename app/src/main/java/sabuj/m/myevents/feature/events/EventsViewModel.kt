@@ -25,7 +25,8 @@ import javax.inject.Inject
 /**
  * ViewModel for [EventsScreen].
  * Exposes [uiState] as a StateFlow and accepts user intents via [onEvent].
- * One-shot effects (snackbar, errors) are sent through [effects].
+ * One-shot effects (snackbar delete-undo) are sent through [effects].
+ * Date-conflict errors are surfaced inline via [EventsUiState.errorMessage].
  */
 @HiltViewModel
 class EventsViewModel @Inject constructor(
@@ -75,7 +76,8 @@ class EventsViewModel @Inject constructor(
             is EventsUiEvent.MonthChanged      -> _month.value = event.month
             is EventsUiEvent.DateTapped        -> handleDateTap(event)
             is EventsUiEvent.DateLongPressed   -> handleLongPress(event)
-            is EventsUiEvent.SheetDismissed    -> _sheet.value = SheetMode.None
+            // Clear error when sheet is dismissed so stale message doesn't show on reopen
+            is EventsUiEvent.SheetDismissed    -> { _sheet.value = SheetMode.None; _error.value = null }
             is EventsUiEvent.EditRequested     -> _sheet.value = SheetMode.Edit(event.event)
             is EventsUiEvent.DeleteRequested   -> _sheet.value = SheetMode.ConfirmDelete(event.event)
             is EventsUiEvent.DeleteConfirmed   -> confirmDelete()
@@ -131,8 +133,10 @@ class EventsViewModel @Inject constructor(
         viewModelScope.launch {
             val result = addEvent(ev.title, ev.eventName, ev.date, ev.icon, ev.budgetPaise, ev.inviteesRequired)
             if (result is EventSaveResult.DateTaken) {
-                _effects.send(EventsEffect.ShowError("A event is already planned for that date."))
+                // Set inline error — visible inside the open sheet
+                _error.value = "An event is already planned for that date."
             } else {
+                _error.value = null
                 _sheet.value = SheetMode.None
             }
         }
@@ -143,11 +147,11 @@ class EventsViewModel @Inject constructor(
         viewModelScope.launch {
             val result = editEvent(existing, ev.title, ev.eventName, ev.date, ev.icon, ev.budgetPaise, ev.inviteesRequired)
             if (result is EventSaveResult.DateTaken) {
-                _effects.send(EventsEffect.ShowError("A event is already planned for that date."))
+                _error.value = "An event is already planned for that date."
             } else {
+                _error.value = null
                 _sheet.value = SheetMode.None
             }
         }
     }
 }
-

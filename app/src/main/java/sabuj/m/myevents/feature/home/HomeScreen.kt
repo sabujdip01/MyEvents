@@ -110,18 +110,17 @@ private fun HomeContent(
                     .padding(horizontal = Spacing.lg)
                     .height(164.dp),
             ) {
-                // App name — bottom-left
+                // App name — one line, vertically centred with hero illustration
                 Column(modifier = Modifier.align(Alignment.CenterStart)) {
                     Text(
                         text = buildAnnotatedString {
-                            append("My\n")
+                            append("My ")
                             withStyle(SpanStyle(color = AppColor.primary, fontWeight = FontWeight.Bold)) {
                                 append("Events")
                             }
                         },
                         style = display,
                         color = AppColor.text,
-                        lineHeight = 44.sp,
                     )
                 }
 
@@ -489,21 +488,25 @@ private fun ItemsPendingCard(count: Int) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(Spacing.lg)
-                    .padding(end = 88.dp), // leave room for faint art on the right
+                    .padding(Spacing.lg),
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                // Header row — icon + labels fill left side; art overlay is on the right
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier          = Modifier.fillMaxWidth().padding(end = 80.dp), // keep away from art
+                ) {
                     CardIcon(icon = AppIcon.Checklist.fallback)
                     Spacer(Modifier.width(Spacing.md))
-                    Column(modifier = Modifier.weight(1f)) {
+                    Column {
                         Text("Items Pending", style = titleM, color = AppColor.text)
                         Text("items left", style = bodyM, color = AppColor.text2)
                     }
                 }
                 Spacer(Modifier.height(Spacing.sm))
+                // Count: full width, no right padding — safe because art sits at CenterEnd
                 Text("$count", style = numberXl, color = AppColor.primary, fontWeight = FontWeight.Bold)
             }
-            // Faint checklist art — right side (non-interactive, clipped within card)
+            // Faint checklist art — right side, non-interactive
             Box(
                 modifier        = Modifier.align(Alignment.CenterEnd).size(96.dp).padding(end = Spacing.md),
                 contentAlignment = Alignment.Center,

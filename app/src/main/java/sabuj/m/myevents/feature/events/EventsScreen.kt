@@ -1,4 +1,4 @@
-package sabuj.m.myevents.feature.events
+﻿package sabuj.m.myevents.feature.events
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -143,20 +143,22 @@ fun EventsScreen(
             onDelete  = { viewModel.onEvent(EventsUiEvent.DeleteRequested(mode.event)) },
         )
         is SheetMode.Add -> AddEditEventSheet(
-            prefilledDate     = mode.date,
-            existingEvent     = null,
-            onDismiss         = { viewModel.onEvent(EventsUiEvent.SheetDismissed) },
-            onSave            = { title, name, date, icon, budget, inv ->
+            prefilledDate = mode.date,
+            existingEvent = null,
+            saveError     = uiState.errorMessage,
+            onDismiss     = { viewModel.onEvent(EventsUiEvent.SheetDismissed) },
+            onSave        = { title, name, date, icon, budget, inv ->
                 viewModel.onEvent(
                     EventsUiEvent.SaveNew(title, name, date, icon, budget, inv)
                 )
             },
         )
         is SheetMode.Edit -> AddEditEventSheet(
-            prefilledDate     = mode.event.date,
-            existingEvent     = mode.event,
-            onDismiss         = { viewModel.onEvent(EventsUiEvent.SheetDismissed) },
-            onSave            = { title, name, date, icon, budget, inv ->
+            prefilledDate = mode.event.date,
+            existingEvent = mode.event,
+            saveError     = uiState.errorMessage,
+            onDismiss     = { viewModel.onEvent(EventsUiEvent.SheetDismissed) },
+            onSave        = { title, name, date, icon, budget, inv ->
                 viewModel.onEvent(
                     EventsUiEvent.SaveEdit(title, name, date, icon, budget, inv)
                 )
@@ -348,7 +350,7 @@ private fun DateCell(
 
     val bgColor = when {
         date == null || !isInMonth -> AppColor.surfaceVariant.copy(alpha = 0.25f)
-        event != null              -> AppColor.surface
+        event != null              -> AppColor.primaryContainer          // event date � primary tinted fill
         else                       -> AppColor.surfaceVariant.copy(alpha = 0.55f)
     }
     val dayColor = when {
@@ -390,7 +392,7 @@ private fun DateCell(
                     Icon(
                         imageVector        = event.icon.fallback,
                         contentDescription = event.title,
-                        tint               = AppColor.primary,
+                        tint               = AppColor.onPrimaryContainer,
                         modifier           = Modifier.size(18.dp),
                     )
                     Spacer(Modifier.weight(1f))
@@ -398,7 +400,7 @@ private fun DateCell(
                         modifier = Modifier
                             .size(4.dp)
                             .clip(CircleShape)
-                            .background(AppColor.primary)
+                            .background(AppColor.onPrimaryContainer)
                             .padding(bottom = 6.dp),
                     )
                 }
