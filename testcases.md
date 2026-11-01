@@ -126,3 +126,16 @@
 | S7-06 | WorkManager       | App running in background / reboot                                                     | Periodic WorkManager worker scheduled every 12h                                 | [Works] | [Works] | Pass |
 | S7-07 | Glance Widget     | Add "My Events Widget" to device Home screen                                           | Widget renders next upcoming event and active events count                      | [Works] | [Works] | Pass |
 | S7-08 | Deep link         | Tap reminder notification                                                              | Opens app to main activity                                                      | [Works] | [Works] | Pass |
+
+## Sprint 8: Settings, Export & Sample Data (V0.8.1)
+
+| ID    | Area              | Steps                                                                                  | Expected result                                                                 | Light | Dark | Status  |
+| ----- | ----------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ----- | ---- | ------- |
+| S8-01 | Theme mode        | Open Settings → tap "Light" / "Dark" / "System"                                        | App theme updates and persists across restarts                                  | [Works] | [Works] | Pass |
+| S8-02 | Palette picker    | Open Settings → select Palette A, B, C, or D                                           | Brand accent & tokens update according to selected palette                      | [Works] | [Works] | Pass |
+| S8-03 | Change PIN        | Tap "Change PIN" → enter current PIN, new 4-digit PIN, confirm → tap Save              | PIN updated; new PIN required on next unlock                                    | [Works] | [Works] | Pass |
+| S8-04 | Toggles           | Toggle Fingerprint / Notification switches                                             | Preferences saved in DataStore                                                  | [Works] | [Works] | Pass |
+| S8-05 | Load sample data  | Tap "Load Demo Data"                                                                   | Inserts sample events, bookings, expenses, invitees & tasks                    | [Works] | [Works] | Pass |
+| S8-06 | Clear sample data | Tap "Clear Demo Data"                                                                  | Removes all sample data without affecting user data                             | [Works] | [Works] | Pass |
+| S8-07 | CSV export        | Tap "Export Event Data (CSV)" → select Event → tap Export                              | Generates UTF-8 BOM CSV for Expenses & Invitees and opens system share sheet    | [Works] | [Works] | Pass |
+| S8-08 | Version           | Check Settings → About                                                                 | Displays current app version from `BuildConfig.APP_VERSION`                     | [Works] | [Works] | Pass |

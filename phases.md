@@ -189,12 +189,12 @@ Dependencies: 0 → 1 → 2 → (3, 4, 5 in order) → 6 → 7 → 8 → 9 → 1
 
 **Goal:** finish everything the user can configure.
 
-- [ ] Colour scheme picker
-- [ ] Per-type notification toggles and master switch
-- [ ] Change PIN flow (asks for the current PIN)
-- [ ] Load sample data and Clear sample data (demo rows tagged so real data is never touched)
-- [ ] CSV export for Expenses and Invitees, one file per event, UTF-8 with BOM, via share sheet
-- [ ] About and version
+- [x] Colour scheme picker
+- [x] Per-type notification toggles and master switch
+- [x] Change PIN flow (asks for the current PIN)
+- [x] Load sample data and Clear sample data (demo rows tagged so real data is never touched)
+- [x] CSV export for Expenses and Invitees, one file per event, UTF-8 with BOM, via share sheet
+- [x] About and version
 
 **Done when:** every Settings item works and exported CSVs open correctly in Excel.
 
