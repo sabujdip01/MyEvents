@@ -50,6 +50,7 @@ class LockViewModel @Inject constructor(
             is LockEvent.BackspacePressed -> handleBackspace()
             is LockEvent.BiometricSuccess -> onUnlockSuccess()
             is LockEvent.BiometricFailed  -> { /* PIN pad stays visible */ }
+            is LockEvent.ReLock           -> reLock()
         }
     }
 
@@ -122,6 +123,24 @@ class LockViewModel @Inject constructor(
         _state.update { it.copy(isUnlocked = true, failedAttempts = 0, error = null) }
     }
 
+    /**
+     * Re-locks the app when [LockEvent.ReLock] is received.
+     * Only acts if a PIN is actually set (no PIN → no lock).
+     */
+    private fun reLock() {
+        if (pinStore.isPinSet) {
+            _state.update {
+                it.copy(
+                    isUnlocked     = false,
+                    pin            = "",
+                    error          = null,
+                    failedAttempts = 0,
+                    isLockedOut    = false,
+                )
+            }
+        }
+    }
+
     private fun startLockout() {
         _state.update { it.copy(pin = "", isLockedOut = true, lockoutSecondsLeft = LOCKOUT_SECS.toInt(), error = null) }
         viewModelScope.launch {
@@ -158,4 +177,6 @@ sealed interface LockEvent {
     data object BackspacePressed : LockEvent
     data object BiometricSuccess : LockEvent
     data object BiometricFailed  : LockEvent
+    /** Fired by MainActivity when app resumes after > 60 s in background. */
+    data object ReLock           : LockEvent
 }

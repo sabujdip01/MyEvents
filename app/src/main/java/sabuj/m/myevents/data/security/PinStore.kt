@@ -44,8 +44,26 @@ class PinStore @Inject constructor(
         get() = prefs.getBoolean(KEY_BIOMETRIC, true) // default on
         set(value) { prefs.edit().putBoolean(KEY_BIOMETRIC, value).apply() }
 
+    // -----------------------------------------------------------------------
+    // Background timestamp — used to re-lock after 60 s in background
+    // -----------------------------------------------------------------------
+
+    /**
+     * Records the epoch-millisecond time when the app went to background.
+     * Pass -1 to clear (app is in foreground).
+     */
+    fun saveBackgroundTime(epochMs: Long) =
+        prefs.edit().putLong(KEY_BG_TIME, epochMs).apply()
+
+    /**
+     * Returns the epoch-millisecond time saved by [saveBackgroundTime],
+     * or -1 if not set.
+     */
+    fun getBackgroundTime(): Long = prefs.getLong(KEY_BG_TIME, -1L)
+
     companion object {
         private const val KEY_PIN_HASH  = "pin_hash"
         private const val KEY_BIOMETRIC = "biometric_enabled"
+        private const val KEY_BG_TIME   = "background_time"
     }
 }

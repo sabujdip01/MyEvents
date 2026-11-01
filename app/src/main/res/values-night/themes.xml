@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Night variant: dark splash background (Palette A dark background) -->
+    <style name="Theme.MyEvents.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#0E0A1A</item>
+        <item name="postSplashScreenTheme">@style/Theme.MyEvents</item>
+    </style>
+
+</resources>

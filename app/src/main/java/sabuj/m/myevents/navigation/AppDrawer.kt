@@ -123,12 +123,12 @@ private fun DrawerSheet(
                     .statusBarsPadding()
                     .padding(top = Spacing.xl2),
             ) {
-                // Header: "App Name\nGoes Here"
+                // Header: "My Events"
                 Column(modifier = Modifier.padding(horizontal = Spacing.xl2)) {
                     Text(
                         text = buildAnnotatedString {
-                            append("App Name ")
-                            withStyle(SpanStyle(color = AppColor.primary)) { append("Goes Here") }
+                            append("My ")
+                            withStyle(SpanStyle(color = AppColor.primary)) { append("Events") }
                         },
                         style = titleL,
                         color = AppColor.text,

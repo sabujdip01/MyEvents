@@ -17,10 +17,12 @@ import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dagger.hilt.android.AndroidEntryPoint
 import sabuj.m.myevents.core.theme.AppTheme
+import sabuj.m.myevents.data.security.PinStore
 import sabuj.m.myevents.feature.lock.LockEvent
 import sabuj.m.myevents.feature.lock.LockViewModel
 import sabuj.m.myevents.feature.lock.PinScreen
 import sabuj.m.myevents.navigation.AppNavHost
+import javax.inject.Inject
 
 /**
  * Single Activity. Flow:
@@ -28,11 +30,21 @@ import sabuj.m.myevents.navigation.AppNavHost
  *  2. No PIN set   → PIN setup screen
  *  3. PIN set      → PIN unlock screen (biometric prompt on fingerprint tap, PIN fallback)
  *  4. Authenticated → NavHost (drawer + all screens)
+ *
+ * Re-lock rule (S1-05): if the app is in the background for more than
+ * [RE_LOCK_THRESHOLD_MS] (60 s), the unlock state is cleared on resume.
  */
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
 
     private val lockViewModel: LockViewModel by viewModels()
+
+    @Inject lateinit var pinStore: sabuj.m.myevents.data.security.PinStore
+
+    companion object {
+        /** 60 seconds — if the app is backgrounded longer than this, re-lock. */
+        private const val RE_LOCK_THRESHOLD_MS = 60_000L
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splash = installSplashScreen()
@@ -114,5 +126,29 @@ class MainActivity : FragmentActivity() {
             .setNegativeButtonText("Use PIN")
             .build()
         prompt.authenticate(info)
+    }
+
+    // -----------------------------------------------------------------------
+    // Re-lock after 60 s in background (S1-05)
+    // -----------------------------------------------------------------------
+
+    /** Record the time when the app goes to background. */
+    override fun onPause() {
+        super.onPause()
+        pinStore.saveBackgroundTime(System.currentTimeMillis())
+    }
+
+    /**
+     * On resume, check if the app was in the background longer than
+     * [RE_LOCK_THRESHOLD_MS]. If so, dispatch [LockEvent.ReLock].
+     */
+    override fun onResume() {
+        super.onResume()
+        val bgTime = pinStore.getBackgroundTime()
+        if (bgTime > 0 && System.currentTimeMillis() - bgTime > RE_LOCK_THRESHOLD_MS) {
+            lockViewModel.onEvent(LockEvent.ReLock)
+        }
+        // Clear the background timestamp so a quick resume doesn't re-lock
+        pinStore.saveBackgroundTime(-1L)
     }
 }

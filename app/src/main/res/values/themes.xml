@@ -4,9 +4,11 @@
     <!-- Base Material3 theme (used at runtime by Compose) -->
     <style name="Theme.MyEvents" parent="Theme.Material3.DayNight.NoActionBar" />
 
-    <!-- Splash screen theme: holds the app while Compose loads -->
+    <!-- Splash screen theme: holds the app while Compose loads.
+         Light variant uses a clean off-white background (Palette A light).
+         The night variant (values-night/themes.xml) uses the dark background. -->
     <style name="Theme.MyEvents.Splash" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">#0E0A1A</item>
+        <item name="windowSplashScreenBackground">#F4F6FB</item>
         <item name="postSplashScreenTheme">@style/Theme.MyEvents</item>
     </style>
 

@@ -4,24 +4,24 @@
 
 | ID    | Area             | Steps                                                                 | Expected result                                              | Light | Dark | Status  |
 | ----- | ---------------- | --------------------------------------------------------------------- | ------------------------------------------------------------ | ----- | ---- | ------- |
-| S1-01 | First launch     | Install fresh; open app                                               | Splash shows ~500ms, then PIN setup screen appears           | [ ]   | [ ]  | Pending |
-| S1-02 | PIN setup        | Enter 4 digits on setup screen                                        | 4 dots fill; screen transitions to "Confirm your PIN"        | [ ]   | [ ]  | Pending |
-| S1-03 | PIN confirm match| Enter same 4 digits on confirm screen                                 | App unlocks, Home screen appears                             | [ ]   | [ ]  | Pending |
-| S1-04 | PIN confirm mismatch | Enter different 4 digits on confirm screen                        | Dots shake, "PINs do not match" error, restarts from first entry | [ ] | [ ]  | Pending |
-| S1-05 | Unlock correct   | Background app 60s+, reopen; enter correct PIN                        | Home screen appears                                          | [ ]   | [ ]  | Pending |
-| S1-06 | Unlock incorrect | Enter wrong PIN 1×                                                    | Dots shake, "Incorrect PIN. 2 attempts remaining."           | [ ]   | [ ]  | Pending |
-| S1-07 | Lockout          | Enter wrong PIN 3× in a row                                           | "Too many attempts. Try again in 30s." countdown shown       | [ ]   | [ ]  | Pending |
-| S1-08 | Lockout expires  | Wait 30s after lockout                                                | Keypad becomes active again                                  | [ ]   | [ ]  | Pending |
-| S1-09 | Backspace        | On PIN screen: type 2 digits, press backspace                         | Last dot clears                                              | [ ]   | [ ]  | Pending |
-| S1-10 | Drawer opens     | On Home: tap menu button (≡)                                          | Drawer slides in from left (300ms), scrim behind             | [ ]   | [ ]  | Pending |
-| S1-11 | Drawer active    | Open drawer from Home                                                 | Home row is highlighted with primary bar at right edge       | [ ]   | [ ]  | Pending |
-| S1-12 | Drawer navigate  | Tap "Bookings" in drawer                                              | Drawer closes, Bookings placeholder screen shows             | [ ]   | [ ]  | Pending |
-| S1-13 | Drawer navigate back | From Bookings, tap ≡ → Home                                      | Home screen shows                                            | [ ]   | [ ]  | Pending |
-| S1-14 | Home empty state | First unlock with no events                                           | Upcoming Events card shows "No events yet" + "Add event" button | [ ] | [ ]  | Pending |
-| S1-15 | Home cards       | Inspect Home screen                                                   | 7 cards visible: Events, Bookings Done, Booking Amount, Budget, Dues, Invitees, Items; all show 0/– | [ ] | [ ] | Pending |
-| S1-16 | Settings screen  | Drawer → Settings                                                     | Settings screen with Appearance, Security, About sections    | [ ]   | [ ]  | Pending |
-| S1-17 | Settings version | Go to Settings → About                                                | Version "V0.1.x" is shown                                    | [ ]   | [ ]  | Pending |
-| S1-18 | Dark theme       | Change system to dark mode and reopen                                 | All screens use dark palette (Palette A dark)                | n/a   | [ ]  | Pending |
+| S1-01 | First launch     | Install fresh; open app                                               | Splash shows ~500ms, then PIN setup screen appears           | [Fixed V0.3.5: light splash bg #F4F6FB via values/themes.xml]   | [Fixed]  | Fixed |
+| S1-02 | PIN setup        | Enter 4 digits on setup screen                                        | 4 dots fill; screen transitions to "Confirm your PIN"        | [Works]   | [Works]  | Pass |
+| S1-03 | PIN confirm match| Enter same 4 digits on confirm screen                                 | App unlocks, Home screen appears                             | [Works]   | [Works]  | Pass |
+| S1-04 | PIN confirm mismatch | Enter different 4 digits on confirm screen                        | Dots shake, "PINs do not match" error, restarts from first entry | [Works] | [Works]  | Pass |
+| S1-05 | Unlock correct   | Background app 60s+, reopen; enter correct PIN                        | Home screen appears                                          | [Fixed V0.3.5: onPause saves timestamp; onResume checks 60s gap → ReLock event]   | [Fixed]  | Fixed |
+| S1-06 | Unlock incorrect | Enter wrong PIN 1×                                                    | Dots shake, "Incorrect PIN. 2 attempts remaining."           | [Works]   | [Works]  | Pass |
+| S1-07 | Lockout          | Enter wrong PIN 3× in a row                                           | "Too many attempts. Try again in 30s." countdown shown       | [Works]   | [Works]  | Pass |
+| S1-08 | Lockout expires  | Wait 30s after lockout                                                | Keypad becomes active again                                  | [Works]   | [Works]  | Pass |
+| S1-09 | Backspace        | On PIN screen: type 2 digits, press backspace                         | Last dot clears                                              | [Works]   | [Works]  | Pass |
+| S1-10 | Drawer opens     | On Home: tap menu button (≡)                                          | Drawer slides in from left (300ms), scrim behind             | [Working]   | [Working]  | Pass |
+| S1-11 | Drawer active    | Open drawer from Home                                                 | Home row is highlighted with primary bar at right edge       | [Working]   | [Working]  | Pass |
+| S1-12 | Drawer navigate  | Tap "Bookings" in drawer                                              | Drawer closes, Bookings placeholder screen shows             | [Working]   | [Working]  | Pass |
+| S1-13 | Drawer navigate back | From Bookings, tap ≡ → Home                                      | Home screen shows                                            | [Working]   | [Working]  | Pass |
+| S1-14 | Home empty state | First unlock with no events                                           | Upcoming Events card shows "No events yet" + "Add event" button | [Working] | [Working]  | Pass |
+| S1-15 | Home cards       | Inspect Home screen                                                   | 7 cards visible: Events, Bookings Done, Booking Amount, Budget, Dues, Invitees, Items; all show 0/– | [Fixed V0.3.5: IntrinsicSize.Min for equal-height pairs; success colour for ₹0 dues; app name "My Events"; ItemsPending content padded from art overlay] | [Fixed] | Fixed |
+| S1-16 | Settings screen  | Drawer → Settings                                                     | Settings screen with Appearance, Security, About sections    | [Working]   | [Working]  | Pass |
+| S1-17 | Settings version | Go to Settings → About                                                | Version "V0.1.x" is shown                                    | [Working]   | [Working]  | Pass |
+| S1-18 | Dark theme       | Change system to dark mode and reopen                                 | All screens use dark palette (Palette A dark)                | n/a   | [Working]  | Pass |
 
 ## Sprint 2: Data Layer & Events (V0.2.5)
 
