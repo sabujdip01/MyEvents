@@ -17,7 +17,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 @Composable
 fun AppTheme(
     palette: PaletteId = PaletteId.A,
-    isDark: Boolean = false,
+    isDark: Boolean = androidx.compose.foundation.isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
     val appColors = paletteColors(palette, isDark)
