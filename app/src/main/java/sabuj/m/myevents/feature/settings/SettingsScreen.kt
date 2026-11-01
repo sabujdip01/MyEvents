@@ -125,17 +125,18 @@ fun SettingsScreenContent(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        ScreenScaffold(modifier = modifier, onMenuClick = onMenuClick) {
+        ScreenScaffold(modifier = modifier, onMenuClick = null) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .statusBarsPadding()
-                    .padding(horizontal = Spacing.lg)
-                    .padding(top = 64.dp) // below menu button
                     .verticalScroll(rememberScrollState()),
             ) {
-                Text("Settings", style = titleL, color = AppColor.text)
-                Spacer(Modifier.height(Spacing.xl))
+                // Top bar with Nav icon and Settings title
+                sabuj.m.myevents.core.ui.AppTopBar(
+                    titleText   = "Settings",
+                    onMenuClick = onMenuClick,
+                )
+                Spacer(Modifier.height(Spacing.md))
 
                 // APPEARANCE
                 SettingsSection("APPEARANCE") {

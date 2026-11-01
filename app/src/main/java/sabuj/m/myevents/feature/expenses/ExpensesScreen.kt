@@ -91,12 +91,12 @@ fun ExpensesScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .statusBarsPadding(),
             ) {
                 // Top bar
                 ExpensesTopBar(
                     isDeleteMode   = uiState.isDeleteMode,
                     onToggleDelete = { viewModel.toggleDeleteMode() },
+                    onMenuClick    = onMenuClick,
                 )
 
                 Spacer(Modifier.height(Spacing.sm))
@@ -253,30 +253,24 @@ fun ExpensesScreen(
 private fun ExpensesTopBar(
     isDeleteMode: Boolean,
     onToggleDelete: () -> Unit,
+    onMenuClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier          = modifier
-            .fillMaxWidth()
-            .padding(horizontal = Spacing.lg, vertical = Spacing.sm),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Spacer(Modifier.width(56.dp))
-        Text(
-            text     = "Expenses",
-            style    = titleL,
-            color    = AppColor.text,
-            modifier = Modifier.weight(1f),
-        )
-        Text(
-            text     = if (isDeleteMode) "Done" else "Edit",
-            style    = labelL,
-            color    = AppColor.primary,
-            modifier = Modifier
-                .clickable { onToggleDelete() }
-                .padding(Spacing.sm),
-        )
-    }
+    sabuj.m.myevents.core.ui.AppTopBar(
+        titleText   = "Expenses",
+        onMenuClick = onMenuClick,
+        modifier    = modifier,
+        actions     = {
+            Text(
+                text     = if (isDeleteMode) "Done" else "Edit",
+                style    = labelL,
+                color    = AppColor.primary,
+                modifier = Modifier
+                    .clickable { onToggleDelete() }
+                    .padding(Spacing.sm),
+            )
+        },
+    )
 }
 
 @Composable

@@ -1,6 +1,7 @@
 ﻿package sabuj.m.myevents.feature.bookings
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -90,12 +91,12 @@ fun BookingsScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .statusBarsPadding(),
             ) {
-                // â”€â”€ Top bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                // ── Top bar ─────────────────────────────────────────
                 BookingsTopBar(
-                    isEditMode = uiState.mode == BookingsMode.Edit,
+                    isEditMode   = uiState.mode == BookingsMode.Edit,
                     onToggleEdit = { viewModel.toggleEditMode() },
+                    onMenuClick  = onMenuClick,
                 )
 
                 Spacer(Modifier.height(Spacing.sm))
@@ -266,31 +267,24 @@ fun BookingsScreen(
 private fun BookingsTopBar(
     isEditMode: Boolean,
     onToggleEdit: () -> Unit,
+    onMenuClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier          = modifier
-            .fillMaxWidth()
-            .padding(horizontal = Spacing.lg, vertical = Spacing.sm),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        // Reserve space for the floating menu button drawn by ScreenScaffold
-        Spacer(Modifier.width(56.dp))
-        Text(
-            text     = "Bookings", // TODO strings.xml
-            style    = titleL,
-            color    = AppColor.text,
-            modifier = Modifier.weight(1f),
-        )
-        if (isEditMode) {
-            Text(
-                text     = "Done", // TODO strings.xml
-                style    = labelL,
-                color    = AppColor.primary,
-                modifier = Modifier.padding(Spacing.sm),
-            )
-        }
-    }
+    sabuj.m.myevents.core.ui.AppTopBar(
+        titleText   = "Bookings",
+        onMenuClick = onMenuClick,
+        modifier    = modifier,
+        actions     = {
+            if (isEditMode) {
+                Text(
+                    text     = "Done",
+                    style    = labelL,
+                    color    = AppColor.primary,
+                    modifier = Modifier.clickable { onToggleEdit() }.padding(Spacing.sm),
+                )
+            }
+        },
+    )
 }
 
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€

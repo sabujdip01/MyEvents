@@ -98,32 +98,27 @@ private fun HomeContent(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
         ) {
-            // ----------------------------------------------------------------
-            // Header: "My Events" in same horizontal line as menu button
-            // ----------------------------------------------------------------
-            Row(
-                modifier          = Modifier
-                    .fillMaxWidth()
-                    .statusBarsPadding()
-                    .padding(horizontal = Spacing.lg, vertical = Spacing.sm),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                // Reserve space for the floating menu button drawn by ScreenScaffold
-                Spacer(Modifier.width(56.dp))
-                Text(
-                    text = buildAnnotatedString {
-                        append("My ")
-                        withStyle(SpanStyle(color = AppColor.primary, fontWeight = FontWeight.Bold)) {
-                            append("Events")
-                        }
+            // Header: "My Events" right next to nav icon
+            Box(modifier = Modifier.padding(horizontal = Spacing.lg)) {
+                sabuj.m.myevents.core.ui.AppTopBar(
+                    titleText   = "My Events",
+                    onMenuClick = onMenuClick,
+                    titleContent = {
+                        Text(
+                            text = buildAnnotatedString {
+                                append("My ")
+                                withStyle(SpanStyle(color = AppColor.primary, fontWeight = FontWeight.Bold)) {
+                                    append("Events")
+                                }
+                            },
+                            style = titleL,
+                            color = AppColor.text,
+                        )
                     },
-                    style = titleL,
-                    color = AppColor.text,
-                    modifier = Modifier.weight(1f),
                 )
             }
 
-            Spacer(Modifier.height(Spacing.md))
+            Spacer(Modifier.height(Spacing.sm))
 
             Column(
                 modifier = Modifier

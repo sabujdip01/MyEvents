@@ -75,11 +75,11 @@ fun EventsScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .statusBarsPadding()
         ) {
             // ── Top bar ──────────────────────────────────────────────
             EventsTopBar(
                 currentMonth = uiState.currentMonth,
+                onMenuClick  = onMenuClick,
             )
 
             Spacer(Modifier.height(Spacing.md))
@@ -144,27 +144,15 @@ fun EventsScreen(
 @Composable
 private fun EventsTopBar(
     currentMonth: YearMonth,
+    onMenuClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier          = modifier
-            .fillMaxWidth()
-            .padding(horizontal = Spacing.lg, vertical = Spacing.sm),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        // Spacer reserves room for the floating menu button drawn by ScreenScaffold
-        Spacer(Modifier.width(56.dp))
-
-        Text(
-            text     = "Events",
-            style    = titleL,
-            color    = AppColor.text,
-            modifier = Modifier.weight(1f),
-        )
-
-        // Month selector pill
-        MonthSelectorPill(currentMonth = currentMonth)
-    }
+    sabuj.m.myevents.core.ui.AppTopBar(
+        titleText   = "Events",
+        onMenuClick = onMenuClick,
+        modifier    = modifier,
+        actions     = { MonthSelectorPill(currentMonth = currentMonth) },
+    )
 }
 
 @Composable
