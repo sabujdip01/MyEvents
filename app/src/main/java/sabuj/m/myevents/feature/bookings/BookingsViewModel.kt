@@ -117,14 +117,15 @@ class BookingsViewModel @Inject constructor(
             when (val sheet = _sheetState.value) {
                 is BookingSheetState.Add -> {
                     val result = addBooking(
-                        title            = sheet.bookingType,
-                        bookingType      = sheet.bookingType,
-                        bookingIcon      = sheet.bookingIcon,
-                        eventId          = sheet.eventId,
-                        contactName      = sheet.contactName,
-                        phone            = sheet.phone,
-                        totalAmountPaise = sheet.totalAmountPaise,
-                        nextDueDate      = sheet.nextDueDateEpochDay?.let { LocalDate.ofEpochDay(it) },
+                        title              = sheet.bookingType,
+                        bookingType        = sheet.bookingType,
+                        bookingIcon        = sheet.bookingIcon,
+                        eventId            = sheet.eventId,
+                        contactName        = sheet.contactName,
+                        phone              = sheet.phone,
+                        totalAmountPaise   = sheet.totalAmountPaise,
+                        bookingAmountPaise = sheet.bookingAmountPaise,
+                        nextDueDate        = sheet.nextDueDateEpochDay?.let { LocalDate.ofEpochDay(it) },
                     )
                     handleSaveResult(result, sheet)
                 }

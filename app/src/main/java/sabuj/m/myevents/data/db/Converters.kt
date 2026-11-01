@@ -13,5 +13,16 @@ class Converters {
     @TypeConverter fun fromEpochDay(value: Long): LocalDate = LocalDate.ofEpochDay(value)
 
     @TypeConverter fun toEpochDay(date: LocalDate): Long = date.toEpochDay()
+
+    /** `List<String>` ↔ delimited String for items list. */
+    @TypeConverter fun fromStringList(value: String?): List<String> {
+        if (value.isNullOrBlank()) return emptyList()
+        return value.split("|||").filter { it.isNotBlank() }
+    }
+
+    @TypeConverter fun toStringList(list: List<String>?): String {
+        if (list.isNullOrEmpty()) return ""
+        return list.joinToString("|||")
+    }
 }
 

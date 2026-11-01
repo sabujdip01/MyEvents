@@ -130,13 +130,13 @@ fun BookingCard(
                 Column(modifier = Modifier.weight(1f)) {
                     // Paid amount
                     Text(
-                        text  = MoneyFormatter.format(booking.paidPaise),
+                        text  = "${MoneyFormatter.format(booking.paidPaise)} paid",
                         style = numberL,
                         color = AppColor.text,
                     )
-                    // "of ₹total"
+                    // Contract & Remaining
                     Text(
-                        text  = "of ${MoneyFormatter.format(booking.totalAmountPaise)}",
+                        text  = "Contract ${MoneyFormatter.format(booking.totalAmountPaise)} • Rem. ${MoneyFormatter.format(booking.amountLeftPaise)}",
                         style = bodyM,
                         color = AppColor.text2,
                     )

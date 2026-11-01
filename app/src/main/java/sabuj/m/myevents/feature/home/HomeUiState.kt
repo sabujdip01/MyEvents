@@ -1,8 +1,9 @@
 package sabuj.m.myevents.feature.home
 
+import sabuj.m.myevents.domain.model.EventSummary
+
 /**
- * UI state for the Home screen.
- * All values are zero/empty until Phase 6 wires them to real data.
+ * UI state for the Home screen dashboard cards.
  */
 data class HomeUiState(
     val upcomingEvents: List<EventSummary> = emptyList(),
@@ -16,12 +17,4 @@ data class HomeUiState(
     val totalGuests: Int         = 0,
     val totalFamilies: Int       = 0,
     val itemsPending: Int        = 0,
-)
-
-/** Minimal event data shown in the Upcoming Events card. */
-data class EventSummary(
-    val id: Long,
-    val name: String,
-    val date: java.time.LocalDate,
-    val iconKey: String,  // EventIcon enum name
 )

@@ -71,7 +71,6 @@ import java.util.Calendar
  * @param sheetState      Current [BookingSheetState.Add] or [BookingSheetState.Edit].
  * @param events          All events for the event dropdown.
  * @param onDismiss       Called when the sheet should close.
- * @param onTitleChange   Update the title field.
  * @param onTypeChange    Update the booking type field.
  * @param onIconChange    Update the selected booking icon.
  * @param onEventChange   Update the selected event id.
@@ -95,6 +94,7 @@ fun AddEditBookingSheet(
     onContactChange: (String) -> Unit,
     onPhoneChange: (String) -> Unit,
     onTotalChange: (Long) -> Unit,
+    onBookingAmountChange: (Long) -> Unit = {},
     onDueDateChange: (Long?) -> Unit,
     onSave: () -> Unit,
     onAddPayment: () -> Unit,
@@ -107,6 +107,7 @@ fun AddEditBookingSheet(
     val contactName: String
     val phone: String
     val totalAmountPaise: Long
+    val bookingAmountPaise: Long
     val nextDueDateEpochDay: Long?
     val eventError: String?
     val totalError: String?
@@ -117,7 +118,9 @@ fun AddEditBookingSheet(
             bookingType = sheetState.bookingType
             bookingIcon = sheetState.bookingIcon; eventId = sheetState.eventId
             contactName = sheetState.contactName; phone = sheetState.phone
-            totalAmountPaise = sheetState.totalAmountPaise; nextDueDateEpochDay = sheetState.nextDueDateEpochDay
+            totalAmountPaise = sheetState.totalAmountPaise
+            bookingAmountPaise = sheetState.bookingAmountPaise
+            nextDueDateEpochDay = sheetState.nextDueDateEpochDay
             eventError = sheetState.eventError
             totalError = sheetState.totalError; payments = emptyList()
         }
@@ -125,7 +128,9 @@ fun AddEditBookingSheet(
             bookingType = sheetState.bookingType
             bookingIcon = sheetState.bookingIcon; eventId = sheetState.eventId
             contactName = sheetState.contactName; phone = sheetState.phone
-            totalAmountPaise = sheetState.totalAmountPaise; nextDueDateEpochDay = sheetState.nextDueDateEpochDay
+            totalAmountPaise = sheetState.totalAmountPaise
+            bookingAmountPaise = sheetState.bookingAmountPaise
+            nextDueDateEpochDay = sheetState.nextDueDateEpochDay
             eventError = sheetState.eventError
             totalError = sheetState.totalError; payments = sheetState.payments
         }
@@ -224,16 +229,33 @@ fun AddEditBookingSheet(
                 keyboardType  = KeyboardType.Phone,
             )
 
-            // Total amount
-            BookingTextField(
-                value         = if (totalAmountPaise == 0L) "" else (totalAmountPaise / 100L).toString(),
-                onValueChange = { text -> onTotalChange(text.toLongOrNull()?.times(100L) ?: 0L) },
-                label         = "Total amount (â‚¹)", // TODO strings.xml
+            // Contract Amount
+            val contractRupeesStr = if (totalAmountPaise == 0L) "" else formatIndianDigits((totalAmountPaise / 100L).toString())
+            BookingMoneyTextField(
+                value         = contractRupeesStr,
+                onValueChange = { text ->
+                    val digits = text.filter { it.isDigit() }
+                    onTotalChange(digits.toLongOrNull()?.times(100L) ?: 0L)
+                },
+                label         = "Contract Amount (₹)",
                 placeholder   = "0",
-                keyboardType  = KeyboardType.Number,
                 isError       = totalError != null,
                 supportingText = totalError,
             )
+
+            // Booking Amount / Advance (only in Add mode)
+            if (!isEdit) {
+                val bookingRupeesStr = if (bookingAmountPaise == 0L) "" else formatIndianDigits((bookingAmountPaise / 100L).toString())
+                BookingMoneyTextField(
+                    value         = bookingRupeesStr,
+                    onValueChange = { text ->
+                        val digits = text.filter { it.isDigit() }
+                        onBookingAmountChange(digits.toLongOrNull()?.times(100L) ?: 0L)
+                    },
+                    label         = "Booking Amount / Advance (₹)",
+                    placeholder   = "0",
+                )
+            }
 
             // Next due date (optional)
             val dueDateLabel = nextDueDateEpochDay?.let { DateUtils.formatDisplay(LocalDate.ofEpochDay(it)) } ?: "Not set"
@@ -267,7 +289,7 @@ fun AddEditBookingSheet(
                 },
             )
 
-            // â”€â”€ Payment log (Edit mode only) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ── Payment log (Edit mode only) ──────────────────────────
             if (isEdit) {
                 Spacer(Modifier.height(Spacing.xs))
                 Text(
@@ -286,7 +308,7 @@ fun AddEditBookingSheet(
                 BookingTextField(
                     value         = MoneyFormatter.format(amountLeftPaise),
                     onValueChange = {},
-                    label         = "Amount left", // TODO strings.xml
+                    label         = "Remaining Amount", // TODO strings.xml
                     readOnly      = true,
                 )
                 // Payment rows
@@ -306,7 +328,7 @@ fun AddEditBookingSheet(
             }
 
             // â”€â”€ Action buttons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-            val isSaveEnabled = title.isNotBlank() && eventId.isNotBlank() && totalAmountPaise > 0
+            val isSaveEnabled = bookingType.isNotBlank() && eventId.isNotBlank() && totalAmountPaise > 0
             AppButtonRow(
                 positiveText    = if (isEdit) "Save" else "Add", // TODO strings.xml
                 onPositive      = onSave,
@@ -450,6 +472,46 @@ private fun BookingTextField(
         trailingIcon   = trailingIcon,
         singleLine     = true,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        shape          = RoundedCornerShape(Radius.field),
+        isError        = isError,
+        supportingText = if (supportingText != null) { { Text(supportingText, style = bodyM) } } else null,
+        colors         = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor   = AppColor.primary,
+            unfocusedBorderColor = AppColor.outline,
+            focusedLabelColor    = AppColor.primary,
+            unfocusedLabelColor  = AppColor.text2,
+            cursorColor          = AppColor.primary,
+            errorBorderColor     = AppColor.danger,
+        ),
+    )
+}
+
+private fun formatIndianDigits(rawDigits: String): String {
+    val clean = rawDigits.filter { it.isDigit() }
+    val n = clean.toLongOrNull() ?: return clean
+    if (n == 0L) return ""
+    return java.text.NumberFormat.getNumberInstance(java.util.Locale("en", "IN")).format(n)
+}
+
+@Composable
+private fun BookingMoneyTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    modifier: Modifier = Modifier,
+    placeholder: String = "0",
+    isError: Boolean = false,
+    supportingText: String? = null,
+) {
+    OutlinedTextField(
+        value          = value,
+        onValueChange  = onValueChange,
+        label          = { Text(label, style = bodyM) },
+        placeholder    = { Text(placeholder, style = bodyM, color = AppColor.text3) },
+        prefix         = { Text("₹ ", style = bodyM, color = AppColor.text) },
+        modifier       = modifier.fillMaxWidth(),
+        singleLine     = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         shape          = RoundedCornerShape(Radius.field),
         isError        = isError,
         supportingText = if (supportingText != null) { { Text(supportingText, style = bodyM) } } else null,

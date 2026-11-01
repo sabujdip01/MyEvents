@@ -52,6 +52,7 @@ sealed class BookingSheetState {
         val contactName: String = "",
         val phone: String = "",
         val totalAmountPaise: Long = 0L,
+        val bookingAmountPaise: Long = 0L,
         val nextDueDateEpochDay: Long? = null,
         val eventError: String? = null,
         val totalError: String? = null,
@@ -66,6 +67,7 @@ sealed class BookingSheetState {
         val contactName: String,
         val phone: String,
         val totalAmountPaise: Long,
+        val bookingAmountPaise: Long = 0L,
         val nextDueDateEpochDay: Long?,
         val payments: List<sabuj.m.myevents.domain.model.BookingPayment>,
         val eventError: String? = null,
@@ -81,6 +83,7 @@ sealed class BookingSheetState {
                 contactName        = booking.contactName,
                 phone              = booking.phone,
                 totalAmountPaise   = booking.totalAmountPaise,
+                bookingAmountPaise = 0L,
                 nextDueDateEpochDay = booking.nextDueDate?.toEpochDay(),
                 payments           = booking.payments,
             )

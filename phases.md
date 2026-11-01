@@ -104,15 +104,15 @@ Dependencies: 0 → 1 → 2 → (3, 4, 5 in order) → 6 → 7 → 8 → 9 → 1
 
 **Goal:** per-event expense tables.
 
-- [ ] Dynamic top tabs from the events list
-- [ ] Table: Purpose, Amount, Amount due, Items list, All-items-received flag, total row
-- [ ] Booking amounts shown as read-only rows
-- [ ] Add popup: purpose, multi-select events, paid, due, dynamic item boxes (new blank box when the last is filled), all-collected flag
-- [ ] Multi-event add creates one row per event sharing a `groupId`
-- [ ] Edit mode: editable cells, one or many rows, only the selected event's row changes
-- [ ] Delete mode: checkboxes, delete one or many rows
-- [ ] Search bar and filter chips (All, Due pending, Items pending)
-- [ ] Empty state per tab
+- [x] Dynamic top tabs from the events list
+- [x] Table: Purpose, Amount, Amount due, Items list, All-items-received flag, total row
+- [x] Booking amounts shown as read-only rows
+- [x] Add popup: purpose, multi-select events, paid, due, dynamic item boxes (new blank box when the last is filled), all-collected flag
+- [x] Multi-event add creates one row per event sharing a `groupId`
+- [x] Edit mode: editable cells, one or many rows, only the selected event's row changes
+- [x] Delete mode: checkboxes, delete one or many rows
+- [x] Search bar and filter chips (All, Due pending, Items pending)
+- [x] Empty state per tab
 
 **Done when:** adding an expense for two events creates two rows, editing one leaves the other unchanged, and totals are correct.
 
@@ -124,18 +124,18 @@ Dependencies: 0 → 1 → 2 → (3, 4, 5 in order) → 6 → 7 → 8 → 9 → 1
 
 **5A. Invitees**
 
-- [ ] Tabs only for events with "Invitees required" = Yes
-- [ ] Table: relative name, expected count, address, invited flag (green check)
-- [ ] Footer: invitee count (sum) and family count (rows)
-- [ ] Add popup: name, multi-select events, expected count, address (plain text), invited flag, note
-- [ ] One row per event with shared `groupId`; independent edits
-- [ ] Edit and delete modes; search and filter chips (All, Invited, Not invited)
-- [ ] Invitee count feeds the Events details popup
+- [x] Tabs only for events with "Invitees required" = Yes
+- [x] Table: relative name, expected count, address, invited flag (green check)
+- [x] Footer: invitee count (sum) and family count (rows)
+- [x] Add popup: name, multi-select events, expected count, address (plain text), invited flag, note
+- [x] One row per event with shared `groupId`; independent edits
+- [x] Edit and delete modes; search and filter chips (All, Invited, Not invited)
+- [x] Invitee count feeds the Events details popup
 
 **5B. Gifts tab**
 
-- [ ] Per-event gifts log: giver, amount or gift description, optional invitee link
-- [ ] Gift totals reduce net spending where shown
+- [x] Per-event gifts log: giver, amount or gift description, optional invitee link
+- [x] Gift totals reduce net spending where shown
 
 **Done when:** guest tables and footers work, and gifts are recorded per event.
 
@@ -147,20 +147,20 @@ Dependencies: 0 → 1 → 2 → (3, 4, 5 in order) → 6 → 7 → 8 → 9 → 1
 
 **6A. Checklist**
 
-- [ ] Per-event task list: title, optional due date, done checkbox
-- [ ] Placement decided (drawer item or tab), then built
-- [ ] Add, edit, delete tasks; empty state
+- [x] Per-event task list: title, optional due date, done checkbox
+- [x] Placement decided (drawer item or tab), then built
+- [x] Add, edit, delete tasks; empty state
 
 **6B. Home wiring**
 
-- [ ] Event Dates card per event (date, days left)
-- [ ] Bookings Done card per event (done / total)
-- [ ] Booking Amount card
-- [ ] Budget vs Spent card (progress bar turns red when over)
-- [ ] Pending Dues card
-- [ ] Invitees card (guests and families)
-- [ ] Items Pending card
-- [ ] Long-press each card opens its page in edit mode
+- [x] Event Dates card per event (date, days left)
+- [x] Bookings Done card per event (done / total)
+- [x] Booking Amount card
+- [x] Budget vs Spent card (progress bar turns red when over)
+- [x] Pending Dues card
+- [x] Invitees card (guests and families)
+- [x] Items Pending card
+- [x] Long-press each card opens its page in edit mode
 
 **Done when:** every number on Home matches the underlying pages and updates live.
 

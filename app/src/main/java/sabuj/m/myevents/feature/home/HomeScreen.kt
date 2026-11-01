@@ -1,4 +1,4 @@
-package sabuj.m.myevents.feature.home
+﻿package sabuj.m.myevents.feature.home
 
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import sabuj.m.myevents.core.icons.AppIcon
+import sabuj.m.myevents.domain.model.EventSummary
 import sabuj.m.myevents.core.preview.LightDarkPreviews
 import sabuj.m.myevents.core.preview.PreviewData
 import sabuj.m.myevents.core.theme.AppColor
@@ -50,7 +51,6 @@ import sabuj.m.myevents.core.theme.AppTheme
 import sabuj.m.myevents.core.theme.Radius
 import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
-import sabuj.m.myevents.core.theme.display
 import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.numberXl
 import sabuj.m.myevents.core.theme.titleL
@@ -65,7 +65,7 @@ import sabuj.m.myevents.core.ui.PillVariant
 import sabuj.m.myevents.core.ui.doodles.BgBlobs
 
 /**
- * Home screen — design.md section 6.4.
+ * Home screen â€” design.md section 6.4.
  * Matches Home-Light.png sample exactly.
  */
 @Composable
@@ -99,15 +99,17 @@ private fun HomeContent(
                 .verticalScroll(rememberScrollState()),
         ) {
             // ----------------------------------------------------------------
-            // Header: App name at top of screen (left-aligned)
+            // Header: "My Events" in same horizontal line as menu button
             // ----------------------------------------------------------------
-            Column(
-                modifier = Modifier
+            Row(
+                modifier          = Modifier
                     .fillMaxWidth()
                     .statusBarsPadding()
-                    .padding(top = 64.dp, bottom = Spacing.sm) // clears the floating menu button
-                    .padding(horizontal = Spacing.lg),
+                    .padding(horizontal = Spacing.lg, vertical = Spacing.sm),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
+                // Reserve space for the floating menu button drawn by ScreenScaffold
+                Spacer(Modifier.width(56.dp))
                 Text(
                     text = buildAnnotatedString {
                         append("My ")
@@ -115,8 +117,9 @@ private fun HomeContent(
                             append("Events")
                         }
                     },
-                    style = display,
+                    style = titleL,
                     color = AppColor.text,
+                    modifier = Modifier.weight(1f),
                 )
             }
 
@@ -167,7 +170,7 @@ private fun HomeContent(
             }
         }
 
-        // Floating menu button — top-left above everything
+        // Floating menu button â€” top-left above everything
         Box(
             modifier = Modifier
                 .align(Alignment.TopStart)
@@ -202,7 +205,7 @@ private fun HomeCard(
     }
 }
 
-/** Large circle icon chip matching sample — primaryContainer bg, primary icon. */
+/** Large circle icon chip matching sample â€” primaryContainer bg, primary icon. */
 @Composable
 private fun CardIcon(icon: ImageVector, contentDescription: String = "") {
     Box(
@@ -272,11 +275,11 @@ private fun EventRow(event: EventSummary) {
                 modifier        = Modifier.size(44.dp).clip(CircleShape).background(AppColor.primaryContainer),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(AppIcon.Events.fallback, null, tint = AppColor.primary, modifier = Modifier.size(22.dp))
+                Icon(event.icon.fallback, null, tint = AppColor.primary, modifier = Modifier.size(22.dp))
             }
             Spacer(Modifier.width(Spacing.md))
             Column(modifier = Modifier.weight(1f)) {
-                Text(event.name, style = titleS, color = AppColor.text, fontWeight = FontWeight.SemiBold)
+                Text(event.title, style = titleS, color = AppColor.text, fontWeight = FontWeight.SemiBold)
                 Text(DateUtils.formatDisplay(event.date), style = bodyM, color = AppColor.text2)
             }
             Pill(text = pillText, icon = AppIcon.Clock.fallback, variant = pillVariant)
@@ -308,9 +311,9 @@ private fun BookingsDoneCard(done: Int, total: Int, modifier: Modifier) {
                     color = AppColor.text,
                 )
                 Text("bookings", style = bodyM, color = AppColor.text2)
-                Spacer(Modifier.weight(1f)) // flexible spacer — both cards reach same height
+                Spacer(Modifier.weight(1f)) // flexible spacer â€” both cards reach same height
             }
-            // Faint clipboard art — bottom-right
+            // Faint clipboard art â€” bottom-right
             Box(
                 modifier        = Modifier.align(Alignment.BottomEnd).size(64.dp).padding(Spacing.sm),
                 contentAlignment = Alignment.Center,
@@ -337,7 +340,7 @@ private fun BookingAmountCard(paidPaise: Long, totalPaise: Long, modifier: Modif
                 Text(MoneyFormatter.format(paidPaise), style = numberXl, color = AppColor.primary, fontWeight = FontWeight.Bold)
                 Text("paid", style = bodyM, color = AppColor.text2)
                 Text("of ${MoneyFormatter.format(totalPaise)}", style = bodyM, color = AppColor.text2)
-                Spacer(Modifier.weight(1f)) // flexible spacer — both cards reach same height
+                Spacer(Modifier.weight(1f)) // flexible spacer â€” both cards reach same height
             }
             Box(
                 modifier        = Modifier.align(Alignment.BottomEnd).size(64.dp).padding(Spacing.sm),
@@ -395,7 +398,7 @@ private fun BudgetCard(spentPaise: Long, totalPaise: Long) {
                     Text("$pct%", style = labelL, color = AppColor.text2)
                 }
             }
-            // Faint bar chart art — right side
+            // Faint bar chart art â€” right side
             Box(
                 modifier        = Modifier.align(Alignment.CenterEnd).size(80.dp).padding(end = Spacing.sm),
                 contentAlignment = Alignment.Center,
@@ -479,7 +482,7 @@ private fun ItemsPendingCard(count: Int) {
                     .fillMaxWidth()
                     .padding(Spacing.lg),
             ) {
-                // Header row — icon + labels fill left side; art overlay is on the right
+                // Header row â€” icon + labels fill left side; art overlay is on the right
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier          = Modifier.fillMaxWidth().padding(end = 80.dp), // keep away from art
@@ -492,10 +495,10 @@ private fun ItemsPendingCard(count: Int) {
                     }
                 }
                 Spacer(Modifier.height(Spacing.sm))
-                // Count: full width, no right padding — safe because art sits at CenterEnd
+                // Count: full width, no right padding â€” safe because art sits at CenterEnd
                 Text("$count", style = numberXl, color = AppColor.primary, fontWeight = FontWeight.Bold)
             }
-            // Faint checklist art — right side, non-interactive
+            // Faint checklist art â€” right side, non-interactive
             Box(
                 modifier        = Modifier.align(Alignment.CenterEnd).size(96.dp).padding(end = Spacing.md),
                 contentAlignment = Alignment.Center,
@@ -523,8 +526,8 @@ private fun HomeScreenFilledPreview() {
         HomeContent(
             state = HomeUiState(
                 upcomingEvents       = listOf(
-                    EventSummary(1, "Engagement", PreviewData.sampleEventDate, "Engagement"),
-                    EventSummary(2, "Wedding",    PreviewData.sampleEventDate.plusDays(120), "Wedding"),
+                    EventSummary("1", "Engagement", PreviewData.sampleEventDate, sabuj.m.myevents.core.icons.EventIcon.Engagement),
+                    EventSummary("2", "Wedding",    PreviewData.sampleEventDate.plusDays(120), sabuj.m.myevents.core.icons.EventIcon.Wedding),
                 ),
                 bookingsDone         = 4,
                 bookingsTotal        = 7,

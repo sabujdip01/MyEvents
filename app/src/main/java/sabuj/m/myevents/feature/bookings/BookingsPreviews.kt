@@ -1,7 +1,6 @@
 package sabuj.m.myevents.feature.bookings
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 import sabuj.m.myevents.core.preview.LightDarkPreviews
 import sabuj.m.myevents.core.preview.PreviewData
 import sabuj.m.myevents.core.theme.AppTheme
@@ -47,14 +46,12 @@ private fun AddBookingSheetPreview() {
     AppTheme {
         AddEditBookingSheet(
             sheetState      = BookingSheetState.Add(
-                title            = "Photography",
-                bookingType      = "Camera",
+                bookingType      = "Photography",
                 bookingIcon      = sabuj.m.myevents.core.icons.BookingIcon.Camera,
                 eventId          = PreviewData.sampleEvents.first().id,
             ),
             events          = PreviewData.sampleEvents,
             onDismiss       = {},
-            onTitleChange   = {},
             onTypeChange    = {},
             onIconChange    = {},
             onEventChange   = {},
@@ -77,7 +74,6 @@ private fun EditBookingSheetPreview() {
             sheetState      = BookingSheetState.Edit.from(PreviewData.sampleBooking),
             events          = PreviewData.sampleEvents,
             onDismiss       = {},
-            onTitleChange   = {},
             onTypeChange    = {},
             onIconChange    = {},
             onEventChange   = {},

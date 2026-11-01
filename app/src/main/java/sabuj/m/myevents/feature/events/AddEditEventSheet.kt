@@ -1,5 +1,6 @@
 package sabuj.m.myevents.feature.events
 
+import android.app.DatePickerDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,9 +20,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -37,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import sabuj.m.myevents.core.icons.EventIcon
@@ -52,6 +57,7 @@ import sabuj.m.myevents.core.util.DateUtils
 import sabuj.m.myevents.domain.model.Event
 import java.text.NumberFormat
 import java.time.LocalDate
+import java.util.Calendar
 import java.util.Locale
 
 /**
@@ -59,7 +65,8 @@ import java.util.Locale
  *
  * Simplifications per user feedback:
  *  - No separate "Title" field — event name is used as both title and name.
- *  - No date picker — the date is fixed from the calendar long-press and shown read-only.
+ *  - In Add mode: date is fixed from the calendar long-press (shown read-only).
+ *  - In Edit mode: a DatePicker button lets the user change the date.
  *  - Budget is formatted with Indian grouping as the user types (₹ prefix shown).
  *  - [saveError] non-null renders an inline red error box above the buttons.
  */
@@ -74,8 +81,10 @@ fun AddEditEventSheet(
 ) {
     val isEdit = existingEvent != null
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val context = LocalContext.current
 
-    val selectedDate = if (existingEvent != null) existingEvent.date else prefilledDate
+    // In Edit mode the date can be changed; in Add mode it is fixed from the long-press
+    var selectedDate by remember { mutableStateOf(if (existingEvent != null) existingEvent.date else prefilledDate) }
 
     // Form state
     var eventName by remember { mutableStateOf(existingEvent?.eventName ?: "") }
@@ -94,6 +103,22 @@ fun AddEditEventSheet(
     fun formatIndian(raw: String): String {
         val n = raw.toLongOrNull() ?: return raw
         return NumberFormat.getNumberInstance(Locale("en", "IN")).format(n)
+    }
+
+    /** Open system DatePickerDialog; updates selectedDate on confirm. */
+    fun showDatePicker() {
+        val cal = Calendar.getInstance().apply {
+            set(selectedDate.year, selectedDate.monthValue - 1, selectedDate.dayOfMonth)
+        }
+        DatePickerDialog(
+            context,
+            { _, year, month, day ->
+                selectedDate = LocalDate.of(year, month + 1, day)
+            },
+            cal.get(Calendar.YEAR),
+            cal.get(Calendar.MONTH),
+            cal.get(Calendar.DAY_OF_MONTH),
+        ).show()
     }
 
     ModalBottomSheet(
@@ -124,13 +149,46 @@ fun AddEditEventSheet(
                 placeholder   = "e.g. Wedding, Engagement",
             )
 
-            // Date — read-only label (user picked date by long-pressing the calendar cell)
-            AppTextField(
-                value         = DateUtils.formatDisplay(selectedDate),
-                onValueChange = {},
-                label         = "Date",
-                readOnly      = true,
-            )
+            // Date — read-only in Add mode; editable (via DatePicker) in Edit mode
+            if (isEdit) {
+                Row(
+                    modifier          = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                ) {
+                    AppTextField(
+                        value         = DateUtils.formatDisplay(selectedDate),
+                        onValueChange = {},
+                        label         = "Date",
+                        readOnly      = true,
+                        modifier      = Modifier.weight(1f),
+                    )
+                    Button(
+                        onClick  = { showDatePicker() },
+                        modifier = Modifier.height(56.dp),
+                        colors   = ButtonDefaults.buttonColors(
+                            containerColor = AppColor.primaryContainer,
+                            contentColor   = AppColor.primary,
+                        ),
+                        shape    = RoundedCornerShape(14.dp),
+                    ) {
+                        Icon(
+                            imageVector        = Icons.Rounded.DateRange,
+                            contentDescription = "Change date",
+                            modifier           = Modifier.size(20.dp),
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text("Change", style = labelM)
+                    }
+                }
+            } else {
+                AppTextField(
+                    value         = DateUtils.formatDisplay(selectedDate),
+                    onValueChange = {},
+                    label         = "Date",
+                    readOnly      = true,
+                )
+            }
 
             // Event icon picker
             Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {

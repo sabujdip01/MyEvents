@@ -10,6 +10,10 @@ import dagger.hilt.components.SingletonComponent
 import sabuj.m.myevents.data.db.AppDatabase
 import sabuj.m.myevents.data.db.dao.BookingDao
 import sabuj.m.myevents.data.db.dao.EventDao
+import sabuj.m.myevents.data.db.dao.ExpenseDao
+import sabuj.m.myevents.data.db.dao.GiftDao
+import sabuj.m.myevents.data.db.dao.InviteeDao
+import sabuj.m.myevents.data.db.dao.TaskDao
 import javax.inject.Singleton
 
 /**
@@ -28,7 +32,12 @@ object DatabaseModule {
             AppDatabase::class.java,
             "myevents.db",
         )
-            .addMigrations(AppDatabase.MIGRATION_1_2)
+            .addMigrations(
+                AppDatabase.MIGRATION_1_2,
+                AppDatabase.MIGRATION_2_3,
+                AppDatabase.MIGRATION_3_4,
+                AppDatabase.MIGRATION_4_5,
+            )
             .build()
 
     @Provides
@@ -36,4 +45,16 @@ object DatabaseModule {
 
     @Provides
     fun provideBookingDao(db: AppDatabase): BookingDao = db.bookingDao()
+
+    @Provides
+    fun provideExpenseDao(db: AppDatabase): ExpenseDao = db.expenseDao()
+
+    @Provides
+    fun provideInviteeDao(db: AppDatabase): InviteeDao = db.inviteeDao()
+
+    @Provides
+    fun provideGiftDao(db: AppDatabase): GiftDao = db.giftDao()
+
+    @Provides
+    fun provideTaskDao(db: AppDatabase): TaskDao = db.taskDao()
 }

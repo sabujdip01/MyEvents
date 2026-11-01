@@ -1,9 +1,14 @@
 # Version History
 
-Current: V0.3.7
+Current: V0.6.1
 
 | Version | Phase | Build | Commit     | Summary                                                                                             |
 | ------- | ----- | ----- |------------|-----------------------------------------------------------------------------------------------------|
+| V0.6.1  | 6     | 1     | —          | feat(checklist/home): checklist per-event tasks, live Home dashboard 7-card wiring                   |
+| V0.5.1  | 5     | 1     | —          | feat(invitees): guest list table, multi-event add, gifts sub-tab, counts summary                    |
+| V0.4.1  | 4     | 1     | —          | feat(expenses): per-event expense tables, multi-event add, dynamic items, vendor rows, filters     |
+| V0.3.9  | 3     | 9     | —          | fix(bookings): resolve sprint 1-3 test feedback (top bar alignment, date picker, contract/booking amounts, event chips) |
+| V0.3.8  | 3     | 8     | —          | fix(bookings): replace unresolved title reference with bookingType in AddEditBookingSheet             |
 | V0.3.7  | 3     | 7     | —          | fix(events/bookings): remove undo, clean booking sheet (no Title field), simplify delete |
 | V0.3.6  | 3     | 6     | 1fc64a4    | fix(events): S1-15 header, S2-07 budget/switch, S2-08 cell colour, S2-09 detail sheet, S2-11 inline error |
 | V0.3.5  | 3     | 5     | 7091e50    | fix(home): Sprint 1 fixes — splash light/dark, 60s re-lock, card heights, app name, dues colour    |

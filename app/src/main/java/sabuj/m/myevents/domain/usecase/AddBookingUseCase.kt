@@ -30,14 +30,16 @@ class AddBookingUseCase @Inject constructor(
         contactName: String,
         phone: String,
         totalAmountPaise: Long,
+        bookingAmountPaise: Long = 0L,
         nextDueDate: LocalDate?,
     ): BookingSaveResult {
         if (eventId.isBlank()) return BookingSaveResult.EventIdBlank
         if (totalAmountPaise <= 0) return BookingSaveResult.TotalInvalid
 
         val now = System.currentTimeMillis()
+        val bookingId = UUID.randomUUID().toString()
         val booking = Booking(
-            id               = UUID.randomUUID().toString(),
+            id               = bookingId,
             eventId          = eventId,
             title            = bookingType.trim(),
             bookingType      = bookingType.trim(),
@@ -53,6 +55,20 @@ class AddBookingUseCase @Inject constructor(
             deleted          = false,
         )
         repo.upsertBooking(booking)
+
+        if (bookingAmountPaise > 0) {
+            val payment = sabuj.m.myevents.domain.model.BookingPayment(
+                id          = UUID.randomUUID().toString(),
+                bookingId   = bookingId,
+                date        = LocalDate.now(),
+                amountPaise = bookingAmountPaise,
+                note        = "Booking advance",
+                createdAt   = now,
+                updatedAt   = now,
+            )
+            repo.addPayment(payment)
+        }
+
         return BookingSaveResult.Success
     }
 }

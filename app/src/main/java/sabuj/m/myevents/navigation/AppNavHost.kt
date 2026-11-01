@@ -59,13 +59,13 @@ fun AppNavHost(
                 BookingsScreen(onMenuClick = openDrawer)
             }
             composable(Routes.EXPENSES) {
-                PlaceholderScreen(title = "Expenses", onMenuClick = openDrawer)
+                sabuj.m.myevents.feature.expenses.ExpensesScreen(onMenuClick = openDrawer)
             }
             composable(Routes.INVITEES) {
-                PlaceholderScreen(title = "Invitees", onMenuClick = openDrawer)
+                sabuj.m.myevents.feature.invitees.InviteesScreen(onMenuClick = openDrawer)
             }
             composable(Routes.CHECKLIST) {
-                PlaceholderScreen(title = "Checklist", onMenuClick = openDrawer)
+                sabuj.m.myevents.feature.checklist.ChecklistScreen(onMenuClick = openDrawer)
             }
             composable(Routes.SETTINGS) {
                 SettingsScreen(onMenuClick = openDrawer)

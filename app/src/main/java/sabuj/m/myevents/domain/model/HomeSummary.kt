@@ -24,6 +24,9 @@ data class HomeSummary(
     /** Bookings completed vs total. */
     val bookingsDone: Int = 0,
     val bookingsTotal: Int = 0,
+    /** Booking amounts in paise. */
+    val bookingAmountPaid: Long = 0L,
+    val bookingAmountTotal: Long = 0L,
 )
 
 /** Per-event mini-summary for the Home upcoming-events card. */

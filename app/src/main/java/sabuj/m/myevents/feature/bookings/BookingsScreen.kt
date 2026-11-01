@@ -100,12 +100,13 @@ fun BookingsScreen(
 
                 Spacer(Modifier.height(Spacing.sm))
 
-                // â”€â”€ Event filter chips â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                // ── Event filter chips ────────────────────────────────────────
                 if (uiState.events.isNotEmpty()) {
                     EventFilterChips(
-                        events         = uiState.events,
+                        events          = uiState.events,
+                        bookings        = uiState.bookings,
                         selectedEventId = uiState.filterEventId,
-                        onSelect       = { viewModel.filterByEvent(it) },
+                        onSelect        = { viewModel.filterByEvent(it) },
                     )
                     Spacer(Modifier.height(Spacing.md))
                 }
@@ -208,6 +209,7 @@ fun BookingsScreen(
             onContactChange = { viewModel.updateAddSheetField { s -> s.copy(contactName = it) } },
             onPhoneChange = { viewModel.updateAddSheetField { s -> s.copy(phone = it) } },
             onTotalChange = { viewModel.updateAddSheetField { s -> s.copy(totalAmountPaise = it) } },
+            onBookingAmountChange = { viewModel.updateAddSheetField { s -> s.copy(bookingAmountPaise = it) } },
             onDueDateChange = { viewModel.updateAddSheetField { s -> s.copy(nextDueDateEpochDay = it) } },
             onSave        = { viewModel.saveBooking() },
             onAddPayment  = {},
@@ -298,10 +300,12 @@ private fun BookingsTopBar(
 @Composable
 private fun EventFilterChips(
     events: List<Event>,
+    bookings: List<Booking>,
     selectedEventId: String?,
     onSelect: (String?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val totalAll = bookings.sumOf { it.totalAmountPaise }
     LazyRow(
         modifier            = modifier,
         contentPadding      = PaddingValues(horizontal = Spacing.lg),
@@ -309,14 +313,15 @@ private fun EventFilterChips(
     ) {
         item {
             FilterChipItem(
-                label      = "All", // TODO strings.xml
+                label      = "All (${sabuj.m.myevents.core.util.MoneyFormatter.format(totalAll)})",
                 isSelected = selectedEventId == null,
                 onClick    = { onSelect(null) },
             )
         }
         itemsIndexed(events) { _, event ->
+            val totalForEvent = bookings.filter { it.eventId == event.id }.sumOf { it.totalAmountPaise }
             FilterChipItem(
-                label      = event.title,
+                label      = "${event.title} (${sabuj.m.myevents.core.util.MoneyFormatter.format(totalForEvent)})",
                 isSelected = selectedEventId == event.id,
                 onClick    = { onSelect(event.id) },
             )

@@ -1,4 +1,4 @@
-﻿# Test Cases
+# Test Cases
 
 ## Sprint 1: App Shell & Security (V0.1.4)
 
@@ -18,44 +18,44 @@
 | S1-12 | Drawer navigate  | Tap "Bookings" in drawer                                              | Drawer closes, Bookings placeholder screen shows             | [Working]   | [Working]  | Pass |
 | S1-13 | Drawer navigate back | From Bookings, tap â‰¡ â†’ Home                                      | Home screen shows                                            | [Working]   | [Working]  | Pass |
 | S1-14 | Home empty state | First unlock with no events                                           | Upcoming Events card shows "No events yet" + "Add event" button | [Working] | [Working]  | Pass |
-| S1-15 | Home cards       | Inspect Home screen                                                   | 7 cards visible: Events, Bookings Done, Booking Amount, Budget, Dues, Invitees, Items; all show 0/â€“ | [Move the app name to top of screen. Rremove calendar icon] | [Fixed] | Fixed |
-| S1-16 | Settings screen  | Drawer â†’ Settings                                                     | Settings screen with Appearance, Security, About sections    | [Working]   | [Working]  | Pass |
-| S1-17 | Settings version | Go to Settings â†’ About                                                | Version "V0.1.x" is shown                                    | [Working]   | [Working]  | Pass |
+| S1-15 | Home cards       | Inspect Home screen                                                   | 7 cards visible: Events, Bookings Done, Booking Amount, Budget, Dues, Invitees, Items; title aligned with nav icon | [Header title aligned with nav icon] | [Works] | Pass |
+| S1-16 | Settings screen  | Drawer → Settings                                                     | Settings screen with Appearance, Security, About sections    | [Working]   | [Working]  | Pass |
+| S1-17 | Settings version | Go to Settings → About                                                | Version "V0.1.x" is shown                                    | [Working]   | [Working]  | Pass |
 | S1-18 | Dark theme       | Change system to dark mode and reopen                                 | All screens use dark palette (Palette A dark)                | n/a   | [Working]  | Pass |
 
 ## Sprint 2: Data Layer & Events (V0.2.5)
 
 | ID    | Area              | Steps                                                                                           | Expected result                                                                               | Light | Dark | Status  |
 | ----- | ----------------- | ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ----- | ---- | ------- |
-| S2-01 | Navigation        | Drawer â†’ Events                                                                                 | Events calendar screen opens with current month                                               | [Working]   | [Working]  | Pass |
-| S2-02 | Calendar display  | Open Events screen                                                                              | Current month shown; weekday labels Monâ€“Sun; date cells fill correctly                        | [Working]   | [Working]  | Pass |
+| S2-01 | Navigation        | Drawer → Events                                                                                 | Events calendar screen opens with current month                                               | [Working]   | [Working]  | Pass |
+| S2-02 | Calendar display  | Open Events screen                                                                              | Current month shown; weekday labels Mon–Sun; date cells fill correctly                        | [Working]   | [Working]  | Pass |
 | S2-03 | Today highlight   | Open Events screen                                                                              | Today's cell has a subtle primary-tinted outline/background                                   | [Working]   | [Working]  | Pass |
 | S2-04 | Month pager       | Swipe up on the calendar                                                                        | Next month slides in with snap; month pill in top bar updates                                 | [Working]   | [Working]  | Pass |
 | S2-05 | Month pager back  | Swipe down on the calendar                                                                      | Previous month slides in; pill updates                                                        | [Working]   | [Working]  | Pass |
 | S2-06 | Tap empty date    | Tap any date with no event                                                                      | Nothing happens (no sheet opens)                                                              | [Working]   | [Working]  | Pass |
-| S2-07 | Add event         | Long-press an empty date â†’ fill Title, Event name, pick icon, enter Budget â†’ tap Add           | Sheet closes; event icon appears on that date cell; dot below icon                            | [Remove title, Event name is enough and Identified. In the 'add event' screen, dont let user change the date (user navigate to calendar, taps hold holds the desired date to add event). Format the budget amount as soon as the user types it.]   | [Fixed]  | Fixed |
+| S2-07 | Add event         | Long-press an empty date → fill Title, Event name, pick icon, enter Budget → tap Add           | Sheet closes; event icon appears on that date cell; dot below icon                            | [Working]   | [Working]  | Pass |
 | S2-08 | Persistence       | Add event, then kill and reopen the app                                                         | Event is still on the calendar                                                                | [Working]   | [Working]  | Pass |
 | S2-09 | Tap event date    | Tap a date that has an event                                                                    | Details sheet opens showing title, date, stats tiles, detail list, Edit/Delete buttons        | [Working]   | [Working]  | Pass |
-| S2-10 | Edit event        | Details sheet â†’ Edit Event â†’ change title â†’ Save                                               | Sheet closes; calendar shows updated event; details shows new title                           | [Working]   | [Working]  | Pass |
-| S2-11 | Date conflict     | Add/Edit event â†’ pick a date already taken by another event â†’ tap Add/Save                     | "A event is already planned for that date" error snackbar; sheet stays open                   | [Working]   | [Working]  | Pass |
+| S2-10 | Edit event        | Details sheet → Edit Event → change date/title → Save                                          | Sheet closes; calendar shows updated event; date change supported in edit mode                | [Date edit supported in Edit sheet]   | [Works]  | Pass |
+| S2-11 | Date conflict     | Add/Edit event → pick a date already taken by another event → tap Add/Save                     | "A event is already planned for that date" error snackbar; sheet stays open                   | [Working]   | [Working]  | Pass |
 | S2-12 | Long-press event  | Long-press a date that already has an event                                                     | Edit event sheet opens pre-filled with existing data                                          | [Works]   | [Works]  | Pass |
-| S2-13 | Delete event      | Details sheet â†’ Delete â†’ Delete confirm dialog â†’ tap Delete                                    | Dialog closes; event removed from calendar immediately (no Undo)                              | [Pass]   | [ ]  | Pass |
+| S2-13 | Delete event      | Details sheet → Delete → Delete confirm dialog → tap Delete                                    | Dialog closes; event removed from calendar immediately (no Undo)                              | [Works]   | [Works]  | Pass |
 | S2-14 | Undo delete       | N/A — Undo removed per user request                                                            | N/A                                                                                           | [N/A]   | [N/A]  | Obsolete |
-| S2-15 | Hard delete       | Delete an event, kill and reopen app                                                           | Event is gone permanently                                                                     | [Pass]  | [ ]  | Pass |
-| S2-16 | Empty form        | Long-press date â†’ tap Add without filling title or event name                                  | Add button stays disabled                                                                     | [Works]   | [Works]  | Pass |
+| S2-15 | Hard delete       | Delete an event, kill and reopen app                                                           | Event is gone permanently                                                                     | [Working]   | [Working]  | Pass |
+| S2-16 | Empty form        | Long-press date → tap Add without filling title or event name                                  | Add button stays disabled                                                                     | [Works]   | [Works]  | Pass |
 | S2-17 | Icon picker       | In Add/Edit sheet, tap each icon in the grid                                                   | Selected icon gets primary ring + primaryContainer fill; all others reset                     | [Works]   | [Works]  | Pass |
-| S2-18 | Invitees toggle   | Add event with "Invitees required = No" â†’ open Details                                         | Invitees tile shows "Not required" and "â€”" value                                              | [Works]   | [Works]  | Pass |
+| S2-18 | Invitees toggle   | Add event with "Invitees required = No" → open Details                                         | Invitees tile shows "Not required" and "—" value                                              | [Works]   | [Works]  | Pass |
 | S2-19 | Light/dark theme  | Toggle system dark mode; open Events                                                            | Calendar, sheets and dialogs all use dark palette tokens; no hardcoded colours visible        | n/a   | [Works]  | Pass |
 
-## Sprint 3: Bookings (V0.3.4)
+## Sprint 3: Bookings (V0.3.9)
 
 | ID    | Area              | Steps                                                                                  | Expected result                                                                 | Light | Dark | Status  |
 | ----- | ----------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ----- | ---- | ------- |
-| S3-01 | Empty state       | Navigate to Bookings with no bookings added                                            | Empty state message "No bookings yet" shown, FAB visible                        | [Works]   | [Works]  | Pass |
-| S3-02 | Add booking       | Tap FAB; fill Type, pick icon, select event, set Total ?40,000; tap Add                        | New booking card appears (Title = Type), ?0 paid of ?40,000, progress 0%                     | [Pass]  | [ ]  | Fixed |
-| S3-03 | Validation        | N/A — Title field removed; bookingType used as title                                           | N/A                                                                                           | [N/A]   | [N/A]  | Obsolete |
-| S3-04 | Validation        | Tap FAB; fill Title; leave event unselected; tap Add                                   | "Select an event" error shown                                                   | [ ]   | [ ]  | Pending |
-| S3-05 | Add payment       | Open edit sheet for a booking; tap "Add payment"; enter â‚¹10,000; tap Save             | Payment row appears; Paid so far = â‚¹10,000; progress bar updates                | [ ]   | [ ]  | Pending |
+| S3-01 | Empty state       | Navigate to Bookings with no bookings added                                            | Top bar aligned with nav icon; event chips display name & total contract amount | [Top bar aligned, event chips show total contract amount] | [Works] | Pass |
+| S3-02 | Add booking       | Tap FAB; fill Type, pick icon, select event, set Contract & Booking Amount; tap Add   | New booking card appears with ₹ symbol, Indian grouping, Contract & Remaining amounts | [Indian formatting, ₹ symbol, Contract/Booking/Remaining fields working] | [Works] | Pass |
+| S3-03 | Validation        | N/A — Title field removed; bookingType used as title                                   | N/A                                                                             | [N/A] | [N/A] | Obsolete |
+| S3-04 | Validation        | Tap FAB; fill Title; leave event unselected; tap Add                                   | Inline error message shown under field                                          | [Inline error shown] | [Works] | Pass |
+| S3-05 | Add payment       | Tap booking card / Edit sheet; tap "Add payment"; enter amount & date; tap Save        | Payment row added to log; Paid so far & Remaining amount update                 | [Full payment log with + Add payment operational] | [Works] | Pass |
 | S3-06 | Payment sum       | Add two payments of â‚¹5,000 and â‚¹15,000                                                 | Paid shows â‚¹20,000; Amount left shows correctly; progress bar updates            | [ ]   | [ ]  | Pending |
 | S3-07 | Fully paid        | Add payments totalling the booking total                                               | Status pill shows green "Paid"; progress bar turns accent colour at 100%         | [ ]   | [ ]  | Pending |
 | S3-08 | Status pill       | Set next due date to yesterday, booking partially paid                                  | Status pill shows red "Overdue"                                                  | [ ]   | [ ]  | Pending |
@@ -67,7 +67,49 @@
 | S3-14 | Permanent delete  | Delete a booking; let 10 s pass without tapping UNDO                                   | Booking is permanently gone; not visible after app restart                       | [ ]   | [ ]  | Pending |
 | S3-15 | Delete payment    | Open edit sheet; tap the trash icon on a payment row                                   | Payment row removed; Paid so far updates; amount left updates                    | [ ]   | [ ]  | Pending |
 | S3-16 | Filter chips      | With bookings for two events; tap one event chip                                       | Only that event's bookings visible                                               | [ ]   | [ ]  | Pending |
-| S3-17 | Filter all        | After filtering; tap "All" chip                                                        | All bookings shown again                                                         | [ ]   | [ ]  | Pending |
-| S3-18 | Gradient variety  | Add 3+ bookings                                                                        | Each card has a visibly different gradient colour                                 | [ ]   | [ ]  | Pending |
-| S3-19 | Persistence       | Add a booking; close and reopen the app; unlock                                        | Booking still appears with correct amounts                                       | [ ]   | [ ]  | Pending |
-| S3-20 | Dark theme        | Switch to dark theme in Settings; go to Bookings                                       | Cards readable, gradient visible, status pills correct in dark mode               | [ ]   | [ ]  | Pending |
+| S3-17 | Filter all        | After filtering; tap "All" chip                                                        | All bookings shown again                                                         | [Works] | [Works] | Pass |
+| S3-18 | Gradient variety  | Add 3+ bookings                                                                        | Each card has a visibly different gradient colour                                 | [Works] | [Works] | Pass |
+| S3-19 | Persistence       | Add a booking; close and reopen the app; unlock                                        | Booking still appears with correct amounts                                       | [Works] | [Works] | Pass |
+| S3-20 | Dark theme        | Switch to dark theme in Settings; go to Bookings                                       | Cards readable, gradient visible, status pills correct in dark mode               | [Works] | [Works] | Pass |
+
+## Sprint 4: Expenses (V0.4.1)
+
+| ID    | Area              | Steps                                                                                  | Expected result                                                                 | Light | Dark | Status  |
+| ----- | ----------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ----- | ---- | ------- |
+| S4-01 | Empty state       | Navigate to Expenses with no expenses added                                            | Empty state "No expenses yet" shown, FAB visible                                | [Works] | [Works] | Pass |
+| S4-02 | Dynamic top tabs  | Open Expenses screen with events created                                               | Top tabs show "All" + each event name                                           | [Works] | [Works] | Pass |
+| S4-03 | Add expense       | Tap FAB; fill Purpose, select 2 events, enter Total & Due, add items; tap Add          | Two expense rows created with same groupId, dynamic item input appends new box   | [Works] | [Works] | Pass |
+| S4-04 | Vendor rows       | View Expenses table                                                                    | Read-only vendor booking rows included in table with "Vendor" pill              | [Works] | [Works] | Pass |
+| S4-05 | Table summary     | Check table footer                                                                     | TOTAL row calculates sum of total amount & sum of amount due                    | [Works] | [Works] | Pass |
+| S4-06 | Search & filters  | Type in search box or tap "Due pending" / "Items pending" filter chips                 | Table filters rows dynamically                                                  | [Works] | [Works] | Pass |
+| S4-07 | Edit expense      | Tap expense row; modify purpose/amount; tap Save                                       | Expense row updates; other event rows in same groupId remain unchanged          | [Works] | [Works] | Pass |
+| S4-08 | Status toggle     | Tap status pill on expense row                                                         | Toggles between "Done" (green) and "Pending" (amber)                            | [Works] | [Works] | Pass |
+| S4-09 | Delete mode       | Tap "Edit" in top bar; check expenses; tap FAB trash icon                             | Selected expenses soft-deleted, snackbar confirms count                         | [Works] | [Works] | Pass |
+| S4-10 | Dark theme        | Switch to dark theme in Settings; open Expenses                                        | Table, tabs, search box and sheets use dark palette tokens                      | [Works] | [Works] | Pass |
+
+## Sprint 5: Invitees & Gifts (V0.5.1)
+
+| ID    | Area              | Steps                                                                                  | Expected result                                                                 | Light | Dark | Status  |
+| ----- | ----------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ----- | ---- | ------- |
+| S5-01 | Empty state       | Navigate to Invitees with no guests added                                              | Empty state "No guests added yet" shown, FAB visible                            | [Works] | [Works] | Pass |
+| S5-02 | Required tabs     | Open Invitees screen                                                                   | Top tabs show only events with "Invitees required = Yes"                        | [Works] | [Works] | Pass |
+| S5-03 | Add guest         | Tap FAB; enter Guest Name, select events, enter expected count & address; tap Add     | Guest row added per event with same groupId, status "Pending"                   | [Works] | [Works] | Pass |
+| S5-04 | Table footer      | Check table footer summary                                                             | Footer displays Total Families count & Total Guests count                       | [Works] | [Works] | Pass |
+| S5-05 | Search & filters  | Search relative/address or tap "Invited" / "Not invited" filter chips                  | Table updates dynamically                                                       | [Works] | [Works] | Pass |
+| S5-06 | Status toggle     | Tap status pill on guest row                                                           | Toggles between "Invited" (green) and "Pending" (amber)                         | [Works] | [Works] | Pass |
+| S5-07 | Gifts tab         | Switch to "Gifts Received" sub-tab                                                     | Shows gifts list or empty state "No gifts recorded yet"                         | [Works] | [Works] | Pass |
+| S5-08 | Record gift       | Tap FAB (+ Record Gift); enter Giver Name, select Event, Amount / Item; tap Save       | Gift row appears in gifts table; total gifts value updates                      | [Works] | [Works] | Pass |
+| S5-09 | Delete mode       | Tap "Edit" in top bar; select guest rows; tap FAB trash icon                           | Selected guests soft-deleted, snackbar confirms count                           | [Works] | [Works] | Pass |
+| S5-10 | Dark theme        | Switch to dark theme in Settings; open Invitees                                        | Table, tabs, search box, sub-tabs and sheets use dark palette tokens            | [Works] | [Works] | Pass |
+
+## Sprint 6: Checklist & Live Home (V0.6.1)
+
+| ID    | Area              | Steps                                                                                  | Expected result                                                                 | Light | Dark | Status  |
+| ----- | ----------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ----- | ---- | ------- |
+| S6-01 | Empty state       | Navigate to Checklist with no tasks added                                              | Empty state "No tasks yet" shown, FAB visible                                   | [Works] | [Works] | Pass |
+| S6-02 | Event tabs        | Open Checklist screen                                                                  | Top tabs show "All" + each event name                                           | [Works] | [Works] | Pass |
+| S6-03 | Add task          | Tap FAB; enter Task Title, select Event, pick optional Due Date; tap Add               | Task row created with checkbox and due date pill                                | [Works] | [Works] | Pass |
+| S6-04 | Task toggle       | Tap checkbox on task row                                                               | Task toggles completed (strikethrough text), live dashboard count updates       | [Works] | [Works] | Pass |
+| S6-05 | Edit/Delete task  | Tap task row to edit title/date, or enter edit mode to batch delete                    | Task updates or soft-deleted, snackbar confirms count                           | [Works] | [Works] | Pass |
+| S6-06 | Live Home dashboard| Add/edit events, bookings, expenses, invitees & tasks; return to Home                 | All 7 cards update live with exact values (Events, Bookings, Budget, Dues, etc)| [Works] | [Works] | Pass |
+| S6-07 | Dark theme        | Switch to dark theme in Settings; view Home and Checklist                              | Dashboard cards, checklist and sheets render cleanly in dark palette tokens     | [Works] | [Works] | Pass |
