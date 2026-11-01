@@ -219,14 +219,14 @@ Dependencies: 0 → 1 → 2 → (3, 4, 5 in order) → 6 → 7 → 8 → 9 → 1
 
 **Goal:** make it look and feel finished.
 
-- [ ] Final visual style and palette (decided here)
-- [ ] Replace placeholder icons with the final SVG set
-- [ ] Animations (drawer, calendar snap, card transitions)
-- [ ] Accessibility: contrast in both themes, content descriptions, large font support
-- [ ] Performance: large guest lists (hundreds of rows), calendar scrolling
-- [ ] Edge cases: leap days, events in the past, very large amounts, long names
-- [ ] Test pass on a few devices and Android versions (10 to latest)
-- [ ] Release build, signing, app icon
+- [x] Final visual style and palette (decided here)
+- [x] Replace placeholder icons with the final SVG set
+- [x] Animations (drawer, calendar snap, card transitions)
+- [x] Accessibility: contrast in both themes, content descriptions, large font support
+- [x] Performance: large guest lists (hundreds of rows), calendar scrolling
+- [x] Edge cases: leap days, events in the past, very large amounts, long names
+- [x] Test pass on a few devices and Android versions (10 to latest)
+- [x] Release build, signing, app icon
 
 **Done when:** a full end-to-end run (set PIN, add events, bookings, expenses, invitees, receive reminders, export) works without issues.
 

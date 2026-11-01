@@ -150,3 +150,13 @@
 | S9-04 | Synced state      | After successful sync                                                                  | Local rows updated with syncState = SYNCED                                      | [Works] | [Works] | Pass |
 | S9-05 | Offline mode      | Add/Edit data in Airplane mode                                                         | Full app functionality maintained offline without blocking or crashes            | [Works] | [Works] | Pass |
 | S9-06 | Auto reconnect    | Turn off Airplane mode                                                                 | SyncWorker automatically triggers upload upon network connection                | [Works] | [Works] | Pass |
+
+## Sprint 10: UI/UX Polish & Release (V0.10.0)
+
+| ID    | Area              | Steps                                                                                  | Expected result                                                                 | Light | Dark | Status  |
+| ----- | ----------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ----- | ---- | ------- |
+| S10-01| End-to-end flow   | Full run: launch -> PIN setup -> Add events, bookings, expenses, invitees, tasks       | Smooth transitions, all 7 dashboard cards update live, zero errors              | [Works] | [Works] | Pass |
+| S10-02| Theme polish      | Toggle Light/Dark theme & palettes                                                     | All screens, dialogs, pills, chips, and text render cleanly with proper contrast| [Works] | [Works] | Pass |
+| S10-03| Performance       | Scroll large lists of events, expenses, invitees, and tasks                            | Smooth 60fps scrolling without stutter or layout shifts                       | [Works] | [Works] | Pass |
+| S10-04| Background jobs   | Background notification worker and sync worker execution                               | Periodic workers execute reliably without memory leaks                          | [Works] | [Works] | Pass |
+| S10-05| Final QA          | Final release verification pass                                                        | All 10 phases completed successfully                                            | [Works] | [Works] | Pass |
