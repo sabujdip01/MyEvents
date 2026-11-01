@@ -76,7 +76,7 @@ fun AddEditEventSheet(
     onSave: (title: String, eventName: String, date: LocalDate, icon: EventIcon, budgetPaise: Long, inviteesRequired: Boolean) -> Unit,
 ) {
     val isEdit = existingEvent != null
-    val sheetState = rememberModalBottomSheetState(skipPartialExpansion = true)
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     // Form state
     var title by remember { mutableStateOf(existingEvent?.title ?: "") }

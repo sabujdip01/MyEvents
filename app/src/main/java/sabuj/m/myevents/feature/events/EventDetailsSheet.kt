@@ -51,7 +51,7 @@ fun EventDetailsSheet(
     onEdit: () -> Unit,
     onDelete: () -> Unit,
 ) {
-    val sheetState = rememberModalBottomSheetState(skipPartialExpansion = true)
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     ModalBottomSheet(
         onDismissRequest    = onDismiss,

@@ -137,7 +137,7 @@ fun AddEditBookingSheet(
 
     val paidPaise = payments.sumOf { it.amountPaise }
     val amountLeftPaise = totalAmountPaise - paidPaise
-    val modalSheetState = rememberModalBottomSheetState(skipPartialExpansion = true)
+    val modalSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val context = LocalContext.current
 
     ModalBottomSheet(
