@@ -1,10 +1,11 @@
 # Version History
 
-Current: V0.3.4a
+Current: V0.3.4b
 
 | Version | Phase | Build | Commit     | Summary                                                                                             |
 | ------- | ----- | ----- |------------|-----------------------------------------------------------------------------------------------------|
-| V0.3.4a | 3     | 4a    | —          | fix(bookings): fix rememberModalBottomSheetState parameter name skipPartiallyExpanded              |
+| V0.3.4b | 3     | 4b    | —          | fix(ui): make IconChip contentDescription nullable String? = null                                  |
+| V0.3.4a | 3     | 4a    | 4602c98    | fix(bookings): fix rememberModalBottomSheetState parameter name skipPartiallyExpanded              |
 | V0.3.4  | 3     | 4     | 3f43b47    | chore(phase): complete phase 3 — Bookings; testcases appended                                      |
 | V0.3.3  | 3     | 3     | a2e7819    | BookingsScreen, BookingCard, AddEditBookingSheet, PaymentDialog, DeleteBookingDialog, NavHost wired |
 | V0.3.2  | 3     | 2     | 889192a    | ObserveBookings, AddBooking, EditBooking, DeleteBooking, AddPayment use cases                       |

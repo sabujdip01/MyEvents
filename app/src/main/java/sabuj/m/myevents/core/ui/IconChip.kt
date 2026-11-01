@@ -32,7 +32,7 @@ import sabuj.m.myevents.core.icons.AppIcon
 @Composable
 fun IconChip(
     icon: ImageVector,
-    contentDescription: String,
+    contentDescription: String? = null,
     modifier: Modifier = Modifier,
     size: IconChipSize = IconChipSize.Default,
     containerColor: Color = AppColor.primaryContainer,
@@ -56,16 +56,28 @@ fun IconChip(
 
 /** Status-coloured variants — danger / success / warning. */
 @Composable
-fun IconChipDanger(icon: ImageVector, contentDescription: String, modifier: Modifier = Modifier, size: IconChipSize = IconChipSize.Default) =
-    IconChip(icon, contentDescription, modifier, size, AppColor.dangerContainer, AppColor.danger)
+fun IconChipDanger(
+    icon: ImageVector,
+    contentDescription: String? = null,
+    modifier: Modifier = Modifier,
+    size: IconChipSize = IconChipSize.Default,
+) = IconChip(icon, contentDescription, modifier, size, AppColor.dangerContainer, AppColor.danger)
 
 @Composable
-fun IconChipSuccess(icon: ImageVector, contentDescription: String, modifier: Modifier = Modifier, size: IconChipSize = IconChipSize.Default) =
-    IconChip(icon, contentDescription, modifier, size, AppColor.successContainer, AppColor.success)
+fun IconChipSuccess(
+    icon: ImageVector,
+    contentDescription: String? = null,
+    modifier: Modifier = Modifier,
+    size: IconChipSize = IconChipSize.Default,
+) = IconChip(icon, contentDescription, modifier, size, AppColor.successContainer, AppColor.success)
 
 @Composable
-fun IconChipWarning(icon: ImageVector, contentDescription: String, modifier: Modifier = Modifier, size: IconChipSize = IconChipSize.Default) =
-    IconChip(icon, contentDescription, modifier, size, AppColor.warningContainer, AppColor.warning)
+fun IconChipWarning(
+    icon: ImageVector,
+    contentDescription: String? = null,
+    modifier: Modifier = Modifier,
+    size: IconChipSize = IconChipSize.Default,
+) = IconChip(icon, contentDescription, modifier, size, AppColor.warningContainer, AppColor.warning)
 
 /** Size variants for [IconChip]. */
 enum class IconChipSize(val boxSize: Dp, val cornerRadius: Dp, val iconSize: Dp) {
