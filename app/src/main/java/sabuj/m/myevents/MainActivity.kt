@@ -40,6 +40,7 @@ class MainActivity : FragmentActivity() {
     private val lockViewModel: LockViewModel by viewModels()
 
     @Inject lateinit var pinStore: sabuj.m.myevents.data.security.PinStore
+    @Inject lateinit var settingsDataStore: sabuj.m.myevents.data.settings.SettingsDataStore
 
     companion object {
         /** 60 seconds — if the app is backgrounded longer than this, re-lock. */
@@ -54,9 +55,16 @@ class MainActivity : FragmentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            // isDark follows system setting; Phase 8 will allow manual override via Settings
-            val isDark = isSystemInDarkTheme()
-            AppTheme(isDark = isDark) {
+            val settings by settingsDataStore.userSettingsFlow.collectAsState(
+                initial = sabuj.m.myevents.data.settings.UserSettings()
+            )
+            val isDark = when (settings.themeMode) {
+                sabuj.m.myevents.data.settings.ThemeMode.Light  -> false
+                sabuj.m.myevents.data.settings.ThemeMode.Dark   -> true
+                sabuj.m.myevents.data.settings.ThemeMode.System -> isSystemInDarkTheme()
+            }
+
+            AppTheme(palette = settings.paletteId, isDark = isDark) {
                 val state by lockViewModel.state.collectAsState()
 
                 when {
