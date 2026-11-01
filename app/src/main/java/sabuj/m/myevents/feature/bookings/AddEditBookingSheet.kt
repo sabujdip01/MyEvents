@@ -1,4 +1,4 @@
-package sabuj.m.myevents.feature.bookings
+﻿package sabuj.m.myevents.feature.bookings
 
 import android.app.DatePickerDialog
 import androidx.compose.foundation.background
@@ -89,7 +89,6 @@ fun AddEditBookingSheet(
     sheetState: BookingSheetState,
     events: List<Event>,
     onDismiss: () -> Unit,
-    onTitleChange: (String) -> Unit,
     onTypeChange: (String) -> Unit,
     onIconChange: (BookingIcon) -> Unit,
     onEventChange: (String) -> Unit,
@@ -102,7 +101,6 @@ fun AddEditBookingSheet(
     onDeletePayment: (String) -> Unit,
 ) {
     val isEdit = sheetState is BookingSheetState.Edit
-    val title: String
     val bookingType: String
     val bookingIcon: BookingIcon
     val eventId: String
@@ -110,29 +108,28 @@ fun AddEditBookingSheet(
     val phone: String
     val totalAmountPaise: Long
     val nextDueDateEpochDay: Long?
-    val titleError: String?
     val eventError: String?
     val totalError: String?
     val payments: List<BookingPayment>
 
     when (sheetState) {
         is BookingSheetState.Add -> {
-            title = sheetState.title; bookingType = sheetState.bookingType
+            bookingType = sheetState.bookingType
             bookingIcon = sheetState.bookingIcon; eventId = sheetState.eventId
             contactName = sheetState.contactName; phone = sheetState.phone
             totalAmountPaise = sheetState.totalAmountPaise; nextDueDateEpochDay = sheetState.nextDueDateEpochDay
-            titleError = sheetState.titleError; eventError = sheetState.eventError
+            eventError = sheetState.eventError
             totalError = sheetState.totalError; payments = emptyList()
         }
         is BookingSheetState.Edit -> {
-            title = sheetState.title; bookingType = sheetState.bookingType
+            bookingType = sheetState.bookingType
             bookingIcon = sheetState.bookingIcon; eventId = sheetState.eventId
             contactName = sheetState.contactName; phone = sheetState.phone
             totalAmountPaise = sheetState.totalAmountPaise; nextDueDateEpochDay = sheetState.nextDueDateEpochDay
-            titleError = sheetState.titleError; eventError = sheetState.eventError
+            eventError = sheetState.eventError
             totalError = sheetState.totalError; payments = sheetState.payments
         }
-        else -> return // Hidden — nothing to show
+        else -> return // Hidden â€” nothing to show
     }
 
     val paidPaise = payments.sumOf { it.amountPaise }
@@ -160,15 +157,6 @@ fun AddEditBookingSheet(
                 color = AppColor.text,
             )
 
-            // Title field
-            BookingTextField(
-                value       = title,
-                onValueChange = onTitleChange,
-                label       = "Title", // TODO strings.xml
-                placeholder = "e.g. Photography",
-                isError     = titleError != null,
-                supportingText = titleError,
-            )
 
             // Booking type field
             BookingTextField(
@@ -240,7 +228,7 @@ fun AddEditBookingSheet(
             BookingTextField(
                 value         = if (totalAmountPaise == 0L) "" else (totalAmountPaise / 100L).toString(),
                 onValueChange = { text -> onTotalChange(text.toLongOrNull()?.times(100L) ?: 0L) },
-                label         = "Total amount (₹)", // TODO strings.xml
+                label         = "Total amount (â‚¹)", // TODO strings.xml
                 placeholder   = "0",
                 keyboardType  = KeyboardType.Number,
                 isError       = totalError != null,
@@ -279,7 +267,7 @@ fun AddEditBookingSheet(
                 },
             )
 
-            // ── Payment log (Edit mode only) ─────────────────────────────
+            // â”€â”€ Payment log (Edit mode only) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             if (isEdit) {
                 Spacer(Modifier.height(Spacing.xs))
                 Text(
@@ -317,7 +305,7 @@ fun AddEditBookingSheet(
                 }
             }
 
-            // ── Action buttons ───────────────────────────────────────────
+            // â”€â”€ Action buttons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             val isSaveEnabled = title.isNotBlank() && eventId.isNotBlank() && totalAmountPaise > 0
             AppButtonRow(
                 positiveText    = if (isEdit) "Save" else "Add", // TODO strings.xml

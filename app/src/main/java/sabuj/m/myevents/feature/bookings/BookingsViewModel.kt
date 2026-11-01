@@ -1,4 +1,4 @@
-package sabuj.m.myevents.feature.bookings
+﻿package sabuj.m.myevents.feature.bookings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -75,7 +75,7 @@ class BookingsViewModel @Inject constructor(
         initialValue = BookingsUiState(isLoading = true),
     )
 
-    // ── Intent handlers ──────────────────────────────────────────────────────
+    // â”€â”€ Intent handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /** Set the active event filter (null = show all). */
     fun filterByEvent(eventId: String?) {
@@ -117,7 +117,7 @@ class BookingsViewModel @Inject constructor(
             when (val sheet = _sheetState.value) {
                 is BookingSheetState.Add -> {
                     val result = addBooking(
-                        title            = sheet.title,
+                        title            = sheet.bookingType,
                         bookingType      = sheet.bookingType,
                         bookingIcon      = sheet.bookingIcon,
                         eventId          = sheet.eventId,
@@ -132,7 +132,7 @@ class BookingsViewModel @Inject constructor(
                     val existing = uiState.value.bookings.find { it.id == sheet.bookingId } ?: return@launch
                     val result = editBooking(
                         existing         = existing,
-                        title            = sheet.title,
+                        title            = sheet.bookingType,
                         bookingType      = sheet.bookingType,
                         bookingIcon      = sheet.bookingIcon,
                         eventId          = sheet.eventId,
@@ -151,7 +151,6 @@ class BookingsViewModel @Inject constructor(
     private fun handleSaveResult(result: BookingSaveResult, sheet: BookingSheetState) {
         when (result) {
             is BookingSaveResult.Success -> _sheetState.value = BookingSheetState.Hidden
-            is BookingSaveResult.TitleBlank -> applySheetError(sheet, titleError = "Title is required")
             is BookingSaveResult.EventIdBlank -> applySheetError(sheet, eventError = "Select an event")
             is BookingSaveResult.TotalInvalid -> applySheetError(sheet, totalError = "Enter a valid total")
         }
@@ -159,18 +158,15 @@ class BookingsViewModel @Inject constructor(
 
     private fun applySheetError(
         sheet: BookingSheetState,
-        titleError: String? = null,
         eventError: String? = null,
         totalError: String? = null,
     ) {
         _sheetState.value = when (sheet) {
             is BookingSheetState.Add -> sheet.copy(
-                titleError = titleError,
                 eventError = eventError,
                 totalError = totalError,
             )
             is BookingSheetState.Edit -> sheet.copy(
-                titleError = titleError,
                 eventError = eventError,
                 totalError = totalError,
             )

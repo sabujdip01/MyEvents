@@ -1,4 +1,4 @@
-package sabuj.m.myevents.domain.usecase
+﻿package sabuj.m.myevents.domain.usecase
 
 import sabuj.m.myevents.core.icons.BookingIcon
 import sabuj.m.myevents.domain.model.Booking
@@ -25,12 +25,11 @@ class EditBookingUseCase @Inject constructor(
         totalAmountPaise: Long,
         nextDueDate: LocalDate?,
     ): BookingSaveResult {
-        if (title.isBlank()) return BookingSaveResult.TitleBlank
         if (eventId.isBlank()) return BookingSaveResult.EventIdBlank
         if (totalAmountPaise <= 0) return BookingSaveResult.TotalInvalid
 
         val updated = existing.copy(
-            title            = title.trim(),
+            title            = bookingType.trim(),
             bookingType      = bookingType.trim(),
             bookingIcon      = bookingIcon,
             eventId          = eventId,

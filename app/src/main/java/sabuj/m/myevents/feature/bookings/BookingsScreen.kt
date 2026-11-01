@@ -1,4 +1,4 @@
-package sabuj.m.myevents.feature.bookings
+﻿package sabuj.m.myevents.feature.bookings
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -92,7 +92,7 @@ fun BookingsScreen(
                     .fillMaxSize()
                     .statusBarsPadding(),
             ) {
-                // ── Top bar ─────────────────────────────────────────────
+                // â”€â”€ Top bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                 BookingsTopBar(
                     isEditMode = uiState.mode == BookingsMode.Edit,
                     onToggleEdit = { viewModel.toggleEditMode() },
@@ -100,7 +100,7 @@ fun BookingsScreen(
 
                 Spacer(Modifier.height(Spacing.sm))
 
-                // ── Event filter chips ───────────────────────────────────
+                // â”€â”€ Event filter chips â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                 if (uiState.events.isNotEmpty()) {
                     EventFilterChips(
                         events         = uiState.events,
@@ -110,7 +110,7 @@ fun BookingsScreen(
                     Spacer(Modifier.height(Spacing.md))
                 }
 
-                // ── Booking list or empty state ──────────────────────────
+                // â”€â”€ Booking list or empty state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                 val filtered = uiState.filteredBookings
                 if (filtered.isEmpty()) {
                     Box(
@@ -170,7 +170,7 @@ fun BookingsScreen(
             }
         }
 
-        // ── FAB ─────────────────────────────────────────────────────────
+        // â”€â”€ FAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         FloatingActionButton(
             onClick           = {
                 if (uiState.mode == BookingsMode.Edit) viewModel.toggleEditMode()
@@ -189,20 +189,19 @@ fun BookingsScreen(
             )
         }
 
-        // ── Snackbar ────────────────────────────────────────────────────
+        // â”€â”€ Snackbar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         SnackbarHost(
             hostState = snackbarHostState,
             modifier  = Modifier.align(Alignment.BottomCenter).padding(bottom = 88.dp),
         )
     }
 
-    // ── Sheets and dialogs ───────────────────────────────────────────────
+    // â”€â”€ Sheets and dialogs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     when (val sheet = uiState.sheetState) {
         is BookingSheetState.Add -> AddEditBookingSheet(
             sheetState    = sheet,
             events        = uiState.events,
             onDismiss     = { viewModel.hideSheet() },
-            onTitleChange = { newTitle -> viewModel.updateAddSheetField { s -> s.copy(title = newTitle) } },
             onTypeChange  = { viewModel.updateAddSheetField { s -> s.copy(bookingType = it) } },
             onIconChange  = { viewModel.updateAddSheetField { s -> s.copy(bookingIcon = it) } },
             onEventChange = { viewModel.updateAddSheetField { s -> s.copy(eventId = it) } },
@@ -218,7 +217,6 @@ fun BookingsScreen(
             sheetState    = sheet,
             events        = uiState.events,
             onDismiss     = { viewModel.hideSheet() },
-            onTitleChange = { viewModel.updateEditSheetField { s -> s.copy(title = it) } },
             onTypeChange  = { viewModel.updateEditSheetField { s -> s.copy(bookingType = it) } },
             onIconChange  = { viewModel.updateEditSheetField { s -> s.copy(bookingIcon = it) } },
             onEventChange = { viewModel.updateEditSheetField { s -> s.copy(eventId = it) } },
@@ -258,9 +256,9 @@ fun BookingsScreen(
     }
 }
 
-// ────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Top bar
-// ────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @Composable
 private fun BookingsTopBar(
@@ -293,9 +291,9 @@ private fun BookingsTopBar(
     }
 }
 
-// ────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Event filter chips
-// ────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @Composable
 private fun EventFilterChips(

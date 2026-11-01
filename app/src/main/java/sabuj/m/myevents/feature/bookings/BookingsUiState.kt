@@ -1,4 +1,4 @@
-package sabuj.m.myevents.feature.bookings
+﻿package sabuj.m.myevents.feature.bookings
 
 import sabuj.m.myevents.core.icons.BookingIcon
 import sabuj.m.myevents.domain.model.Booking
@@ -46,7 +46,6 @@ sealed class BookingSheetState {
 
     /** Sheet for adding a new booking. */
     data class Add(
-        val title: String = "",
         val bookingType: String = "",
         val bookingIcon: BookingIcon = BookingIcon.Other,
         val eventId: String = "",
@@ -54,7 +53,6 @@ sealed class BookingSheetState {
         val phone: String = "",
         val totalAmountPaise: Long = 0L,
         val nextDueDateEpochDay: Long? = null,
-        val titleError: String? = null,
         val eventError: String? = null,
         val totalError: String? = null,
     ) : BookingSheetState()
@@ -62,7 +60,6 @@ sealed class BookingSheetState {
     /** Sheet for editing an existing booking. */
     data class Edit(
         val bookingId: String,
-        val title: String,
         val bookingType: String,
         val bookingIcon: BookingIcon,
         val eventId: String,
@@ -71,7 +68,6 @@ sealed class BookingSheetState {
         val totalAmountPaise: Long,
         val nextDueDateEpochDay: Long?,
         val payments: List<sabuj.m.myevents.domain.model.BookingPayment>,
-        val titleError: String? = null,
         val eventError: String? = null,
         val totalError: String? = null,
     ) : BookingSheetState() {
@@ -79,7 +75,6 @@ sealed class BookingSheetState {
             /** Construct an Edit state pre-filled from an existing [Booking]. */
             fun from(booking: Booking) = Edit(
                 bookingId          = booking.id,
-                title              = booking.title,
                 bookingType        = booking.bookingType,
                 bookingIcon        = booking.bookingIcon,
                 eventId            = booking.eventId,

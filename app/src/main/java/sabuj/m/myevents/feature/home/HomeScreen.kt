@@ -63,7 +63,6 @@ import sabuj.m.myevents.core.ui.MenuButton
 import sabuj.m.myevents.core.ui.Pill
 import sabuj.m.myevents.core.ui.PillVariant
 import sabuj.m.myevents.core.ui.doodles.BgBlobs
-import sabuj.m.myevents.core.ui.doodles.HeroIllustration
 
 /**
  * Home screen — design.md section 6.4.
@@ -100,34 +99,24 @@ private fun HomeContent(
                 .verticalScroll(rememberScrollState()),
         ) {
             // ----------------------------------------------------------------
-            // Header: App name (left) + Hero calendar (right), same baseline
+            // Header: App name at top of screen (left-aligned)
             // ----------------------------------------------------------------
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .statusBarsPadding()
-                    .padding(top = 56.dp) // clears the menu button
-                    .padding(horizontal = Spacing.lg)
-                    .height(164.dp),
+                    .padding(top = 64.dp, bottom = Spacing.sm) // clears the floating menu button
+                    .padding(horizontal = Spacing.lg),
             ) {
-                // App name — one line, vertically centred with hero illustration
-                Column(modifier = Modifier.align(Alignment.CenterStart)) {
-                    Text(
-                        text = buildAnnotatedString {
-                            append("My ")
-                            withStyle(SpanStyle(color = AppColor.primary, fontWeight = FontWeight.Bold)) {
-                                append("Events")
-                            }
-                        },
-                        style = display,
-                        color = AppColor.text,
-                    )
-                }
-
-                // Hero calendar — right side, vertically centred
-                HeroIllustration(
-                    size     = 160.dp,
-                    modifier = Modifier.align(Alignment.CenterEnd),
+                Text(
+                    text = buildAnnotatedString {
+                        append("My ")
+                        withStyle(SpanStyle(color = AppColor.primary, fontWeight = FontWeight.Bold)) {
+                            append("Events")
+                        }
+                    },
+                    style = display,
+                    color = AppColor.text,
                 )
             }
 

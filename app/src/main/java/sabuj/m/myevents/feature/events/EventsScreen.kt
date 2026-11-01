@@ -1,4 +1,4 @@
-﻿package sabuj.m.myevents.feature.events
+package sabuj.m.myevents.feature.events
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -24,24 +24,18 @@ import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import sabuj.m.myevents.core.theme.AppColor
 import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.labelL
@@ -69,36 +63,6 @@ fun EventsScreen(
     viewModel: EventsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
-
-    // Consume one-shot effects
-    LaunchedEffect(Unit) {
-        viewModel.effects.collect { effect ->
-            when (effect) {
-                is EventsEffect.ShowUndoSnackbar -> {
-                    scope.launch {
-                        // Start hard-delete timer — 10 seconds
-                        launch {
-                            delay(10_000L)
-                            viewModel.onUndoExpired(effect.eventId)
-                        }
-                        val result = snackbarHostState.showSnackbar(
-                            message       = effect.message,
-                            actionLabel   = "UNDO",
-                            duration      = SnackbarDuration.Long,
-                        )
-                        if (result == SnackbarResult.ActionPerformed) {
-                            viewModel.onEvent(EventsUiEvent.UndoDelete)
-                        }
-                    }
-                }
-                is EventsEffect.ShowError -> {
-                    snackbarHostState.showSnackbar(effect.message)
-                }
-            }
-        }
-    }
 
     ScreenScaffold(onMenuClick = onMenuClick) {
         if (uiState.isLoading) {
@@ -133,6 +97,7 @@ fun EventsScreen(
             )
         }
     }
+
     // ── Bottom sheets ────────────────────────────────────────────────
     when (val mode = uiState.sheetMode) {
         SheetMode.None -> Unit
@@ -275,7 +240,7 @@ private fun CalendarPager(
 // Month grid
 // ────────────────────────────────────────────────────────────────────
 
-private val WEEKDAY_LABELS = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+private val WEEKDAY_LABELS = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
 
 @Composable
 internal fun MonthGrid(
@@ -350,7 +315,7 @@ private fun DateCell(
 
     val bgColor = when {
         date == null || !isInMonth -> AppColor.surfaceVariant.copy(alpha = 0.25f)
-        event != null              -> AppColor.primaryContainer          // event date � primary tinted fill
+        event != null              -> AppColor.primaryContainer          // event date — primary tinted fill
         else                       -> AppColor.surfaceVariant.copy(alpha = 0.55f)
     }
     val dayColor = when {

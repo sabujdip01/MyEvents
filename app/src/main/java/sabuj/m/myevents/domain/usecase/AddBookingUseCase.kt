@@ -1,4 +1,4 @@
-package sabuj.m.myevents.domain.usecase
+﻿package sabuj.m.myevents.domain.usecase
 
 import sabuj.m.myevents.core.icons.BookingIcon
 import sabuj.m.myevents.domain.model.Booking
@@ -11,7 +11,6 @@ import javax.inject.Inject
 /** Validation result for add/edit operations. */
 sealed class BookingSaveResult {
     object Success : BookingSaveResult()
-    object TitleBlank : BookingSaveResult()
     object EventIdBlank : BookingSaveResult()
     object TotalInvalid : BookingSaveResult()
 }
@@ -33,7 +32,6 @@ class AddBookingUseCase @Inject constructor(
         totalAmountPaise: Long,
         nextDueDate: LocalDate?,
     ): BookingSaveResult {
-        if (title.isBlank()) return BookingSaveResult.TitleBlank
         if (eventId.isBlank()) return BookingSaveResult.EventIdBlank
         if (totalAmountPaise <= 0) return BookingSaveResult.TotalInvalid
 
@@ -41,7 +39,7 @@ class AddBookingUseCase @Inject constructor(
         val booking = Booking(
             id               = UUID.randomUUID().toString(),
             eventId          = eventId,
-            title            = title.trim(),
+            title            = bookingType.trim(),
             bookingType      = bookingType.trim(),
             bookingIcon      = bookingIcon,
             contactName      = contactName.trim(),

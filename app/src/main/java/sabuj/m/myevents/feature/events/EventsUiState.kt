@@ -49,7 +49,6 @@ sealed interface EventsUiEvent {
     data class EditRequested(val event: Event) : EventsUiEvent
     data class DeleteRequested(val event: Event) : EventsUiEvent
     data object DeleteConfirmed : EventsUiEvent
-    data object UndoDelete : EventsUiEvent
 
     data class SaveNew(
         val title: String,
@@ -69,11 +68,3 @@ sealed interface EventsUiEvent {
         val inviteesRequired: Boolean,
     ) : EventsUiEvent
 }
-
-/** One-shot side-effects sent through the effects channel. */
-sealed interface EventsEffect {
-    /** Show a snackbar with the given [message] and an Undo action label. */
-    data class ShowUndoSnackbar(val message: String, val eventId: String) : EventsEffect
-    data class ShowError(val message: String) : EventsEffect
-}
-
