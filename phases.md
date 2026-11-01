@@ -170,16 +170,16 @@ Dependencies: 0 → 1 → 2 → (3, 4, 5 in order) → 6 → 7 → 8 → 9 → 1
 
 **Goal:** reminders and glanceable data.
 
-- [ ] Notification channels and permission request (Android 13+)
-- [ ] Event countdown (proposed 30, 7, 1 day before)
-- [ ] Payment due (booking next due date, expense dues)
-- [ ] Invitee follow-up (not yet invited)
-- [ ] Pending items (not yet bought/received)
-- [ ] Budget alerts at 80% and 100%, plus the red "over by ₹X" warning
-- [ ] Checklist due reminders
-- [ ] WorkManager scheduling that survives reboot and reschedules after data edits
-- [ ] Glance widget: days left to the next event and budget spent vs total only
-- [ ] Tapping a notification opens the right page (after unlock)
+- [x] Notification channels and permission request (Android 13+)
+- [x] Event countdown (proposed 30, 7, 1 day before)
+- [x] Payment due (booking next due date, expense dues)
+- [x] Invitee follow-up (not yet invited)
+- [x] Pending items (not yet bought/received)
+- [x] Budget alerts at 80% and 100%, plus the red "over by ₹X" warning
+- [x] Checklist due reminders
+- [x] WorkManager scheduling that survives reboot and reschedules after data edits
+- [x] Glance widget: days left to the next event and budget spent vs total only
+- [x] Tapping a notification opens the right page (after unlock)
 
 **Done when:** each reminder fires on test data and each can be switched off individually.
 

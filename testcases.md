@@ -113,3 +113,16 @@
 | S6-05 | Edit/Delete task  | Tap task row to edit title/date, or enter edit mode to batch delete                    | Task updates or soft-deleted, snackbar confirms count                           | [Works] | [Works] | Pass |
 | S6-06 | Live Home dashboard| Add/edit events, bookings, expenses, invitees & tasks; return to Home                 | All 7 cards update live with exact values (Events, Bookings, Budget, Dues, etc)| [Works] | [Works] | Pass |
 | S6-07 | Dark theme        | Switch to dark theme in Settings; view Home and Checklist                              | Dashboard cards, checklist and sheets render cleanly in dark palette tokens     | [Works] | [Works] | Pass |
+
+## Sprint 7: Notifications & Widget (V0.7.1)
+
+| ID    | Area              | Steps                                                                                  | Expected result                                                                 | Light | Dark | Status  |
+| ----- | ----------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ----- | ---- | ------- |
+| S7-01 | Channels          | Launch app                                                                             | Notification channels created (`reminders`, `budget_alerts`, `dues`)            | [Works] | [Works] | Pass |
+| S7-02 | Countdowns        | Add event with date in 30, 7, or 1 day                                                 | ReminderWorker posts countdown notification                                     | [Works] | [Works] | Pass |
+| S7-03 | Payment dues      | Add booking with due date within 3 days                                                 | ReminderWorker posts payment due notification                                   | [Works] | [Works] | Pass |
+| S7-04 | Task due          | Add task with due date today or past                                                   | ReminderWorker posts task due notification                                      | [Works] | [Works] | Pass |
+| S7-05 | Budget alerts     | Spending reaches 80% or 100% of budget                                                 | ReminderWorker posts budget alert / warning notification                        | [Works] | [Works] | Pass |
+| S7-06 | WorkManager       | App running in background / reboot                                                     | Periodic WorkManager worker scheduled every 12h                                 | [Works] | [Works] | Pass |
+| S7-07 | Glance Widget     | Add "My Events Widget" to device Home screen                                           | Widget renders next upcoming event and active events count                      | [Works] | [Works] | Pass |
+| S7-08 | Deep link         | Tap reminder notification                                                              | Opens app to main activity                                                      | [Works] | [Works] | Pass |

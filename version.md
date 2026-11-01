@@ -1,9 +1,10 @@
 # Version History
 
-Current: V0.6.1
+Current: V0.7.1
 
 | Version | Phase | Build | Commit     | Summary                                                                                             |
 | ------- | ----- | ----- |------------|-----------------------------------------------------------------------------------------------------|
+| V0.7.1  | 7     | 1     | —          | feat(notifications/widget): notification channels, WorkManager reminder worker, Glance widget       |
 | V0.6.1  | 6     | 1     | —          | feat(checklist/home): checklist per-event tasks, live Home dashboard 7-card wiring                   |
 | V0.5.1  | 5     | 1     | —          | feat(invitees): guest list table, multi-event add, gifts sub-tab, counts summary                    |
 | V0.4.1  | 4     | 1     | —          | feat(expenses): per-event expense tables, multi-event add, dynamic items, vendor rows, filters     |
