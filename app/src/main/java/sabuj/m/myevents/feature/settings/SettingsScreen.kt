@@ -31,7 +31,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import sabuj.m.myevents.core.preview.LightDarkPreviews
 import sabuj.m.myevents.core.theme.AppColor
+import sabuj.m.myevents.core.theme.AppTheme
 import sabuj.m.myevents.core.theme.PaletteId
 import sabuj.m.myevents.core.theme.Radius
 import sabuj.m.myevents.core.theme.Spacing
@@ -54,12 +56,60 @@ fun SettingsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+
+    SettingsScreenContent(
+        uiState              = uiState,
+        onMenuClick          = onMenuClick,
+        onThemeMode          = viewModel::setThemeMode,
+        onPaletteId          = viewModel::setPaletteId,
+        onShowChangePin      = viewModel::showChangePinDialog,
+        onFingerprint        = viewModel::setFingerprintEnabled,
+        onNotificationsMaster = viewModel::setNotificationsMaster,
+        onNotifyCountdowns   = viewModel::setNotifyEventCountdowns,
+        onNotifyPaymentDues  = viewModel::setNotifyPaymentDues,
+        onNotifyTasks        = viewModel::setNotifyTasks,
+        onNotifyBudgetAlerts = viewModel::setNotifyBudgetAlerts,
+        onLoadSampleData     = viewModel::loadSampleData,
+        onClearSampleData    = viewModel::clearSampleData,
+        onShowExport         = viewModel::showExportDialog,
+        onDismissSnackbar    = viewModel::snackbarDismissed,
+        onChangePinConfirm   = { currentPin, newPin -> viewModel.changePin(currentPin, newPin) },
+        onChangePinDismiss   = viewModel::hideChangePinDialog,
+        onExportConfirm      = { eventId -> viewModel.exportEventData(context, eventId) },
+        onExportDismiss      = viewModel::hideExportDialog,
+        modifier             = modifier,
+    )
+}
+
+@Composable
+fun SettingsScreenContent(
+    uiState: SettingsUiState,
+    onMenuClick: () -> Unit,
+    onThemeMode: (ThemeMode) -> Unit,
+    onPaletteId: (PaletteId) -> Unit,
+    onShowChangePin: () -> Unit,
+    onFingerprint: (Boolean) -> Unit,
+    onNotificationsMaster: (Boolean) -> Unit,
+    onNotifyCountdowns: (Boolean) -> Unit,
+    onNotifyPaymentDues: (Boolean) -> Unit,
+    onNotifyTasks: (Boolean) -> Unit,
+    onNotifyBudgetAlerts: (Boolean) -> Unit,
+    onLoadSampleData: () -> Unit,
+    onClearSampleData: () -> Unit,
+    onShowExport: () -> Unit,
+    onDismissSnackbar: () -> Unit,
+    onChangePinConfirm: (String, String) -> Boolean,
+    onChangePinDismiss: () -> Unit,
+    onExportConfirm: (String) -> Unit,
+    onExportDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(uiState.snackbarMessage) {
         val msg = uiState.snackbarMessage ?: return@LaunchedEffect
         snackbarHostState.showSnackbar(msg)
-        viewModel.snackbarDismissed()
+        onDismissSnackbar()
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -77,7 +127,6 @@ fun SettingsScreen(
 
                 // APPEARANCE
                 SettingsSection("APPEARANCE") {
-                    // Theme selector
                     Text("Theme Mode", style = labelM, color = AppColor.text2)
                     Spacer(Modifier.height(Spacing.xs))
                     Row(
@@ -87,19 +136,19 @@ fun SettingsScreen(
                         ThemeOptionChip(
                             label      = "System",
                             isSelected = uiState.settings.themeMode == ThemeMode.System,
-                            onClick    = { viewModel.setThemeMode(ThemeMode.System) },
+                            onClick    = { onThemeMode(ThemeMode.System) },
                             modifier   = Modifier.weight(1f),
                         )
                         ThemeOptionChip(
                             label      = "Light",
                             isSelected = uiState.settings.themeMode == ThemeMode.Light,
-                            onClick    = { viewModel.setThemeMode(ThemeMode.Light) },
+                            onClick    = { onThemeMode(ThemeMode.Light) },
                             modifier   = Modifier.weight(1f),
                         )
                         ThemeOptionChip(
                             label      = "Dark",
                             isSelected = uiState.settings.themeMode == ThemeMode.Dark,
-                            onClick    = { viewModel.setThemeMode(ThemeMode.Dark) },
+                            onClick    = { onThemeMode(ThemeMode.Dark) },
                             modifier   = Modifier.weight(1f),
                         )
                     }
@@ -108,21 +157,20 @@ fun SettingsScreen(
                     HorizontalDivider(color = AppColor.outlineVariant)
                     Spacer(Modifier.height(Spacing.md))
 
-                    // Palette selector
                     Text("Colour Scheme", style = labelM, color = AppColor.text2)
                     Spacer(Modifier.height(Spacing.xs))
                     Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
                         PaletteOptionRow("Palette A: Toxic Violet", isSelected = uiState.settings.paletteId == PaletteId.A) {
-                            viewModel.setPaletteId(PaletteId.A)
+                            onPaletteId(PaletteId.A)
                         }
                         PaletteOptionRow("Palette B: Machine Red", isSelected = uiState.settings.paletteId == PaletteId.B) {
-                            viewModel.setPaletteId(PaletteId.B)
+                            onPaletteId(PaletteId.B)
                         }
                         PaletteOptionRow("Palette C: Hyper Cobalt", isSelected = uiState.settings.paletteId == PaletteId.C) {
-                            viewModel.setPaletteId(PaletteId.C)
+                            onPaletteId(PaletteId.C)
                         }
                         PaletteOptionRow("Palette D: Dark Aubergine", isSelected = uiState.settings.paletteId == PaletteId.D) {
-                            viewModel.setPaletteId(PaletteId.D)
+                            onPaletteId(PaletteId.D)
                         }
                     }
                 }
@@ -132,14 +180,14 @@ fun SettingsScreen(
                 // SECURITY
                 SettingsSection("SECURITY") {
                     SettingsActionRow("Change PIN", "Update your 4-digit security PIN") {
-                        viewModel.showChangePinDialog()
+                        onShowChangePin()
                     }
                     HorizontalDivider(color = AppColor.outlineVariant)
                     SettingsToggleRow(
                         label     = "Fingerprint Unlock",
                         subtext   = "Use biometric authentication if available",
                         isChecked = uiState.settings.fingerprintEnabled,
-                        onToggle  = { viewModel.setFingerprintEnabled(it) },
+                        onToggle  = onFingerprint,
                     )
                 }
 
@@ -151,25 +199,17 @@ fun SettingsScreen(
                         label     = "Enable Notifications",
                         subtext   = "Master switch for all reminders",
                         isChecked = uiState.settings.notificationsMaster,
-                        onToggle  = { viewModel.setNotificationsMaster(it) },
+                        onToggle  = onNotificationsMaster,
                     )
                     if (uiState.settings.notificationsMaster) {
                         HorizontalDivider(color = AppColor.outlineVariant)
-                        SettingsToggleRow("Event Countdowns", "30, 7, and 1 day reminders", uiState.settings.notifyEventCountdowns) {
-                            viewModel.setNotifyEventCountdowns(it)
-                        }
+                        SettingsToggleRow("Event Countdowns", "30, 7, and 1 day reminders", uiState.settings.notifyEventCountdowns, onNotifyCountdowns)
                         HorizontalDivider(color = AppColor.outlineVariant)
-                        SettingsToggleRow("Payment Dues", "Booking and expense due alerts", uiState.settings.notifyPaymentDues) {
-                            viewModel.setNotifyPaymentDues(it)
-                        }
+                        SettingsToggleRow("Payment Dues", "Booking and expense due alerts", uiState.settings.notifyPaymentDues, onNotifyPaymentDues)
                         HorizontalDivider(color = AppColor.outlineVariant)
-                        SettingsToggleRow("Task Reminders", "Checklist due date reminders", uiState.settings.notifyTasks) {
-                            viewModel.setNotifyTasks(it)
-                        }
+                        SettingsToggleRow("Task Reminders", "Checklist due date reminders", uiState.settings.notifyTasks, onNotifyTasks)
                         HorizontalDivider(color = AppColor.outlineVariant)
-                        SettingsToggleRow("Budget Warnings", "Alerts at 80% and 100% budget spent", uiState.settings.notifyBudgetAlerts) {
-                            viewModel.setNotifyBudgetAlerts(it)
-                        }
+                        SettingsToggleRow("Budget Warnings", "Alerts at 80% and 100% budget spent", uiState.settings.notifyBudgetAlerts, onNotifyBudgetAlerts)
                     }
                 }
 
@@ -181,11 +221,11 @@ fun SettingsScreen(
                         horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
                         modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.sm),
                     ) {
-                        AppButtonTonal("Load Demo Data", onClick = { viewModel.loadSampleData() }, modifier = Modifier.weight(1f))
-                        AppButtonTonal("Clear Demo Data", onClick = { viewModel.clearSampleData() }, modifier = Modifier.weight(1f))
+                        AppButtonTonal("Load Demo Data", onClick = onLoadSampleData, modifier = Modifier.weight(1f))
+                        AppButtonTonal("Clear Demo Data", onClick = onClearSampleData, modifier = Modifier.weight(1f))
                     }
                     Spacer(Modifier.height(Spacing.xs))
-                    AppButton("Export Event Data (CSV)", onClick = { viewModel.showExportDialog() })
+                    AppButton("Export Event Data (CSV)", onClick = onShowExport)
                 }
 
                 Spacer(Modifier.height(Spacing.lg))
@@ -208,8 +248,8 @@ fun SettingsScreen(
     // Change PIN Dialog
     if (uiState.isChangePinOpen) {
         ChangePinDialog(
-            onDismiss = { viewModel.hideChangePinDialog() },
-            onConfirm = { currentPin, newPin -> viewModel.changePin(currentPin, newPin) },
+            onDismiss = onChangePinDismiss,
+            onConfirm = onChangePinConfirm,
         )
     }
 
@@ -217,8 +257,8 @@ fun SettingsScreen(
     if (uiState.isExportDialogOpen) {
         ExportCsvDialog(
             events    = uiState.events,
-            onDismiss = { viewModel.hideExportDialog() },
-            onExport  = { eventId -> viewModel.exportEventData(context, eventId) },
+            onDismiss = onExportDismiss,
+            onExport  = onExportConfirm,
         )
     }
 }
@@ -337,6 +377,34 @@ private fun SettingsToggleRow(
                 uncheckedTrackColor  = AppColor.surfaceVariant,
                 uncheckedBorderColor = AppColor.outline,
             ),
+        )
+    }
+}
+
+@LightDarkPreviews
+@Composable
+private fun SettingsScreenPreview() {
+    AppTheme {
+        SettingsScreenContent(
+            uiState               = SettingsUiState(),
+            onMenuClick           = {},
+            onThemeMode           = {},
+            onPaletteId           = {},
+            onShowChangePin       = {},
+            onFingerprint         = {},
+            onNotificationsMaster = {},
+            onNotifyCountdowns    = {},
+            onNotifyPaymentDues   = {},
+            onNotifyTasks         = {},
+            onNotifyBudgetAlerts  = {},
+            onLoadSampleData      = {},
+            onClearSampleData     = {},
+            onShowExport          = {},
+            onDismissSnackbar     = {},
+            onChangePinConfirm    = { _, _ -> true },
+            onChangePinDismiss    = {},
+            onExportConfirm       = {},
+            onExportDismiss       = {},
         )
     }
 }

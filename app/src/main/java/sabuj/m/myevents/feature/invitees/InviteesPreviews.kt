@@ -1,0 +1,56 @@
+package sabuj.m.myevents.feature.invitees
+
+import androidx.compose.runtime.Composable
+import sabuj.m.myevents.core.preview.LightDarkPreviews
+import sabuj.m.myevents.core.preview.PreviewData
+import sabuj.m.myevents.core.theme.AppTheme
+
+@LightDarkPreviews
+@Composable
+private fun AddInviteeSheetPreview() {
+    AppTheme {
+        AddEditInviteeSheet(
+            sheetState             = InviteeSheetState.AddInvitee(
+                name             = "Sharma Family",
+                selectedEventIds = setOf(PreviewData.sampleEvents.first().id),
+                expectedCount    = 4,
+                address          = "123 MG Road, Bengaluru",
+                invited          = true,
+                note             = "Needs hotel room",
+            ),
+            events                 = PreviewData.sampleEvents,
+            onDismiss              = {},
+            onNameChange           = {},
+            onToggleEventSelection = {},
+            onExpectedCountChange  = {},
+            onAddressChange        = {},
+            onInvitedChange        = {},
+            onNoteChange           = {},
+            onSave                 = {},
+        )
+    }
+}
+
+@LightDarkPreviews
+@Composable
+private fun AddGiftSheetPreview() {
+    AppTheme {
+        AddGiftSheet(
+            sheetState          = InviteeSheetState.AddGift(
+                giverName   = "Ramesh Sharma",
+                eventId     = PreviewData.sampleEvents.first().id,
+                amountPaise = 11_000_00L,
+                description = "Silver Bowl set",
+            ),
+            events              = PreviewData.sampleEvents,
+            invitees            = emptyList(),
+            onDismiss           = {},
+            onGiverNameChange   = {},
+            onEventChange       = {},
+            onAmountChange      = {},
+            onDescriptionChange = {},
+            onInviteeChange     = {},
+            onSave              = {},
+        )
+    }
+}
