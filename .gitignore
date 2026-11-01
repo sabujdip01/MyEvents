@@ -15,5 +15,6 @@ local.properties
 
 # Project docs and design assets (local only)
 *.md
+securityaudit.md
 Color schemes/
 Sample UI/
