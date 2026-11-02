@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 5,
-    "identityHash": "0006d7a8b81470735b231a8bb1386837",
+    "identityHash": "7d55481f1c0b05235591605fefbb34af",
     "entities": [
       {
         "tableName": "events",
@@ -97,7 +97,7 @@
       },
       {
         "tableName": "bookings",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `eventId` TEXT NOT NULL, `title` TEXT NOT NULL, `bookingType` TEXT NOT NULL, `bookingIconKey` TEXT NOT NULL, `contactName` TEXT NOT NULL, `phone` TEXT NOT NULL, `totalAmountPaise` INTEGER NOT NULL, `nextDueDateEpochDay` INTEGER, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, `syncState` TEXT NOT NULL DEFAULT 'PENDING', `deleted` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`id`), FOREIGN KEY(`eventId`) REFERENCES `events`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `eventId` TEXT NOT NULL, `title` TEXT NOT NULL, `bookingType` TEXT NOT NULL, `bookingIconKey` TEXT NOT NULL, `contactName` TEXT NOT NULL, `phone` TEXT NOT NULL, `totalAmountPaise` INTEGER NOT NULL, `nextDueDateEpochDay` INTEGER, `bookingMade` INTEGER NOT NULL DEFAULT 1, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, `syncState` TEXT NOT NULL DEFAULT 'PENDING', `deleted` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`id`), FOREIGN KEY(`eventId`) REFERENCES `events`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -151,6 +151,13 @@
             "fieldPath": "nextDueDateEpochDay",
             "columnName": "nextDueDateEpochDay",
             "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "bookingMade",
+            "columnName": "bookingMade",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
           },
           {
             "fieldPath": "createdAt",
@@ -717,7 +724,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0006d7a8b81470735b231a8bb1386837')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7d55481f1c0b05235591605fefbb34af')"
     ]
   }
 }
