@@ -4,23 +4,33 @@ import android.app.DatePickerDialog
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DateRange
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -28,16 +38,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import sabuj.m.myevents.core.theme.AppColor
 import sabuj.m.myevents.core.theme.Radius
 import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
+import sabuj.m.myevents.core.theme.labelL
+import sabuj.m.myevents.core.theme.labelM
 import sabuj.m.myevents.core.theme.titleL
 import sabuj.m.myevents.core.ui.AppButtonRow
 import sabuj.m.myevents.core.util.DateUtils
+import sabuj.m.myevents.core.util.MoneyFormatter
 import sabuj.m.myevents.domain.model.Event
+import sabuj.m.myevents.domain.model.TaskItem
 import java.time.LocalDate
 import java.util.Calendar
 
@@ -50,12 +67,19 @@ fun AddEditTaskSheet(
     onTitleChange: (String) -> Unit,
     onEventChange: (String) -> Unit,
     onDueDateChange: (Long?) -> Unit,
+    onItemChange: (index: Int, name: String, pricePaise: Long, checked: Boolean) -> Unit = { _, _, _, _ -> },
+    onAddItem: () -> Unit = {},
+    onRemoveItem: (Int) -> Unit = {},
+    onCompletedChange: (Boolean) -> Unit = {},
     onSave: () -> Unit,
 ) {
     val isEdit = sheetState is TaskSheetState.Edit
     val title: String
     val eventId: String
     val dueDateEpochDay: Long?
+    val totalAmountPaise: Long
+    val items: List<TaskItem>
+    val completed: Boolean
     val titleError: String?
     val eventError: String?
 
@@ -64,6 +88,9 @@ fun AddEditTaskSheet(
             title = sheetState.title
             eventId = sheetState.eventId
             dueDateEpochDay = sheetState.dueDateEpochDay
+            totalAmountPaise = sheetState.totalAmountPaise
+            items = sheetState.items
+            completed = sheetState.completed
             titleError = sheetState.titleError
             eventError = sheetState.eventError
         }
@@ -71,8 +98,11 @@ fun AddEditTaskSheet(
             title = sheetState.title
             eventId = sheetState.eventId
             dueDateEpochDay = sheetState.dueDateEpochDay
+            totalAmountPaise = sheetState.totalAmountPaise
+            items = sheetState.items
+            completed = sheetState.completed
             titleError = sheetState.titleError
-            eventError = null
+            eventError = sheetState.eventError
         }
         else -> return
     }
@@ -109,7 +139,7 @@ fun AddEditTaskSheet(
                 supportingText = titleError,
             )
 
-            // For Event Dropdown
+            // For Event Dropdown (Item F1 — Not auto-selected)
             TaskEventDropdownSelector(
                 events     = events,
                 selectedId = eventId,
@@ -150,6 +180,105 @@ fun AddEditTaskSheet(
                 },
             )
 
+            // Dynamic List of items with price + checkbox (Item F2)
+            Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                Text(text = "List of Items & Prices", style = labelM, color = AppColor.text2)
+
+                items.forEachIndexed { index, item ->
+                    Row(
+                        modifier          = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                    ) {
+                        Checkbox(
+                            checked         = item.checked,
+                            onCheckedChange = { checked ->
+                                onItemChange(index, item.name, item.pricePaise, checked)
+                            },
+                            colors          = CheckboxDefaults.colors(checkedColor = AppColor.primary),
+                        )
+
+                        OutlinedTextField(
+                            value         = item.name,
+                            onValueChange = { newName ->
+                                onItemChange(index, newName, item.pricePaise, item.checked)
+                                if (index == items.lastIndex && newName.isNotBlank()) {
+                                    onAddItem()
+                                }
+                            },
+                            placeholder   = { Text("Item name", style = bodyM, color = AppColor.text3) },
+                            modifier      = Modifier.weight(1f),
+                            singleLine    = true,
+                            shape         = RoundedCornerShape(Radius.field),
+                            colors        = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor   = AppColor.primary,
+                                unfocusedBorderColor = AppColor.outline,
+                            ),
+                        )
+
+                        val priceRupees = if (item.pricePaise == 0L) "" else (item.pricePaise / 100L).toString()
+                        OutlinedTextField(
+                            value         = priceRupees,
+                            onValueChange = { priceText ->
+                                val pricePaise = (priceText.filter { it.isDigit() }.toLongOrNull() ?: 0L) * 100L
+                                onItemChange(index, item.name, pricePaise, item.checked)
+                                if (index == items.lastIndex && (item.name.isNotBlank() || priceText.isNotBlank())) {
+                                    onAddItem()
+                                }
+                            },
+                            placeholder   = { Text("₹ Price", style = bodyM, color = AppColor.text3) },
+                            modifier      = Modifier.width(100.dp),
+                            singleLine    = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            shape         = RoundedCornerShape(Radius.field),
+                            colors        = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor   = AppColor.primary,
+                                unfocusedBorderColor = AppColor.outline,
+                            ),
+                        )
+
+                        if (items.size > 1) {
+                            IconButton(onClick = { onRemoveItem(index) }) {
+                                Icon(Icons.Rounded.Delete, "Remove item", tint = AppColor.danger)
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Total Amount (Auto-calculated sum)
+            val calculatedTotalPaise = items.sumOf { it.pricePaise }
+            TaskTextField(
+                value         = MoneyFormatter.format(calculatedTotalPaise),
+                onValueChange = {},
+                label         = "Total Amount (Auto-calculated)",
+                readOnly      = true,
+            )
+
+            // "All Items collected / completed?" toggle
+            Row(
+                modifier          = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text     = "All Items collected / completed?",
+                    style    = labelL,
+                    color    = AppColor.text,
+                    modifier = Modifier.weight(1f),
+                )
+                Switch(
+                    checked         = completed,
+                    onCheckedChange = onCompletedChange,
+                    colors          = SwitchDefaults.colors(
+                        checkedThumbColor    = AppColor.onPrimary,
+                        checkedTrackColor    = AppColor.primary,
+                        uncheckedThumbColor  = AppColor.text3,
+                        uncheckedTrackColor  = AppColor.surfaceVariant,
+                        uncheckedBorderColor = AppColor.outline,
+                    ),
+                )
+            }
+
             val isSaveEnabled = title.isNotBlank() && eventId.isNotBlank()
             AppButtonRow(
                 positiveText    = if (isEdit) "Save" else "Add",
@@ -182,7 +311,7 @@ private fun TaskEventDropdownSelector(
         modifier         = Modifier.fillMaxWidth(),
     ) {
         OutlinedTextField(
-            value              = selectedEvent?.title ?: "",
+            value              = selectedEvent?.title ?: "Select Event",
             onValueChange      = {},
             readOnly           = true,
             label              = { Text("For Event", style = bodyM) },

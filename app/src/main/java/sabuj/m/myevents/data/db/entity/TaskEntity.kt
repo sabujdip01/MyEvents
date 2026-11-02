@@ -7,7 +7,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 /**
- * Room entity for checklist tasks.
+ * Room entity for Item Lists (tasks).
  * - [eventId] FK -> events(id) ON DELETE CASCADE.
  */
 @Entity(
@@ -29,6 +29,8 @@ data class TaskEntity(
     val eventId: String,
     val title: String,
     val dueDateEpochDay: Long?,
+    @ColumnInfo(defaultValue = "0") val totalAmountPaise: Long = 0L,
+    @ColumnInfo(defaultValue = "") val itemsEncoded: String = "",
     val completed: Int = 0,
     val createdAt: Long,
     val updatedAt: Long,

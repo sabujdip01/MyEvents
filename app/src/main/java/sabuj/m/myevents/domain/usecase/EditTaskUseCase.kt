@@ -13,15 +13,19 @@ class EditTaskUseCase @Inject constructor(
         existing: Task,
         title: String = existing.title,
         dueDate: LocalDate? = existing.dueDate,
+        totalAmountPaise: Long = existing.totalAmountPaise,
+        items: List<sabuj.m.myevents.domain.model.TaskItem> = existing.items,
         completed: Boolean = existing.completed,
     ): TaskSaveResult {
         if (title.isBlank()) return TaskSaveResult.TitleBlank
 
         val updated = existing.copy(
-            title     = title.trim(),
-            dueDate   = dueDate,
-            completed = completed,
-            updatedAt = System.currentTimeMillis(),
+            title            = title.trim(),
+            dueDate          = dueDate,
+            totalAmountPaise = totalAmountPaise,
+            items            = items,
+            completed        = completed,
+            updatedAt        = System.currentTimeMillis(),
         )
 
         repo.upsertTask(updated)

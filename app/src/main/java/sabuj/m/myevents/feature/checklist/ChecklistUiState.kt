@@ -10,6 +10,9 @@ sealed class TaskSheetState {
         val title: String = "",
         val eventId: String = "",
         val dueDateEpochDay: Long? = null,
+        val totalAmountPaise: Long = 0L,
+        val items: List<sabuj.m.myevents.domain.model.TaskItem> = listOf(sabuj.m.myevents.domain.model.TaskItem("")),
+        val completed: Boolean = false,
         val titleError: String? = null,
         val eventError: String? = null,
     ) : TaskSheetState()
@@ -19,8 +22,11 @@ sealed class TaskSheetState {
         val eventId: String,
         val title: String,
         val dueDateEpochDay: Long?,
-        val completed: Boolean,
+        val totalAmountPaise: Long = 0L,
+        val items: List<sabuj.m.myevents.domain.model.TaskItem> = emptyList(),
+        val completed: Boolean = false,
         val titleError: String? = null,
+        val eventError: String? = null,
     ) : TaskSheetState()
 }
 
@@ -33,6 +39,7 @@ data class ChecklistUiState(
     val sheetState: TaskSheetState = TaskSheetState.Hidden,
     val isDeleteMode: Boolean = false,
     val selectedForDelete: Set<String> = emptySet(),
+    val deleteTaskId: String? = null,
     val snackbarMessage: String? = null,
 ) {
     /** Filtered list of tasks for the selected event. */

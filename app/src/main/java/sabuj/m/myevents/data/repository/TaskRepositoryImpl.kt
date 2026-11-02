@@ -36,15 +36,17 @@ class TaskRepositoryImpl @Inject constructor(
     }
 
     private fun TaskEntity.toDomain(): Task = Task(
-        id          = id,
-        eventId     = eventId,
-        title       = title,
-        dueDate     = dueDateEpochDay?.let { converters.fromEpochDay(it) },
-        completed   = completed == 1,
-        createdAt   = createdAt,
-        updatedAt   = updatedAt,
-        syncState   = try { SyncState.valueOf(syncState) } catch (e: Exception) { SyncState.PENDING },
-        deleted     = deleted == 1,
+        id               = id,
+        eventId          = eventId,
+        title            = title,
+        dueDate          = dueDateEpochDay?.let { converters.fromEpochDay(it) },
+        totalAmountPaise = totalAmountPaise,
+        items            = converters.fromTaskItemList(itemsEncoded),
+        completed        = completed == 1,
+        createdAt        = createdAt,
+        updatedAt        = updatedAt,
+        syncState        = try { SyncState.valueOf(syncState) } catch (e: Exception) { SyncState.PENDING },
+        deleted          = deleted == 1,
     )
 
     private fun Task.toEntity(): TaskEntity = TaskEntity(
@@ -52,6 +54,8 @@ class TaskRepositoryImpl @Inject constructor(
         eventId         = eventId,
         title           = title,
         dueDateEpochDay = dueDate?.let { converters.toEpochDay(it) },
+        totalAmountPaise = totalAmountPaise,
+        itemsEncoded    = converters.toTaskItemList(items),
         completed       = if (completed) 1 else 0,
         createdAt       = createdAt,
         updatedAt       = updatedAt,

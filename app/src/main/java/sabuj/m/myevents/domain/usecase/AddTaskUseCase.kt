@@ -21,18 +21,23 @@ class AddTaskUseCase @Inject constructor(
         title: String,
         eventId: String,
         dueDate: LocalDate?,
+        totalAmountPaise: Long = 0L,
+        items: List<sabuj.m.myevents.domain.model.TaskItem> = emptyList(),
+        completed: Boolean = false,
     ): TaskSaveResult {
         if (title.isBlank()) return TaskSaveResult.TitleBlank
         if (eventId.isBlank()) return TaskSaveResult.EventBlank
 
         val now = System.currentTimeMillis()
         val task = Task(
-            id        = UUID.randomUUID().toString(),
-            eventId   = eventId,
-            title     = title.trim(),
-            dueDate   = dueDate,
-            completed = false,
-            createdAt = now,
+            id               = UUID.randomUUID().toString(),
+            eventId          = eventId,
+            title            = title.trim(),
+            dueDate          = dueDate,
+            totalAmountPaise = totalAmountPaise,
+            items            = items,
+            completed        = completed,
+            createdAt        = now,
             updatedAt = now,
             syncState = SyncState.PENDING,
             deleted   = false,

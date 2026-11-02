@@ -53,11 +53,10 @@ class ChecklistViewModel @Inject constructor(
     }
 
     fun showAddSheet() {
-        val defaultEvent = uiState.value.selectedEventId ?: uiState.value.events.firstOrNull()?.id ?: ""
         _uiState.update {
             it.copy(
                 sheetState = TaskSheetState.Add(
-                    eventId = defaultEvent,
+                    eventId = "", // Item F1: Do not auto-select event name, let user select it
                 )
             )
         }
@@ -68,11 +67,13 @@ class ChecklistViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 sheetState = TaskSheetState.Edit(
-                    taskId          = t.id,
-                    eventId         = t.eventId,
-                    title           = t.title,
-                    dueDateEpochDay = t.dueDate?.toEpochDay(),
-                    completed       = t.completed,
+                    taskId           = t.id,
+                    eventId          = t.eventId,
+                    title            = t.title,
+                    dueDateEpochDay  = t.dueDate?.toEpochDay(),
+                    totalAmountPaise = t.totalAmountPaise,
+                    items            = t.items,
+                    completed        = t.completed,
                 )
             )
         }
@@ -97,27 +98,32 @@ class ChecklistViewModel @Inject constructor(
             when (val sheet = _uiState.value.sheetState) {
                 is TaskSheetState.Add -> {
                     val result = addTask(
-                        title   = sheet.title,
-                        eventId = sheet.eventId,
-                        dueDate = sheet.dueDateEpochDay?.let { LocalDate.ofEpochDay(it) },
+                        title            = sheet.title,
+                        eventId          = sheet.eventId,
+                        dueDate          = sheet.dueDateEpochDay?.let { LocalDate.ofEpochDay(it) },
+                        totalAmountPaise = sheet.totalAmountPaise,
+                        items            = sheet.items,
+                        completed        = sheet.completed,
                     )
                     when (result) {
                         TaskSaveResult.Success -> hideSheet()
-                        TaskSaveResult.TitleBlank -> applySheetError(sheet, titleError = "Enter task title")
+                        TaskSaveResult.TitleBlank -> applySheetError(sheet, titleError = "Enter item list title")
                         TaskSaveResult.EventBlank -> applySheetError(sheet, eventError = "Select an event")
                     }
                 }
                 is TaskSheetState.Edit -> {
                     val existing = uiState.value.tasks.find { it.id == sheet.taskId } ?: return@launch
                     val result = editTask(
-                        existing  = existing,
-                        title     = sheet.title,
-                        dueDate   = sheet.dueDateEpochDay?.let { LocalDate.ofEpochDay(it) },
-                        completed = sheet.completed,
+                        existing         = existing,
+                        title            = sheet.title,
+                        dueDate          = sheet.dueDateEpochDay?.let { LocalDate.ofEpochDay(it) },
+                        totalAmountPaise = sheet.totalAmountPaise,
+                        items            = sheet.items,
+                        completed        = sheet.completed,
                     )
                     when (result) {
                         TaskSaveResult.Success -> hideSheet()
-                        TaskSaveResult.TitleBlank -> applySheetError(sheet, titleError = "Enter task title")
+                        TaskSaveResult.TitleBlank -> applySheetError(sheet, titleError = "Enter item list title")
                         else -> Unit
                     }
                 }
@@ -168,6 +174,22 @@ class ChecklistViewModel @Inject constructor(
         }
     }
 
+    fun requestDeleteTask(id: String) {
+        _uiState.update { it.copy(deleteTaskId = id) }
+    }
+
+    fun cancelDeleteTask() {
+        _uiState.update { it.copy(deleteTaskId = null) }
+    }
+
+    fun confirmDeleteTask() {
+        val id = uiState.value.deleteTaskId ?: return
+        viewModelScope.launch {
+            deleteTasks(listOf(id))
+            _uiState.update { it.copy(deleteTaskId = null, snackbarMessage = "Item list deleted") }
+        }
+    }
+
     fun deleteSelectedTasks() {
         val ids = uiState.value.selectedForDelete.toList()
         if (ids.isEmpty()) return
@@ -177,7 +199,7 @@ class ChecklistViewModel @Inject constructor(
                 it.copy(
                     isDeleteMode      = false,
                     selectedForDelete = emptySet(),
-                    snackbarMessage   = "${ids.size} tasks deleted",
+                    snackbarMessage   = "${ids.size} item lists deleted",
                 )
             }
         }
