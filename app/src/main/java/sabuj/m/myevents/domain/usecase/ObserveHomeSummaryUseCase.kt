@@ -69,7 +69,7 @@ class ObserveHomeSummaryUseCase @Inject constructor(
             val pendingChecklistItems = tasks.count { !it.completed }
             val totalPendingItems = pendingExpenseItems + pendingChecklistItems
 
-            val completedBookings = bookings.count { it.isFullyPaid }
+            val completedBookings = bookings.count { it.bookingMade }
             val totalBookingsCount = bookings.size
 
             HomeSummary(

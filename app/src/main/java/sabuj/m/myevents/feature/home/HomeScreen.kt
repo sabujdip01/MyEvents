@@ -32,15 +32,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,6 +58,7 @@ import sabuj.m.myevents.core.theme.Radius
 import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
+import sabuj.m.myevents.core.theme.labelM
 import sabuj.m.myevents.core.theme.titleL
 import sabuj.m.myevents.core.theme.titleM
 import sabuj.m.myevents.core.theme.titleS
@@ -62,10 +68,12 @@ import sabuj.m.myevents.core.ui.PillVariant
 import sabuj.m.myevents.core.ui.doodles.BgBlobs
 import sabuj.m.myevents.core.util.DateUtils
 import sabuj.m.myevents.core.util.MoneyFormatter
+import sabuj.m.myevents.domain.model.Event
 import sabuj.m.myevents.domain.model.EventSummary
+import sabuj.m.myevents.feature.events.EventDetailsSheet
 
 /**
- * Home screen dashboard — design.md section 6.4 & Items C1–C11.
+ * Home screen dashboard — design.md section 6.4 & Items B1–B4.
  */
 @Composable
 fun HomeScreen(
@@ -75,7 +83,39 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
-    HomeContent(state = state, onMenuClick = onMenuClick, onNavigateToEvents = onNavigateToEvents, modifier = modifier)
+    var selectedEventSummary by remember { mutableStateOf<EventSummary?>(null) }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        HomeContent(
+            state               = state,
+            onMenuClick         = onMenuClick,
+            onNavigateToEvents  = onNavigateToEvents,
+            onEventClick        = { eventSummary -> selectedEventSummary = eventSummary },
+            modifier            = modifier,
+        )
+
+        // Item B3: View Event Popup on chevron click
+        selectedEventSummary?.let { summary ->
+            EventDetailsSheet(
+                event = Event(
+                    id               = summary.id,
+                    title            = summary.title,
+                    eventName        = summary.title,
+                    date             = summary.date,
+                    icon             = summary.icon,
+                    budgetPaise      = 0L,
+                    inviteesRequired = true,
+                    createdAt        = 0L,
+                    updatedAt        = 0L,
+                    syncState        = sabuj.m.myevents.domain.model.SyncState.PENDING,
+                    deleted          = false,
+                ),
+                onDismiss = { selectedEventSummary = null },
+                onEdit    = { selectedEventSummary = null; onNavigateToEvents() },
+                onDelete  = { selectedEventSummary = null; onNavigateToEvents() },
+            )
+        }
+    }
 }
 
 @Composable
@@ -83,6 +123,7 @@ private fun HomeContent(
     state: HomeUiState,
     onMenuClick: () -> Unit,
     onNavigateToEvents: () -> Unit,
+    onEventClick: (EventSummary) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -126,7 +167,7 @@ private fun HomeContent(
                 verticalArrangement = Arrangement.spacedBy(Spacing.md),
             ) {
                 // 1. Upcoming Events
-                UpcomingEventsCard(events = state.upcomingEvents, onAddEvent = onNavigateToEvents, onEventClick = { onNavigateToEvents() })
+                UpcomingEventsCard(events = state.upcomingEvents, onAddEvent = onNavigateToEvents, onEventClick = onEventClick)
 
                 // 2 + 3. Bookings Done | Booking Amount
                 Row(
@@ -166,7 +207,7 @@ private fun HomeContent(
                 // 7. Items Pending
                 ItemsPendingCard(count = state.itemsPending)
 
-                // Navigation bar padding prevents overlap with Android system nav bar (Item C1)
+                // Navigation bar padding prevents overlap with Android system nav bar
                 Spacer(Modifier.navigationBarsPadding().height(Spacing.xl2))
             }
         }
@@ -174,7 +215,7 @@ private fun HomeContent(
 }
 
 // ---------------------------------------------------------------------------
-// Shared card shell — Item C6 (50% reduced shadow & light border)
+// Shared card shell — Item B2 (light border for light mode)
 // ---------------------------------------------------------------------------
 
 @Composable
@@ -188,8 +229,8 @@ private fun HomeCard(
         color           = AppColor.surface,
         shadowElevation = 2.dp, // 50% reduced shadow
         border          = BorderStroke(
-            1.dp,
-            if (AppColor.isDark) AppColor.outlineVariant else AppColor.outlineVariant.copy(alpha = 0.5f),
+            0.8.dp,
+            if (AppColor.isDark) AppColor.outlineVariant else Color(0xFFE2E8F0), // light border for light mode
         ),
     ) {
         content()
@@ -201,12 +242,12 @@ private fun HomeCard(
 private fun CardIcon(icon: ImageVector, contentDescription: String = "") {
     Box(
         modifier        = Modifier
-            .size(48.dp)
+            .size(44.dp)
             .clip(CircleShape)
             .background(AppColor.primaryContainer),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(icon, contentDescription, tint = AppColor.primary, modifier = Modifier.size(24.dp))
+        Icon(icon, contentDescription, tint = AppColor.primary, modifier = Modifier.size(22.dp))
     }
 }
 
@@ -218,7 +259,7 @@ private fun CardIcon(icon: ImageVector, contentDescription: String = "") {
 private fun UpcomingEventsCard(
     events: List<EventSummary>,
     onAddEvent: () -> Unit,
-    onEventClick: (String) -> Unit,
+    onEventClick: (EventSummary) -> Unit,
 ) {
     HomeCard {
         Column(modifier = Modifier.padding(Spacing.md)) {
@@ -241,7 +282,7 @@ private fun UpcomingEventsCard(
                 }
             } else {
                 events.forEach { event ->
-                    EventRow(event = event, onClick = { onEventClick(event.id) })
+                    EventRow(event = event, onClick = { onEventClick(event) })
                     Spacer(Modifier.height(Spacing.xs))
                 }
             }
@@ -288,7 +329,7 @@ private fun EventRow(event: EventSummary, onClick: () -> Unit) {
 }
 
 // ---------------------------------------------------------------------------
-// 2. Bookings Done (Items C4 & C5 — Title top, 30% larger callout number)
+// 2. Bookings Done (Item B1 — Header row: Icon + Title in same horizontal line)
 // ---------------------------------------------------------------------------
 
 @Composable
@@ -296,34 +337,39 @@ private fun BookingsDoneCard(done: Int, total: Int, modifier: Modifier) {
     HomeCard(modifier = modifier) {
         Box {
             Column(modifier = Modifier.fillMaxHeight().padding(Spacing.md)) {
-                Text("Bookings Done", style = labelL, color = AppColor.text2)
-                Spacer(Modifier.height(Spacing.xs))
-                CardIcon(icon = AppIcon.Bookings.fallback)
-                Spacer(Modifier.height(Spacing.xs))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CardIcon(icon = AppIcon.Bookings.fallback)
+                    Spacer(Modifier.width(Spacing.xs))
+                    Text("Bookings Done", style = labelL, color = AppColor.text2)
+                }
+                Spacer(Modifier.height(Spacing.sm))
                 Text(
-                    text = buildAnnotatedString {
-                        withStyle(SpanStyle(fontSize = 36.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
-                            append("$done")
-                        }
-                        append(" of $total")
-                    },
-                    style = titleL,
-                    color = AppColor.text,
+                    text      = "$done of $total",
+                    style     = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold),
+                    color     = AppColor.primary,
+                    textAlign = TextAlign.Center,
+                    modifier  = Modifier.fillMaxWidth(),
                 )
-                Text("bookings", style = bodyM, color = AppColor.text2)
+                Text(
+                    text      = "bookings made",
+                    style     = bodyM,
+                    color     = AppColor.text2,
+                    textAlign = TextAlign.Center,
+                    modifier  = Modifier.fillMaxWidth(),
+                )
             }
             Box(
-                modifier        = Modifier.align(Alignment.BottomEnd).size(56.dp).padding(Spacing.xs),
+                modifier        = Modifier.align(Alignment.BottomEnd).size(48.dp).padding(Spacing.xs),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(AppIcon.Bookings.fallback, null, tint = AppColor.primary.copy(alpha = 0.08f), modifier = Modifier.size(48.dp))
+                Icon(AppIcon.Bookings.fallback, null, tint = AppColor.primary.copy(alpha = 0.08f), modifier = Modifier.size(40.dp))
             }
         }
     }
 }
 
 // ---------------------------------------------------------------------------
-// 3. Booking Amount (Items C4 & C5 — Title top, 30% larger callout number)
+// 3. Booking Amount (Item B1 — Header row: Icon + Title in same horizontal line)
 // ---------------------------------------------------------------------------
 
 @Composable
@@ -331,30 +377,39 @@ private fun BookingAmountCard(paidPaise: Long, totalPaise: Long, modifier: Modif
     HomeCard(modifier = modifier) {
         Box {
             Column(modifier = Modifier.fillMaxHeight().padding(Spacing.md)) {
-                Text("Booking Amount", style = labelL, color = AppColor.text2)
-                Spacer(Modifier.height(Spacing.xs))
-                CardIcon(icon = AppIcon.Expenses.fallback)
-                Spacer(Modifier.height(Spacing.xs))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CardIcon(icon = AppIcon.Expenses.fallback)
+                    Spacer(Modifier.width(Spacing.xs))
+                    Text("Booking Amount", style = labelL, color = AppColor.text2)
+                }
+                Spacer(Modifier.height(Spacing.sm))
                 Text(
-                    text  = MoneyFormatter.format(paidPaise),
-                    style = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold),
-                    color = AppColor.primary,
+                    text      = MoneyFormatter.format(paidPaise),
+                    style     = TextStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold),
+                    color     = AppColor.primary,
+                    textAlign = TextAlign.Center,
+                    modifier  = Modifier.fillMaxWidth(),
                 )
-                Text("paid", style = bodyM, color = AppColor.text2)
-                Text("of ${MoneyFormatter.format(totalPaise)}", style = bodyM, color = AppColor.text2)
+                Text(
+                    text      = "paid of ${MoneyFormatter.format(totalPaise)}",
+                    style     = bodyM,
+                    color     = AppColor.text2,
+                    textAlign = TextAlign.Center,
+                    modifier  = Modifier.fillMaxWidth(),
+                )
             }
             Box(
-                modifier        = Modifier.align(Alignment.BottomEnd).size(56.dp).padding(Spacing.xs),
+                modifier        = Modifier.align(Alignment.BottomEnd).size(48.dp).padding(Spacing.xs),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(AppIcon.Expenses.fallback, null, tint = AppColor.primary.copy(alpha = 0.08f), modifier = Modifier.size(48.dp))
+                Icon(AppIcon.Expenses.fallback, null, tint = AppColor.primary.copy(alpha = 0.08f), modifier = Modifier.size(40.dp))
             }
         }
     }
 }
 
 // ---------------------------------------------------------------------------
-// 4. Budget vs Spent (Item C10)
+// 4. Budget vs Spent
 // ---------------------------------------------------------------------------
 
 @Composable
@@ -412,7 +467,7 @@ private fun BudgetCard(spentPaise: Long, totalPaise: Long) {
 }
 
 // ---------------------------------------------------------------------------
-// 5. Pending Dues (Items C4 & C5)
+// 5. Pending Dues (Item B1 — Header row: Icon + Title in same horizontal line)
 // ---------------------------------------------------------------------------
 
 @Composable
@@ -420,29 +475,39 @@ private fun PendingDuesCard(paise: Long, modifier: Modifier) {
     HomeCard(modifier = modifier) {
         Box {
             Column(modifier = Modifier.fillMaxHeight().padding(Spacing.md)) {
-                Text("Pending Dues", style = labelL, color = AppColor.text2)
-                Spacer(Modifier.height(Spacing.xs))
-                CardIcon(icon = AppIcon.Dues.fallback)
-                Spacer(Modifier.height(Spacing.xs))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CardIcon(icon = AppIcon.Dues.fallback)
+                    Spacer(Modifier.width(Spacing.xs))
+                    Text("Pending Dues", style = labelL, color = AppColor.text2)
+                }
+                Spacer(Modifier.height(Spacing.sm))
                 Text(
-                    text  = MoneyFormatter.format(paise),
-                    style = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold),
-                    color = if (paise > 0) AppColor.danger else AppColor.success,
+                    text      = MoneyFormatter.format(paise),
+                    style     = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold),
+                    color     = if (paise > 0) AppColor.danger else AppColor.success,
+                    textAlign = TextAlign.Center,
+                    modifier  = Modifier.fillMaxWidth(),
                 )
-                Text("unpaid", style = bodyM, color = AppColor.text2)
+                Text(
+                    text      = "unpaid balance",
+                    style     = bodyM,
+                    color     = AppColor.text2,
+                    textAlign = TextAlign.Center,
+                    modifier  = Modifier.fillMaxWidth(),
+                )
             }
             Box(
-                modifier        = Modifier.align(Alignment.BottomEnd).size(56.dp).padding(Spacing.xs),
+                modifier        = Modifier.align(Alignment.BottomEnd).size(48.dp).padding(Spacing.xs),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(AppIcon.Dues.fallback, null, tint = AppColor.primary.copy(alpha = 0.08f), modifier = Modifier.size(48.dp))
+                Icon(AppIcon.Dues.fallback, null, tint = AppColor.primary.copy(alpha = 0.08f), modifier = Modifier.size(40.dp))
             }
         }
     }
 }
 
 // ---------------------------------------------------------------------------
-// 6. Invitees (Items C4 & C11 — X of X Invited, Y of Y families invited)
+// 6. Invitees (Item B1 — Header row: Icon + Title in same horizontal line)
 // ---------------------------------------------------------------------------
 
 @Composable
@@ -456,23 +521,32 @@ private fun InviteesCard(
     HomeCard(modifier = modifier) {
         Box {
             Column(modifier = Modifier.fillMaxHeight().padding(Spacing.md)) {
-                Text("Invitees", style = labelL, color = AppColor.text2)
-                Spacer(Modifier.height(Spacing.xs))
-                CardIcon(icon = AppIcon.Invitees.fallback)
-                Spacer(Modifier.height(Spacing.xs))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CardIcon(icon = AppIcon.Invitees.fallback)
+                    Spacer(Modifier.width(Spacing.xs))
+                    Text("Invitees", style = labelL, color = AppColor.text2)
+                }
+                Spacer(Modifier.height(Spacing.sm))
                 Text(
-                    text  = "$invitedGuests of $totalGuests",
-                    style = TextStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold),
-                    color = AppColor.primary,
+                    text      = "$invitedGuests of $totalGuests",
+                    style     = TextStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold),
+                    color     = AppColor.primary,
+                    textAlign = TextAlign.Center,
+                    modifier  = Modifier.fillMaxWidth(),
                 )
-                Text("Invited guests", style = bodyM, color = AppColor.text2)
-                Text("$invitedFamilies of $totalFamilies families invited", style = bodyM, color = AppColor.text2)
+                Text(
+                    text      = "Invited ($invitedFamilies of $totalFamilies families)",
+                    style     = bodyM,
+                    color     = AppColor.text2,
+                    textAlign = TextAlign.Center,
+                    modifier  = Modifier.fillMaxWidth(),
+                )
             }
             Box(
-                modifier        = Modifier.align(Alignment.BottomEnd).size(56.dp).padding(Spacing.xs),
+                modifier        = Modifier.align(Alignment.BottomEnd).size(48.dp).padding(Spacing.xs),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(AppIcon.Invitees.fallback, null, tint = AppColor.primary.copy(alpha = 0.08f), modifier = Modifier.size(48.dp))
+                Icon(AppIcon.Invitees.fallback, null, tint = AppColor.primary.copy(alpha = 0.08f), modifier = Modifier.size(40.dp))
             }
         }
     }
@@ -526,7 +600,14 @@ private fun ItemsPendingCard(count: Int) {
 @LightDarkPreviews
 @Composable
 private fun HomeScreenEmptyPreview() {
-    AppTheme { HomeContent(state = HomeUiState(), onMenuClick = {}, onNavigateToEvents = {}) }
+    AppTheme {
+        HomeContent(
+            state              = HomeUiState(),
+            onMenuClick        = {},
+            onNavigateToEvents = {},
+            onEventClick       = {},
+        )
+    }
 }
 
 @LightDarkPreviews
@@ -553,6 +634,7 @@ private fun HomeScreenFilledPreview() {
             ),
             onMenuClick        = {},
             onNavigateToEvents = {},
+            onEventClick       = {},
         )
     }
 }
