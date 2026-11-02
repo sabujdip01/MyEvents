@@ -3,6 +3,7 @@ package sabuj.m.myevents.data.settings
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -25,6 +26,7 @@ data class UserSettings(
     val notifyTasks: Boolean = true,
     val notifyBudgetAlerts: Boolean = true,
     val fingerprintEnabled: Boolean = true,
+    val lastSyncTimestamp: Long = 0L,
 )
 
 @Singleton
@@ -39,6 +41,7 @@ class SettingsDataStore @Inject constructor(
     private val keyTaskNotif = booleanPreferencesKey("notif_tasks")
     private val keyBudgetNotif = booleanPreferencesKey("notif_budget")
     private val keyBiometric = booleanPreferencesKey("biometric_enabled")
+    private val keyLastSync = longPreferencesKey("last_sync_ts")
 
     val userSettingsFlow: Flow<UserSettings> = context.dataStore.data.map { prefs ->
         UserSettings(
@@ -50,6 +53,7 @@ class SettingsDataStore @Inject constructor(
             notifyTasks           = prefs[keyTaskNotif] ?: true,
             notifyBudgetAlerts    = prefs[keyBudgetNotif] ?: true,
             fingerprintEnabled    = prefs[keyBiometric] ?: true,
+            lastSyncTimestamp     = prefs[keyLastSync] ?: 0L,
         )
     }
 
@@ -83,5 +87,9 @@ class SettingsDataStore @Inject constructor(
 
     suspend fun setFingerprintEnabled(enabled: Boolean) {
         context.dataStore.edit { it[keyBiometric] = enabled }
+    }
+
+    suspend fun saveLastSyncTimestamp(epochMs: Long) {
+        context.dataStore.edit { it[keyLastSync] = epochMs }
     }
 }

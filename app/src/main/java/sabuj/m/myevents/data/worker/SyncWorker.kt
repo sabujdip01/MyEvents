@@ -35,7 +35,7 @@ class SyncWorker @AssistedInject constructor(
                 .build()
 
             val request = PeriodicWorkRequestBuilder<SyncWorker>(
-                repeatInterval     = 6,
+                repeatInterval     = 1,
                 repeatIntervalTimeUnit = TimeUnit.HOURS,
             )
                 .setConstraints(constraints)

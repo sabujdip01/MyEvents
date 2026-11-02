@@ -16,6 +16,7 @@ import javax.inject.Singleton
 @Singleton
 class FirestoreSyncRepository @Inject constructor(
     private val authManager: FirebaseAuthManager,
+    private val settingsDataStore: sabuj.m.myevents.data.settings.SettingsDataStore,
     private val eventRepo: EventRepository,
     private val bookingRepo: BookingRepository,
     private val expenseRepo: ExpenseRepository,
@@ -35,6 +36,7 @@ class FirestoreSyncRepository @Inject constructor(
             syncInvitees(uid)
             syncGifts(uid)
             syncTasks(uid)
+            settingsDataStore.saveLastSyncTimestamp(System.currentTimeMillis())
             true
         } catch (e: Exception) {
             false

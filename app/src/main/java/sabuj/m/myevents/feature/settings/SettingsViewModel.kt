@@ -37,7 +37,7 @@ class SettingsViewModel @Inject constructor(
     private val settingsDataStore: SettingsDataStore,
     private val pinStore: PinStore,
     private val pinHasher: PinHasher,
-    private val sampleDataManager: SampleDataManager,
+    private val syncRepo: sabuj.m.myevents.data.remote.FirestoreSyncRepository,
     private val observeEvents: ObserveEventsUseCase,
     private val observeExpenses: ObserveExpensesUseCase,
     private val observeInvitees: ObserveInviteesUseCase,
@@ -109,17 +109,15 @@ class SettingsViewModel @Inject constructor(
         } else false
     }
 
-    fun loadSampleData() {
+    fun syncNow() {
         viewModelScope.launch {
-            sampleDataManager.loadSampleData()
-            _uiState.update { it.copy(snackbarMessage = "Sample data loaded") }
-        }
-    }
-
-    fun clearSampleData() {
-        viewModelScope.launch {
-            sampleDataManager.clearSampleData()
-            _uiState.update { it.copy(snackbarMessage = "Sample data cleared") }
+            _uiState.update { it.copy(snackbarMessage = "Syncing with cloud...") }
+            val success = syncRepo.performSync()
+            if (success) {
+                _uiState.update { it.copy(snackbarMessage = "Sync completed successfully") }
+            } else {
+                _uiState.update { it.copy(snackbarMessage = "Sync failed. Check connection.") }
+            }
         }
     }
 

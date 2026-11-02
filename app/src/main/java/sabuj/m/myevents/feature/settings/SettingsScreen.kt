@@ -1,6 +1,5 @@
 package sabuj.m.myevents.feature.settings
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,8 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,10 +34,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import sabuj.m.myevents.core.preview.LightDarkPreviews
 import sabuj.m.myevents.core.theme.AppColor
@@ -51,14 +54,17 @@ import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.labelM
-import sabuj.m.myevents.core.theme.labelS
 import sabuj.m.myevents.core.theme.paletteColors
-import sabuj.m.myevents.core.theme.titleL
 import sabuj.m.myevents.core.theme.titleM
+import sabuj.m.myevents.core.theme.titleS
 import sabuj.m.myevents.core.ui.AppButton
 import sabuj.m.myevents.core.ui.AppButtonTonal
+import sabuj.m.myevents.core.ui.AppTopBar
 import sabuj.m.myevents.core.ui.ScreenScaffold
 import sabuj.m.myevents.data.settings.ThemeMode
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun SettingsScreen(
@@ -81,8 +87,7 @@ fun SettingsScreen(
         onNotifyPaymentDues  = viewModel::setNotifyPaymentDues,
         onNotifyTasks        = viewModel::setNotifyTasks,
         onNotifyBudgetAlerts = viewModel::setNotifyBudgetAlerts,
-        onLoadSampleData     = viewModel::loadSampleData,
-        onClearSampleData    = viewModel::clearSampleData,
+        onSyncNow            = viewModel::syncNow,
         onShowExport         = viewModel::showExportDialog,
         onDismissSnackbar    = viewModel::snackbarDismissed,
         onChangePinConfirm   = { currentPin, newPin -> viewModel.changePin(currentPin, newPin) },
@@ -106,8 +111,7 @@ fun SettingsScreenContent(
     onNotifyPaymentDues: (Boolean) -> Unit,
     onNotifyTasks: (Boolean) -> Unit,
     onNotifyBudgetAlerts: (Boolean) -> Unit,
-    onLoadSampleData: () -> Unit,
-    onClearSampleData: () -> Unit,
+    onSyncNow: () -> Unit,
     onShowExport: () -> Unit,
     onDismissSnackbar: () -> Unit,
     onChangePinConfirm: (String, String) -> Boolean,
@@ -131,8 +135,8 @@ fun SettingsScreenContent(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState()),
             ) {
-                // Top bar with Nav icon and Settings title
-                sabuj.m.myevents.core.ui.AppTopBar(
+                // Top bar
+                AppTopBar(
                     titleText   = "Settings",
                     onMenuClick = onMenuClick,
                 )
@@ -140,7 +144,7 @@ fun SettingsScreenContent(
 
                 // APPEARANCE
                 SettingsSection("APPEARANCE") {
-                    Text("Theme Mode", style = labelM, color = AppColor.text2)
+                    Text("Theme Mode", style = bodyM, color = AppColor.text2)
                     Spacer(Modifier.height(Spacing.xs))
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
@@ -170,15 +174,15 @@ fun SettingsScreenContent(
                     HorizontalDivider(color = AppColor.outlineVariant)
                     Spacer(Modifier.height(Spacing.md))
 
-                    Text("Colour Scheme", style = labelM, color = AppColor.text2)
+                    Text("Colour Scheme", style = bodyM, color = AppColor.text2)
                     Spacer(Modifier.height(Spacing.xs))
 
-                    // 4 Palette Swatch Tiles
+                    // Item I2: 56 dp 50%-50% circular swatches with 135 degree split
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        PaletteTileCard(
+                        PaletteCircleSwatch(
                             paletteId      = PaletteId.A,
                             name           = "Toxic Violet",
                             primaryColor   = paletteColors(PaletteId.A, isDark = false).primary,
@@ -187,7 +191,7 @@ fun SettingsScreenContent(
                             onClick        = { onPaletteId(PaletteId.A) },
                             modifier       = Modifier.weight(1f),
                         )
-                        PaletteTileCard(
+                        PaletteCircleSwatch(
                             paletteId      = PaletteId.B,
                             name           = "Machine Red",
                             primaryColor   = paletteColors(PaletteId.B, isDark = false).primary,
@@ -196,7 +200,7 @@ fun SettingsScreenContent(
                             onClick        = { onPaletteId(PaletteId.B) },
                             modifier       = Modifier.weight(1f),
                         )
-                        PaletteTileCard(
+                        PaletteCircleSwatch(
                             paletteId      = PaletteId.C,
                             name           = "Hyper Cobalt",
                             primaryColor   = paletteColors(PaletteId.C, isDark = false).primary,
@@ -205,7 +209,7 @@ fun SettingsScreenContent(
                             onClick        = { onPaletteId(PaletteId.C) },
                             modifier       = Modifier.weight(1f),
                         )
-                        PaletteTileCard(
+                        PaletteCircleSwatch(
                             paletteId      = PaletteId.D,
                             name           = "Dark Aubergine",
                             primaryColor   = paletteColors(PaletteId.D, isDark = false).primary,
@@ -221,6 +225,7 @@ fun SettingsScreenContent(
 
                 // SECURITY
                 SettingsSection("SECURITY") {
+                    // Item I3: Change PIN title color is universal (AppColor.text)
                     SettingsActionRow("Change PIN", "Update your 4-digit security PIN") {
                         onShowChangePin()
                     }
@@ -257,17 +262,22 @@ fun SettingsScreenContent(
 
                 Spacer(Modifier.height(Spacing.lg))
 
-                // DATA & EXPORT
-                SettingsSection("DATA & EXPORT") {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
-                        modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.sm),
-                    ) {
-                        AppButtonTonal("Load Demo Data", onClick = onLoadSampleData, modifier = Modifier.weight(1f))
-                        AppButtonTonal("Clear Demo Data", onClick = onClearSampleData, modifier = Modifier.weight(1f))
+                // SYNC AND EXPORT (Items I5, I6, I7)
+                SettingsSection("SYNC AND EXPORT") {
+                    val lastSync = uiState.settings.lastSyncTimestamp
+                    val syncText = if (lastSync == 0L) "Never synced" else formatSyncTime(lastSync)
+
+                    Column(modifier = Modifier.padding(vertical = Spacing.xs)) {
+                        Text(text = "Last synced on $syncText", style = bodyM, color = AppColor.text2)
+                        Spacer(Modifier.height(Spacing.md))
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            AppButtonTonal("Sync Now", onClick = onSyncNow, modifier = Modifier.weight(1f))
+                            AppButton("Export Data (CSV)", onClick = onShowExport, modifier = Modifier.weight(1f))
+                        }
                     }
-                    Spacer(Modifier.height(Spacing.xs))
-                    AppButton("Export Event Data (CSV)", onClick = onShowExport)
                 }
 
                 Spacer(Modifier.height(Spacing.lg))
@@ -305,8 +315,14 @@ fun SettingsScreenContent(
     }
 }
 
+private fun formatSyncTime(epochMs: Long): String {
+    val sdf = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
+    return sdf.format(Date(epochMs))
+}
+
+/** Item I2: 56 dp circular swatch with 135 degree primary/soft split */
 @Composable
-private fun PaletteTileCard(
+private fun PaletteCircleSwatch(
     paletteId: PaletteId,
     name: String,
     primaryColor: Color,
@@ -323,47 +339,38 @@ private fun PaletteTileCard(
     ) {
         Box(
             modifier = Modifier
-                .width(72.dp)
-                .height(96.dp)
-                .clip(RoundedCornerShape(20.dp))
+                .size(56.dp)
+                .clip(CircleShape)
                 .border(
                     width = if (isSelected) 2.5.dp else 1.dp,
                     color = if (isSelected) AppColor.primary else AppColor.outlineVariant,
-                    shape = RoundedCornerShape(20.dp),
-                ),
+                    shape = CircleShape,
+                )
+                .drawBehind {
+                    drawRect(
+                        brush = Brush.linearGradient(
+                            colors = listOf(primaryColor, primaryColor, containerColor, containerColor),
+                            start  = Offset(0f, 0f),
+                            end    = Offset(size.width, size.height),
+                        ),
+                    )
+                },
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                // Top 56 dp is primary brand color
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp)
-                        .background(primaryColor),
-                )
-                // Bottom 40 dp is soft primaryContainer color
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(40.dp)
-                        .background(containerColor),
-                )
-            }
-
             if (isSelected) {
                 Surface(
                     shape = CircleShape,
                     color = AppColor.primary,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .padding(4.dp)
-                        .size(20.dp),
+                        .padding(2.dp)
+                        .size(16.dp),
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             imageVector = Icons.Rounded.Check,
                             contentDescription = "Selected",
                             tint = AppColor.onPrimary,
-                            modifier = Modifier.size(14.dp),
+                            modifier = Modifier.size(12.dp),
                         )
                     }
                 }
@@ -398,6 +405,7 @@ private fun ThemeOptionChip(
     }
 }
 
+/** Item I1: Section Header font size increased by 40% (15 sp bold uppercase) */
 @Composable
 private fun SettingsSection(
     title: String,
@@ -405,7 +413,7 @@ private fun SettingsSection(
 ) {
     Text(
         text     = title,
-        style    = labelS,
+        style    = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.8.sp),
         color    = AppColor.text3,
         modifier = Modifier.padding(bottom = Spacing.sm),
     )
@@ -413,16 +421,18 @@ private fun SettingsSection(
     Spacer(Modifier.height(Spacing.md))
 }
 
+/** Item I1: Item title font size decreased by 20% (bodyM) */
 @Composable
 private fun SettingsRow(label: String, value: String) {
     Column(modifier = Modifier.padding(vertical = Spacing.sm)) {
-        Text(label, style = titleM, color = AppColor.text)
+        Text(label, style = bodyM, color = AppColor.text, fontWeight = FontWeight.SemiBold)
         if (value.isNotEmpty()) {
             Text(value, style = bodyM, color = AppColor.text2)
         }
     }
 }
 
+/** Item I1 & I3: Universal title color (AppColor.text) */
 @Composable
 private fun SettingsActionRow(
     label: String,
@@ -435,13 +445,14 @@ private fun SettingsActionRow(
             .clickable { onClick() }
             .padding(vertical = Spacing.sm),
     ) {
-        Text(label, style = titleM, color = AppColor.primary)
+        Text(label, style = bodyM, color = AppColor.text, fontWeight = FontWeight.SemiBold)
         if (subtext.isNotEmpty()) {
             Text(subtext, style = bodyM, color = AppColor.text2)
         }
     }
 }
 
+/** Item I1: Item title font size decreased by 20% (bodyM) */
 @Composable
 private fun SettingsToggleRow(
     label: String,
@@ -454,7 +465,7 @@ private fun SettingsToggleRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(label, style = titleM, color = AppColor.text)
+            Text(label, style = bodyM, color = AppColor.text, fontWeight = FontWeight.SemiBold)
             if (subtext.isNotEmpty()) {
                 Text(subtext, style = bodyM, color = AppColor.text2)
             }
@@ -489,8 +500,7 @@ private fun SettingsScreenPreview() {
             onNotifyPaymentDues   = {},
             onNotifyTasks         = {},
             onNotifyBudgetAlerts  = {},
-            onLoadSampleData      = {},
-            onClearSampleData     = {},
+            onSyncNow             = {},
             onShowExport          = {},
             onDismissSnackbar     = {},
             onChangePinConfirm    = { _, _ -> true },
