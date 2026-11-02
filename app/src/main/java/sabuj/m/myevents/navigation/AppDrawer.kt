@@ -60,9 +60,10 @@ fun AppDrawer(
     val scope       = rememberCoroutineScope()
 
     ModalNavigationDrawer(
-        drawerState   = drawerState,
-        scrimColor    = AppColor.scrim,
-        drawerContent = {
+        drawerState     = drawerState,
+        scrimColor      = AppColor.scrim,
+        gesturesEnabled = drawerState.isOpen, // Item C3: Prevent accidental swipes on main screen from opening drawer
+        drawerContent   = {
             DrawerSheet(
                 currentRoute = currentRoute,
                 onNavigate   = { route ->

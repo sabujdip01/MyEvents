@@ -29,7 +29,12 @@ fun AppNavHost(
     AppDrawer(
         currentRoute = currentRoute,
         onNavigate   = { route ->
-            if (route != currentRoute) {
+            if (route == Routes.HOME) {
+                navController.navigate(Routes.HOME) {
+                    popUpTo(0) { inclusive = true }
+                    launchSingleTop = true
+                }
+            } else if (route != currentRoute) {
                 navController.navigate(route) {
                     popUpTo(Routes.HOME) { saveState = true }
                     launchSingleTop = true
