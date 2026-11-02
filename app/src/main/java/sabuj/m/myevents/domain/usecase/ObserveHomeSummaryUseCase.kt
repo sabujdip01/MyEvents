@@ -61,7 +61,9 @@ class ObserveHomeSummaryUseCase @Inject constructor(
             val totalDues = bookingDues + expenseDues
 
             val totalGuestsCount = invitees.sumOf { it.expectedCount }
+            val invitedGuestsCount = invitees.filter { it.invited }.sumOf { it.expectedCount }
             val totalFamiliesCount = invitees.size
+            val invitedFamiliesCount = invitees.count { it.invited }
 
             val pendingExpenseItems = expenses.count { !it.allReceived }
             val pendingChecklistItems = tasks.count { !it.completed }
@@ -76,7 +78,9 @@ class ObserveHomeSummaryUseCase @Inject constructor(
                 totalSpentPaise    = totalSpent,
                 totalDuesPaise     = totalDues,
                 totalGuests        = totalGuestsCount,
+                invitedGuests      = invitedGuestsCount,
                 totalFamilies      = totalFamiliesCount,
+                invitedFamilies    = invitedFamiliesCount,
                 itemsPending       = totalPendingItems,
                 bookingsDone       = completedBookings,
                 bookingsTotal      = totalBookingsCount,

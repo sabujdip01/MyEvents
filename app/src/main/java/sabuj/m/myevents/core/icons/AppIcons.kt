@@ -52,11 +52,11 @@ enum class AppIcon(
 
 /**
  * Event type icons shown on the calendar, cards and picker.
- * See design.md section 5.3.
+ * See design.md section 5.3 & Item E3.
  */
 enum class EventIcon(
     val fallback: ImageVector,
-    @DrawableRes val customRes: Int? = null, // TODO custom svg
+    @DrawableRes val customRes: Int? = null,
 ) {
     Engagement(Icons.Rounded.Favorite),
     Wedding(Icons.Rounded.LocalFlorist),
@@ -66,25 +66,34 @@ enum class EventIcon(
     Haldi(Icons.Rounded.Spa),
     Mehendi(Icons.Rounded.PanTool),
     Sangeet(Icons.Rounded.MusicNote),
+    Birthday(Icons.Rounded.Celebration),
+    Party(Icons.Rounded.Celebration),
+    Dinner(Icons.Rounded.Celebration),
+    Cocktail(Icons.Rounded.Celebration),
+    Festival(Icons.Rounded.Star),
+    Rituals(Icons.Rounded.Spa),
     Other(Icons.Rounded.Star),
 }
 
 /**
  * Booking category icons shown on booking cards and the picker.
- * See design.md section 5.4.
+ * See design.md section 5.4 & Item F3.
  */
 enum class BookingIcon(
     val fallback: ImageVector,
-    @DrawableRes val customRes: Int? = null, // TODO custom svg
+    @DrawableRes val customRes: Int? = null,
 ) {
     Camera(Icons.Rounded.Favorite),       // bk-camera
     Makeup(Icons.Rounded.Favorite),       // bk-makeup
     Flower(Icons.Rounded.LocalFlorist),   // bk-flower
     Pandal(Icons.Rounded.Favorite),       // bk-pandal
     Chef(Icons.Rounded.Favorite),         // bk-chef
+    Catering(Icons.Rounded.Favorite),     // bk-catering
+    Decorator(Icons.Rounded.LocalFlorist),// bk-decorator
     Priest(Icons.Rounded.Favorite),       // bk-priest
     Venue(Icons.Rounded.Favorite),        // bk-venue
     Music(Icons.Rounded.MusicNote),       // bk-music
+    Sound(Icons.Rounded.MusicNote),       // bk-sound
     Transport(Icons.Rounded.Favorite),    // bk-transport
     Jewellery(Icons.Rounded.Favorite),    // bk-jewellery
     Clothing(Icons.Rounded.Favorite),     // bk-clothing

@@ -1,19 +1,21 @@
 ﻿package sabuj.m.myevents.feature.home
 
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -36,6 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
@@ -43,30 +46,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import sabuj.m.myevents.core.icons.AppIcon
-import sabuj.m.myevents.domain.model.EventSummary
 import sabuj.m.myevents.core.preview.LightDarkPreviews
-import sabuj.m.myevents.core.preview.PreviewData
 import sabuj.m.myevents.core.theme.AppColor
 import sabuj.m.myevents.core.theme.AppTheme
 import sabuj.m.myevents.core.theme.Radius
 import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
-import sabuj.m.myevents.core.theme.numberXl
 import sabuj.m.myevents.core.theme.titleL
 import sabuj.m.myevents.core.theme.titleM
 import sabuj.m.myevents.core.theme.titleS
-import sabuj.m.myevents.core.util.DateUtils
-import sabuj.m.myevents.core.util.MoneyFormatter
 import sabuj.m.myevents.core.ui.AppButtonTonal
-import sabuj.m.myevents.core.ui.MenuButton
 import sabuj.m.myevents.core.ui.Pill
 import sabuj.m.myevents.core.ui.PillVariant
 import sabuj.m.myevents.core.ui.doodles.BgBlobs
+import sabuj.m.myevents.core.util.DateUtils
+import sabuj.m.myevents.core.util.MoneyFormatter
+import sabuj.m.myevents.domain.model.EventSummary
 
 /**
- * Home screen â€” design.md section 6.4.
- * Matches Home-Light.png sample exactly.
+ * Home screen dashboard — design.md section 6.4 & Items C1–C11.
  */
 @Composable
 fun HomeScreen(
@@ -98,7 +97,7 @@ private fun HomeContent(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
         ) {
-            // Header: "My Events" right next to nav icon
+            // Top Bar with Nav Icon & "My Events" title
             Box(modifier = Modifier.padding(horizontal = Spacing.lg)) {
                 sabuj.m.myevents.core.ui.AppTopBar(
                     titleText   = "My Events",
@@ -127,7 +126,7 @@ private fun HomeContent(
                 verticalArrangement = Arrangement.spacedBy(Spacing.md),
             ) {
                 // 1. Upcoming Events
-                UpcomingEventsCard(events = state.upcomingEvents, onAddEvent = onNavigateToEvents)
+                UpcomingEventsCard(events = state.upcomingEvents, onAddEvent = onNavigateToEvents, onEventClick = { onNavigateToEvents() })
 
                 // 2 + 3. Bookings Done | Booking Amount
                 Row(
@@ -155,30 +154,27 @@ private fun HomeContent(
                     modifier = Modifier.height(IntrinsicSize.Min),
                 ) {
                     PendingDuesCard(paise = state.pendingDuesPaise, modifier = Modifier.weight(1f).fillMaxHeight())
-                    InviteesCard(guests = state.totalGuests, families = state.totalFamilies, modifier = Modifier.weight(1f).fillMaxHeight())
+                    InviteesCard(
+                        totalGuests     = state.totalGuests,
+                        invitedGuests   = state.invitedGuests,
+                        totalFamilies   = state.totalFamilies,
+                        invitedFamilies = state.invitedFamilies,
+                        modifier        = Modifier.weight(1f).fillMaxHeight(),
+                    )
                 }
 
                 // 7. Items Pending
                 ItemsPendingCard(count = state.itemsPending)
 
-                Spacer(Modifier.height(Spacing.xl2))
+                // Navigation bar padding prevents overlap with Android system nav bar (Item C1)
+                Spacer(Modifier.navigationBarsPadding().height(Spacing.xl2))
             }
-        }
-
-        // Floating menu button â€” top-left above everything
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .statusBarsPadding()
-                .padding(start = Spacing.lg, top = Spacing.sm),
-        ) {
-            MenuButton(onClick = onMenuClick)
         }
     }
 }
 
 // ---------------------------------------------------------------------------
-// Shared card shell
+// Shared card shell — Item C6 (50% reduced shadow & light border)
 // ---------------------------------------------------------------------------
 
 @Composable
@@ -190,27 +186,27 @@ private fun HomeCard(
         modifier        = modifier.fillMaxWidth(),
         shape           = RoundedCornerShape(Radius.hero),
         color           = AppColor.surface,
-        tonalElevation  = if (AppColor.isDark) 0.dp else 1.dp,
-        shadowElevation = if (AppColor.isDark) 0.dp else 6.dp,
-        border          = if (AppColor.isDark)
-            androidx.compose.foundation.BorderStroke(1.dp, AppColor.outlineVariant)
-        else null,
+        shadowElevation = 2.dp, // 50% reduced shadow
+        border          = BorderStroke(
+            1.dp,
+            if (AppColor.isDark) AppColor.outlineVariant else AppColor.outlineVariant.copy(alpha = 0.5f),
+        ),
     ) {
         content()
     }
 }
 
-/** Large circle icon chip matching sample â€” primaryContainer bg, primary icon. */
+/** Circle icon chip matching sample. */
 @Composable
 private fun CardIcon(icon: ImageVector, contentDescription: String = "") {
     Box(
         modifier        = Modifier
-            .size(56.dp)
+            .size(48.dp)
             .clip(CircleShape)
             .background(AppColor.primaryContainer),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(icon, contentDescription, tint = AppColor.primary, modifier = Modifier.size(28.dp))
+        Icon(icon, contentDescription, tint = AppColor.primary, modifier = Modifier.size(24.dp))
     }
 }
 
@@ -219,20 +215,24 @@ private fun CardIcon(icon: ImageVector, contentDescription: String = "") {
 // ---------------------------------------------------------------------------
 
 @Composable
-private fun UpcomingEventsCard(events: List<EventSummary>, onAddEvent: () -> Unit) {
+private fun UpcomingEventsCard(
+    events: List<EventSummary>,
+    onAddEvent: () -> Unit,
+    onEventClick: (String) -> Unit,
+) {
     HomeCard {
-        Column(modifier = Modifier.padding(Spacing.lg)) {
+        Column(modifier = Modifier.padding(Spacing.md)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 CardIcon(icon = AppIcon.Events.fallback, contentDescription = "")
                 Spacer(Modifier.width(Spacing.md))
                 Text("Upcoming Events", style = titleM, color = AppColor.text, modifier = Modifier.weight(1f))
                 Pill(text = "${events.size} events")
             }
-            HorizontalDivider(modifier = Modifier.padding(vertical = Spacing.md), color = AppColor.outlineVariant)
+            HorizontalDivider(modifier = Modifier.padding(vertical = Spacing.sm), color = AppColor.outlineVariant)
 
             if (events.isEmpty()) {
                 Column(
-                    modifier                = Modifier.fillMaxWidth().padding(vertical = Spacing.lg),
+                    modifier                = Modifier.fillMaxWidth().padding(vertical = Spacing.md),
                     horizontalAlignment     = Alignment.CenterHorizontally,
                 ) {
                     Text("No events yet", style = titleS, color = AppColor.text2)
@@ -240,14 +240,17 @@ private fun UpcomingEventsCard(events: List<EventSummary>, onAddEvent: () -> Uni
                     AppButtonTonal("Add event", onClick = onAddEvent, leadingIcon = Icons.Rounded.Add)
                 }
             } else {
-                events.forEach { event -> EventRow(event = event); Spacer(Modifier.height(Spacing.sm)) }
+                events.forEach { event ->
+                    EventRow(event = event, onClick = { onEventClick(event.id) })
+                    Spacer(Modifier.height(Spacing.xs))
+                }
             }
         }
     }
 }
 
 @Composable
-private fun EventRow(event: EventSummary) {
+private fun EventRow(event: EventSummary, onClick: () -> Unit) {
     val daysLeft = DateUtils.daysUntil(event.date)
     val pillVariant = when {
         daysLeft <= 0L -> PillVariant.Danger
@@ -257,20 +260,20 @@ private fun EventRow(event: EventSummary) {
     val pillText = when {
         daysLeft == 0L -> "Today"
         daysLeft < 0L  -> "Passed"
-        else           -> "${daysLeft} days left"
+        else           -> "$daysLeft days left"
     }
     Surface(
-        modifier = Modifier.fillMaxWidth().height(72.dp),
-        shape    = RoundedCornerShape(16.dp),
+        onClick  = onClick,
+        modifier = Modifier.fillMaxWidth().height(64.dp),
+        shape    = RoundedCornerShape(14.dp),
         color    = AppColor.surfaceVariant.copy(alpha = if (AppColor.isDark) 0.5f else 0.35f),
     ) {
         Row(modifier = Modifier.padding(horizontal = Spacing.md), verticalAlignment = Alignment.CenterVertically) {
-            // Event type icon
             Box(
-                modifier        = Modifier.size(44.dp).clip(CircleShape).background(AppColor.primaryContainer),
+                modifier        = Modifier.size(40.dp).clip(CircleShape).background(AppColor.primaryContainer),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(event.icon.fallback, null, tint = AppColor.primary, modifier = Modifier.size(22.dp))
+                Icon(event.icon.fallback, null, tint = AppColor.primary, modifier = Modifier.size(20.dp))
             }
             Spacer(Modifier.width(Spacing.md))
             Column(modifier = Modifier.weight(1f)) {
@@ -279,76 +282,79 @@ private fun EventRow(event: EventSummary) {
             }
             Pill(text = pillText, icon = AppIcon.Clock.fallback, variant = pillVariant)
             Spacer(Modifier.width(Spacing.sm))
-            Icon(Icons.Rounded.ArrowForwardIos, null, tint = AppColor.text3, modifier = Modifier.size(14.dp))
+            Icon(Icons.Rounded.ArrowForwardIos, "View Event Details", tint = AppColor.primary, modifier = Modifier.size(16.dp))
         }
     }
 }
 
 // ---------------------------------------------------------------------------
-// 2. Bookings Done
+// 2. Bookings Done (Items C4 & C5 — Title top, 30% larger callout number)
 // ---------------------------------------------------------------------------
 
 @Composable
 private fun BookingsDoneCard(done: Int, total: Int, modifier: Modifier) {
     HomeCard(modifier = modifier) {
         Box {
-            Column(modifier = Modifier.fillMaxHeight().padding(Spacing.lg)) {
-                CardIcon(icon = AppIcon.Bookings.fallback)
-                Spacer(Modifier.height(Spacing.sm))
+            Column(modifier = Modifier.fillMaxHeight().padding(Spacing.md)) {
                 Text("Bookings Done", style = labelL, color = AppColor.text2)
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(Spacing.xs))
+                CardIcon(icon = AppIcon.Bookings.fallback)
+                Spacer(Modifier.height(Spacing.xs))
                 Text(
                     text = buildAnnotatedString {
-                        withStyle(SpanStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) { append("$done") }
+                        withStyle(SpanStyle(fontSize = 36.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
+                            append("$done")
+                        }
                         append(" of $total")
                     },
                     style = titleL,
                     color = AppColor.text,
                 )
                 Text("bookings", style = bodyM, color = AppColor.text2)
-                Spacer(Modifier.weight(1f)) // flexible spacer â€” both cards reach same height
             }
-            // Faint clipboard art â€” bottom-right
             Box(
-                modifier        = Modifier.align(Alignment.BottomEnd).size(64.dp).padding(Spacing.sm),
+                modifier        = Modifier.align(Alignment.BottomEnd).size(56.dp).padding(Spacing.xs),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(AppIcon.Bookings.fallback, null, tint = AppColor.primary.copy(alpha = 0.10f), modifier = Modifier.size(56.dp))
+                Icon(AppIcon.Bookings.fallback, null, tint = AppColor.primary.copy(alpha = 0.08f), modifier = Modifier.size(48.dp))
             }
         }
     }
 }
 
 // ---------------------------------------------------------------------------
-// 3. Booking Amount
+// 3. Booking Amount (Items C4 & C5 — Title top, 30% larger callout number)
 // ---------------------------------------------------------------------------
 
 @Composable
 private fun BookingAmountCard(paidPaise: Long, totalPaise: Long, modifier: Modifier) {
     HomeCard(modifier = modifier) {
         Box {
-            Column(modifier = Modifier.fillMaxHeight().padding(Spacing.lg)) {
-                CardIcon(icon = AppIcon.Expenses.fallback)
-                Spacer(Modifier.height(Spacing.sm))
+            Column(modifier = Modifier.fillMaxHeight().padding(Spacing.md)) {
                 Text("Booking Amount", style = labelL, color = AppColor.text2)
-                Spacer(Modifier.height(4.dp))
-                Text(MoneyFormatter.format(paidPaise), style = numberXl, color = AppColor.primary, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(Spacing.xs))
+                CardIcon(icon = AppIcon.Expenses.fallback)
+                Spacer(Modifier.height(Spacing.xs))
+                Text(
+                    text  = MoneyFormatter.format(paidPaise),
+                    style = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold),
+                    color = AppColor.primary,
+                )
                 Text("paid", style = bodyM, color = AppColor.text2)
                 Text("of ${MoneyFormatter.format(totalPaise)}", style = bodyM, color = AppColor.text2)
-                Spacer(Modifier.weight(1f)) // flexible spacer â€” both cards reach same height
             }
             Box(
-                modifier        = Modifier.align(Alignment.BottomEnd).size(64.dp).padding(Spacing.sm),
+                modifier        = Modifier.align(Alignment.BottomEnd).size(56.dp).padding(Spacing.xs),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(AppIcon.Expenses.fallback, null, tint = AppColor.primary.copy(alpha = 0.10f), modifier = Modifier.size(56.dp))
+                Icon(AppIcon.Expenses.fallback, null, tint = AppColor.primary.copy(alpha = 0.08f), modifier = Modifier.size(48.dp))
             }
         }
     }
 }
 
 // ---------------------------------------------------------------------------
-// 4. Budget vs Spent
+// 4. Budget vs Spent (Item C10)
 // ---------------------------------------------------------------------------
 
 @Composable
@@ -363,7 +369,7 @@ private fun BudgetCard(spentPaise: Long, totalPaise: Long) {
 
     HomeCard {
         Box {
-            Column(modifier = Modifier.padding(Spacing.lg)) {
+            Column(modifier = Modifier.padding(Spacing.md)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CardIcon(icon = AppIcon.Budget.fallback)
                     Spacer(Modifier.width(Spacing.md))
@@ -372,15 +378,17 @@ private fun BudgetCard(spentPaise: Long, totalPaise: Long) {
                         Text("${MoneyFormatter.format(totalPaise)} budget", style = bodyM, color = AppColor.text2)
                     }
                 }
-                Spacer(Modifier.height(Spacing.md))
-                // Spent amount inline with label
+                Spacer(Modifier.height(Spacing.sm))
                 Row(verticalAlignment = Alignment.Bottom) {
-                    Text(MoneyFormatter.format(spentPaise), style = numberXl, color = AppColor.text, fontWeight = FontWeight.Bold)
+                    Text(
+                        text  = MoneyFormatter.format(spentPaise),
+                        style = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold),
+                        color = AppColor.text,
+                    )
                     Spacer(Modifier.width(Spacing.xs))
                     Text("spent", style = bodyM, color = AppColor.text2)
                 }
-                Spacer(Modifier.height(Spacing.md))
-                // Progress bar + pct
+                Spacer(Modifier.height(Spacing.sm))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     LinearProgressIndicator(
                         progress         = { fraction },
@@ -393,72 +401,78 @@ private fun BudgetCard(spentPaise: Long, totalPaise: Long) {
                     Text("$pct%", style = labelL, color = AppColor.text2)
                 }
             }
-            // Faint bar chart art â€” right side
             Box(
-                modifier        = Modifier.align(Alignment.CenterEnd).size(80.dp).padding(end = Spacing.sm),
+                modifier        = Modifier.align(Alignment.CenterEnd).size(72.dp).padding(end = Spacing.xs),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(AppIcon.Budget.fallback, null, tint = AppColor.primary.copy(alpha = 0.08f), modifier = Modifier.size(72.dp))
+                Icon(AppIcon.Budget.fallback, null, tint = AppColor.primary.copy(alpha = 0.08f), modifier = Modifier.size(64.dp))
             }
         }
     }
 }
 
 // ---------------------------------------------------------------------------
-// 5. Pending Dues
+// 5. Pending Dues (Items C4 & C5)
 // ---------------------------------------------------------------------------
 
 @Composable
 private fun PendingDuesCard(paise: Long, modifier: Modifier) {
     HomeCard(modifier = modifier) {
         Box {
-            Column(modifier = Modifier.fillMaxHeight().padding(Spacing.lg)) {
-                CardIcon(icon = AppIcon.Dues.fallback)
-                Spacer(Modifier.height(Spacing.sm))
+            Column(modifier = Modifier.fillMaxHeight().padding(Spacing.md)) {
                 Text("Pending Dues", style = labelL, color = AppColor.text2)
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(Spacing.xs))
+                CardIcon(icon = AppIcon.Dues.fallback)
+                Spacer(Modifier.height(Spacing.xs))
                 Text(
-                    text       = MoneyFormatter.format(paise),
-                    style      = numberXl,
-                    color      = if (paise > 0) AppColor.danger else AppColor.success,
-                    fontWeight = FontWeight.Bold,
+                    text  = MoneyFormatter.format(paise),
+                    style = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold),
+                    color = if (paise > 0) AppColor.danger else AppColor.success,
                 )
                 Text("unpaid", style = bodyM, color = AppColor.text2)
-                Spacer(Modifier.weight(1f)) // flexible spacer
             }
             Box(
-                modifier        = Modifier.align(Alignment.BottomEnd).size(64.dp).padding(Spacing.sm),
+                modifier        = Modifier.align(Alignment.BottomEnd).size(56.dp).padding(Spacing.xs),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(AppIcon.Dues.fallback, null, tint = AppColor.primary.copy(alpha = 0.10f), modifier = Modifier.size(56.dp))
+                Icon(AppIcon.Dues.fallback, null, tint = AppColor.primary.copy(alpha = 0.08f), modifier = Modifier.size(48.dp))
             }
         }
     }
 }
 
 // ---------------------------------------------------------------------------
-// 6. Invitees
+// 6. Invitees (Items C4 & C11 — X of X Invited, Y of Y families invited)
 // ---------------------------------------------------------------------------
 
 @Composable
-private fun InviteesCard(guests: Int, families: Int, modifier: Modifier) {
+private fun InviteesCard(
+    totalGuests: Int,
+    invitedGuests: Int,
+    totalFamilies: Int,
+    invitedFamilies: Int,
+    modifier: Modifier,
+) {
     HomeCard(modifier = modifier) {
         Box {
-            Column(modifier = Modifier.fillMaxHeight().padding(Spacing.lg)) {
-                CardIcon(icon = AppIcon.Invitees.fallback)
-                Spacer(Modifier.height(Spacing.sm))
+            Column(modifier = Modifier.fillMaxHeight().padding(Spacing.md)) {
                 Text("Invitees", style = labelL, color = AppColor.text2)
-                Spacer(Modifier.height(4.dp))
-                Text("$guests", style = numberXl, color = AppColor.primary, fontWeight = FontWeight.Bold)
-                Text("guests", style = bodyM, color = AppColor.text2)
-                Text("$families families", style = bodyM, color = AppColor.text2)
-                Spacer(Modifier.weight(1f)) // flexible spacer
+                Spacer(Modifier.height(Spacing.xs))
+                CardIcon(icon = AppIcon.Invitees.fallback)
+                Spacer(Modifier.height(Spacing.xs))
+                Text(
+                    text  = "$invitedGuests of $totalGuests",
+                    style = TextStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold),
+                    color = AppColor.primary,
+                )
+                Text("Invited guests", style = bodyM, color = AppColor.text2)
+                Text("$invitedFamilies of $totalFamilies families invited", style = bodyM, color = AppColor.text2)
             }
             Box(
-                modifier        = Modifier.align(Alignment.BottomEnd).size(64.dp).padding(Spacing.sm),
+                modifier        = Modifier.align(Alignment.BottomEnd).size(56.dp).padding(Spacing.xs),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(AppIcon.Invitees.fallback, null, tint = AppColor.primary.copy(alpha = 0.10f), modifier = Modifier.size(56.dp))
+                Icon(AppIcon.Invitees.fallback, null, tint = AppColor.primary.copy(alpha = 0.08f), modifier = Modifier.size(48.dp))
             }
         }
     }
@@ -475,12 +489,11 @@ private fun ItemsPendingCard(count: Int) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(Spacing.lg),
+                    .padding(Spacing.md),
             ) {
-                // Header row â€” icon + labels fill left side; art overlay is on the right
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier          = Modifier.fillMaxWidth().padding(end = 80.dp), // keep away from art
+                    modifier          = Modifier.fillMaxWidth().padding(end = 80.dp),
                 ) {
                     CardIcon(icon = AppIcon.Checklist.fallback)
                     Spacer(Modifier.width(Spacing.md))
@@ -489,16 +502,18 @@ private fun ItemsPendingCard(count: Int) {
                         Text("items left", style = bodyM, color = AppColor.text2)
                     }
                 }
-                Spacer(Modifier.height(Spacing.sm))
-                // Count: full width, no right padding â€” safe because art sits at CenterEnd
-                Text("$count", style = numberXl, color = AppColor.primary, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(Spacing.xs))
+                Text(
+                    text  = "$count",
+                    style = TextStyle(fontSize = 36.sp, fontWeight = FontWeight.Bold),
+                    color = AppColor.primary,
+                )
             }
-            // Faint checklist art â€” right side, non-interactive
             Box(
-                modifier        = Modifier.align(Alignment.CenterEnd).size(96.dp).padding(end = Spacing.md),
+                modifier        = Modifier.align(Alignment.CenterEnd).size(80.dp).padding(end = Spacing.md),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(AppIcon.Checklist.fallback, null, tint = AppColor.primary.copy(alpha = 0.08f), modifier = Modifier.size(80.dp))
+                Icon(AppIcon.Checklist.fallback, null, tint = AppColor.primary.copy(alpha = 0.08f), modifier = Modifier.size(64.dp))
             }
         }
     }
@@ -520,22 +535,23 @@ private fun HomeScreenFilledPreview() {
     AppTheme {
         HomeContent(
             state = HomeUiState(
-                upcomingEvents       = listOf(
-                    EventSummary("1", "Engagement", PreviewData.sampleEventDate, sabuj.m.myevents.core.icons.EventIcon.Engagement),
-                    EventSummary("2", "Wedding",    PreviewData.sampleEventDate.plusDays(120), sabuj.m.myevents.core.icons.EventIcon.Wedding),
-                ),
-                bookingsDone         = 4,
-                bookingsTotal        = 7,
-                bookingAmountPaid    = 8_500_000L,
-                bookingAmountTotal   = 15_000_000L,
-                budgetSpentPaise     = 12_000_000L,
-                budgetTotalPaise     = 30_000_000L,
-                pendingDuesPaise     = 3_250_000L,
-                totalGuests          = 185,
-                totalFamilies        = 42,
-                itemsPending         = 8,
+                upcomingEvents     = sabuj.m.myevents.core.preview.PreviewData.sampleEvents.map {
+                    EventSummary(id = it.id, title = it.title, date = it.date, icon = it.icon)
+                },
+                bookingsDone       = 4,
+                bookingsTotal      = 7,
+                bookingAmountPaid  = 85_000_00L,
+                bookingAmountTotal = 150_000_00L,
+                budgetSpentPaise   = 120_000_00L,
+                budgetTotalPaise   = 300_000_00L,
+                pendingDuesPaise   = 32_500_00L,
+                totalGuests        = 185,
+                invitedGuests      = 120,
+                totalFamilies      = 42,
+                invitedFamilies    = 30,
+                itemsPending       = 8,
             ),
-            onMenuClick       = {},
+            onMenuClick        = {},
             onNavigateToEvents = {},
         )
     }

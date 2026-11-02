@@ -38,30 +38,30 @@ fun MenuButton(
         onClick         = onClick,
         modifier        = modifier.size(48.dp),
         shape           = CircleShape,
-        color           = AppColor.surface,
-        tonalElevation  = if (AppColor.isDark) 0.dp else 3.dp,
-        shadowElevation = if (AppColor.isDark) 0.dp else 4.dp,
-        border          = if (AppColor.isDark)
-            androidx.compose.foundation.BorderStroke(1.dp, AppColor.outlineVariant)
-        else null,
+        color           = androidx.compose.ui.graphics.Color.Transparent,
+        shadowElevation = 2.dp,
+        border          = androidx.compose.foundation.BorderStroke(
+            0.8.dp,
+            if (AppColor.isDark) AppColor.outlineVariant else AppColor.primary.copy(alpha = 0.25f),
+        ),
     ) {
         Box(contentAlignment = Alignment.Center) {
-            // Two thick lines — 20 dp wide, 3 dp stroke, 6 dp apart
-            Canvas(modifier = Modifier.size(20.dp, 13.dp)) {
-                val w    = size.width
-                val stroke = 3.dp.toPx()
-                val gap  = 7.dp.toPx()
-                val cx   = w / 2f
-                val topY = 0f
-                val botY = topY + gap
+            // Two centered lines — 15 dp wide (25% shorter), 3.45 dp stroke (15% thicker)
+            Canvas(modifier = Modifier.size(15.dp, 10.dp)) {
+                val w      = size.width
+                val stroke = 3.45.dp.toPx()
+                val gap    = 6.dp.toPx()
+                val midY   = size.height / 2f
+                val topY   = midY - (gap / 2f)
+                val botY   = midY + (gap / 2f)
 
                 listOf(topY, botY).forEach { y ->
                     drawLine(
-                        color     = lineColor,
-                        start     = Offset(0f, y),
-                        end       = Offset(w, y),
+                        color       = lineColor,
+                        start       = Offset(0f, y),
+                        end         = Offset(w, y),
                         strokeWidth = stroke,
-                        cap       = StrokeCap.Round,
+                        cap         = StrokeCap.Round,
                     )
                 }
             }

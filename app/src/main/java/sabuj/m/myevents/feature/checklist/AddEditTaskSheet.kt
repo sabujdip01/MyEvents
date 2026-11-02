@@ -94,17 +94,17 @@ fun AddEditTaskSheet(
             verticalArrangement = Arrangement.spacedBy(Spacing.lg),
         ) {
             Text(
-                text  = if (isEdit) "Edit Task" else "Add Task",
+                text  = if (isEdit) "Edit Item List" else "Add Item List",
                 style = titleL,
                 color = AppColor.text,
             )
 
-            // Task title
+            // Item List Title
             TaskTextField(
                 value          = title,
                 onValueChange  = onTitleChange,
-                label          = "Task Title",
-                placeholder    = "e.g. Book mandap decorator",
+                label          = "Item List Title",
+                placeholder    = "e.g. Mandap decoration items",
                 isError        = titleError != null,
                 supportingText = titleError,
             )
@@ -118,12 +118,12 @@ fun AddEditTaskSheet(
                 errorText  = eventError,
             )
 
-            // Due Date Picker
+            // Complete by Date Picker
             val dueDateLabel = dueDateEpochDay?.let { DateUtils.formatDisplay(LocalDate.ofEpochDay(it)) } ?: "Not set"
             TaskTextField(
                 value         = dueDateLabel,
                 onValueChange = {},
-                label         = "Due Date (Optional)",
+                label         = "Complete by (Optional)",
                 readOnly      = true,
                 trailingIcon  = {
                     Icon(

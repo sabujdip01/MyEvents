@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -15,7 +16,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -166,14 +169,42 @@ fun AddEditInviteeSheet(
                 }
             }
 
-            // Expected guests count
-            InviteeTextField(
-                value         = expectedCount.toString(),
-                onValueChange = { input -> onExpectedCountChange(input.filter { it.isDigit() }.toIntOrNull() ?: 1) },
-                label         = "Expected Guests Count",
-                placeholder   = "1",
-                keyboardType  = KeyboardType.Number,
-            )
+            // Expected guests count stepper (Item H3)
+            Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                Text(text = "Expected Guests Count", style = labelM, color = AppColor.text2)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+                ) {
+                    Surface(
+                        onClick  = { if (expectedCount > 1) onExpectedCountChange(expectedCount - 1) },
+                        shape    = CircleShape,
+                        color    = AppColor.primaryContainer,
+                        modifier = Modifier.size(40.dp),
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text("-", style = titleL, color = AppColor.primary)
+                        }
+                    }
+
+                    Text(
+                        text  = "$expectedCount",
+                        style = titleL,
+                        color = AppColor.text,
+                    )
+
+                    Surface(
+                        onClick  = { onExpectedCountChange(expectedCount + 1) },
+                        shape    = CircleShape,
+                        color    = AppColor.primaryContainer,
+                        modifier = Modifier.size(40.dp),
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text("+", style = titleL, color = AppColor.primary)
+                        }
+                    }
+                }
+            }
 
             // Address
             InviteeTextField(

@@ -41,6 +41,7 @@ data class BookingEntity(
     val totalAmountPaise: Long,
     /** Next payment due date stored as epoch day; null if unset. */
     val nextDueDateEpochDay: Long?,
+    @ColumnInfo(defaultValue = "1") val bookingMade: Int = 1,
     val createdAt: Long,
     val updatedAt: Long,
     @ColumnInfo(defaultValue = "PENDING") val syncState: String = "PENDING",

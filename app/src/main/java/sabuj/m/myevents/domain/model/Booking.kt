@@ -29,6 +29,7 @@ data class Booking(
     val totalAmountPaise: Long,
     /** Optional next payment due date. */
     val nextDueDate: LocalDate?,
+    val bookingMade: Boolean = true,
     val payments: List<BookingPayment>,
     val createdAt: Long,
     val updatedAt: Long,

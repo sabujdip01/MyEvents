@@ -126,6 +126,7 @@ class BookingsViewModel @Inject constructor(
                         totalAmountPaise   = sheet.totalAmountPaise,
                         bookingAmountPaise = sheet.bookingAmountPaise,
                         nextDueDate        = sheet.nextDueDateEpochDay?.let { LocalDate.ofEpochDay(it) },
+                        bookingMade        = sheet.bookingMade,
                     )
                     handleSaveResult(result, sheet)
                 }
@@ -141,6 +142,7 @@ class BookingsViewModel @Inject constructor(
                         phone            = sheet.phone,
                         totalAmountPaise = sheet.totalAmountPaise,
                         nextDueDate      = sheet.nextDueDateEpochDay?.let { LocalDate.ofEpochDay(it) },
+                        bookingMade      = sheet.bookingMade,
                     )
                     handleSaveResult(result, sheet)
                 }

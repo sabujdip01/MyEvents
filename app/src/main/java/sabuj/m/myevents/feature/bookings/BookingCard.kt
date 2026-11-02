@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -92,18 +94,26 @@ fun BookingCard(
             .padding(bottom = Spacing.md),
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            // ── Title band ──────────────────────────────────────────────────
-            Box(
+            // ── Title band with Edit pencil icon (Item F4) ────────────────────
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(32.dp)
-                    .padding(horizontal = Spacing.md),
-                contentAlignment = Alignment.CenterStart,
+                    .padding(horizontal = Spacing.md, vertical = Spacing.xs),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text  = booking.title,
-                    style = titleS,
-                    color = AppColor.text,
+                    text     = booking.title,
+                    style    = titleS,
+                    color    = AppColor.text,
+                    modifier = Modifier.weight(1f),
+                )
+                Icon(
+                    imageVector        = androidx.compose.material.icons.Icons.Rounded.Edit,
+                    contentDescription = "Edit booking",
+                    tint               = AppColor.primary,
+                    modifier           = Modifier
+                        .size(20.dp)
+                        .clickable { onTap() },
                 )
             }
 
@@ -116,8 +126,7 @@ fun BookingCard(
             ) {
                 // Left: event icon chip (15%)
                 IconChip(
-                    icon               = event?.icon?.fallback
-                        ?: Icons.Rounded.Delete, // fallback if no event
+                    icon               = event?.icon?.fallback ?: Icons.Rounded.Delete,
                     contentDescription = event?.title ?: "",
                     size               = IconChipSize.Default,
                     containerColor     = chipColor,
@@ -128,12 +137,20 @@ fun BookingCard(
 
                 // Middle: money block (fills remaining space)
                 Column(modifier = Modifier.weight(1f)) {
-                    // Paid amount
-                    Text(
-                        text  = "${MoneyFormatter.format(booking.paidPaise)} paid",
-                        style = numberL,
-                        color = AppColor.text,
-                    )
+                    // Paid amount + Booking Made badge (tick/cross)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text  = "${MoneyFormatter.format(booking.paidPaise)} paid",
+                            style = numberL,
+                            color = AppColor.text,
+                            modifier = Modifier.weight(1f, fill = false),
+                        )
+                        Spacer(Modifier.width(Spacing.xs))
+                        Pill(
+                            text    = if (booking.bookingMade) "Booking Made" else "Pending",
+                            variant = if (booking.bookingMade) PillVariant.Success else PillVariant.Warning,
+                        )
+                    }
                     // Contract & Remaining
                     Text(
                         text  = "Contract ${MoneyFormatter.format(booking.totalAmountPaise)} • Rem. ${MoneyFormatter.format(booking.amountLeftPaise)}",

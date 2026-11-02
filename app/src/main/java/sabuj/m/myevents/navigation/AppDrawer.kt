@@ -93,13 +93,13 @@ private data class DrawerItem(
 )
 
 private val drawerItems = listOf(
-    DrawerItem(Routes.HOME,      "Home",      AppIcon.Home.fallback),
-    DrawerItem(Routes.EVENTS,    "Events",    AppIcon.Events.fallback),
-    DrawerItem(Routes.BOOKINGS,  "Bookings",  AppIcon.Bookings.fallback),
-    DrawerItem(Routes.EXPENSES,  "Expenses",  AppIcon.Expenses.fallback),
-    DrawerItem(Routes.INVITEES,  "Invitees",  AppIcon.Invitees.fallback),
-    DrawerItem(Routes.CHECKLIST, "Checklist", AppIcon.Checklist.fallback),
-    DrawerItem(Routes.SETTINGS,  "Settings",  AppIcon.SettingsIcon.fallback),
+    DrawerItem(Routes.HOME,      "Home",               AppIcon.Home.fallback),
+    DrawerItem(Routes.EVENTS,    "Events",             AppIcon.Events.fallback),
+    DrawerItem(Routes.BOOKINGS,  "Booking / Contracts",AppIcon.Bookings.fallback),
+    DrawerItem(Routes.CHECKLIST, "Item Lists",         AppIcon.Checklist.fallback),
+    DrawerItem(Routes.EXPENSES,  "Expenses",           AppIcon.Expenses.fallback),
+    DrawerItem(Routes.INVITEES,  "Invitees",           AppIcon.Invitees.fallback),
+    DrawerItem(Routes.SETTINGS,  "Settings",           AppIcon.SettingsIcon.fallback),
 )
 
 @Composable

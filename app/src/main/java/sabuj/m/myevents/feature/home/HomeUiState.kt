@@ -15,6 +15,8 @@ data class HomeUiState(
     val budgetTotalPaise: Long   = 0L,
     val pendingDuesPaise: Long   = 0L,
     val totalGuests: Int         = 0,
+    val invitedGuests: Int       = 0,
     val totalFamilies: Int       = 0,
+    val invitedFamilies: Int     = 0,
     val itemsPending: Int        = 0,
 )

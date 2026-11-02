@@ -17,8 +17,10 @@ data class HomeSummary(
     val totalDuesPaise: Long = 0L,
     /** Sum of expected invitee counts. */
     val totalGuests: Int = 0,
+    val invitedGuests: Int = 0,
     /** Number of invitee rows (families). */
     val totalFamilies: Int = 0,
+    val invitedFamilies: Int = 0,
     /** Number of expense/checklist items still pending. */
     val itemsPending: Int = 0,
     /** Bookings completed vs total. */

@@ -24,6 +24,7 @@ class EditBookingUseCase @Inject constructor(
         phone: String,
         totalAmountPaise: Long,
         nextDueDate: LocalDate?,
+        bookingMade: Boolean = true,
     ): BookingSaveResult {
         if (eventId.isBlank()) return BookingSaveResult.EventIdBlank
         if (totalAmountPaise <= 0) return BookingSaveResult.TotalInvalid
@@ -37,6 +38,7 @@ class EditBookingUseCase @Inject constructor(
             phone            = phone.trim(),
             totalAmountPaise = totalAmountPaise,
             nextDueDate      = nextDueDate,
+            bookingMade      = bookingMade,
             updatedAt        = System.currentTimeMillis(),
             syncState        = SyncState.PENDING,
         )

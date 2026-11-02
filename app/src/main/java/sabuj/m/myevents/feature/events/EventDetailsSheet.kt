@@ -99,7 +99,7 @@ fun EventDetailsSheet(
 
             Spacer(Modifier.height(Spacing.lg))
 
-            // ── Stat tiles ──────────────────────────────────────────
+            // ── Stat tiles (E4 — Icon on left, label/value on right) ──
             Row(
                 modifier              = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(Spacing.md),
@@ -112,10 +112,10 @@ fun EventDetailsSheet(
                     modifier = Modifier.weight(1f),
                 )
                 StatTile(
-                    icon    = event.icon.fallback,     // booking icon mirrors event type
-                    label   = "Bookings",
+                    icon    = event.icon.fallback,
+                    label   = "Booking / Contracts",
                     value   = "0",
-                    caption = "bookings",
+                    caption = "contracts",
                     modifier = Modifier.weight(1f),
                 )
             }
@@ -125,7 +125,7 @@ fun EventDetailsSheet(
             // ── Detail list ─────────────────────────────────────────
             DetailRow(
                 icon  = Icons.Rounded.Label,
-                label = "Event Name",
+                label = "Event",
                 value = event.eventName,
             )
             HorizontalDivider(color = AppColor.outlineVariant, thickness = 0.5.dp)
@@ -202,22 +202,24 @@ private fun StatTile(
             .background(AppColor.surfaceVariant.copy(alpha = 0.5f))
             .padding(Spacing.md),
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-            // Icon chip
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            // Icon chip on left
             Box(
                 modifier        = Modifier
-                    .size(40.dp)
+                    .size(44.dp)
                     .clip(CircleShape)
                     .background(AppColor.primaryContainer),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(icon, contentDescription = null, tint = AppColor.primary, modifier = Modifier.size(22.dp))
             }
-            Spacer(Modifier.height(Spacing.sm))
-            Text(text = label, style = labelM, color = AppColor.text2)
-            Spacer(Modifier.height(2.dp))
-            Text(text = value, style = numberL, color = AppColor.text)
-            Text(text = caption, style = bodyM, color = AppColor.text2)
+            Spacer(Modifier.width(Spacing.sm))
+            // Labels on right
+            Column {
+                Text(text = label, style = labelM, color = AppColor.text2)
+                Text(text = value, style = numberL, color = AppColor.text)
+                Text(text = caption, style = bodyM, color = AppColor.text2)
+            }
         }
     }
 }

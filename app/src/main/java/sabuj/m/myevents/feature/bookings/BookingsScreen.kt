@@ -172,24 +172,16 @@ fun BookingsScreen(
             }
         }
 
-        // â”€â”€ FAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        FloatingActionButton(
-            onClick           = {
+        // ── FAB (Items F1 & F2 — Round shape, matching nav icon border & nav bar padding) ──
+        sabuj.m.myevents.core.ui.AppFab(
+            onClick = {
                 if (uiState.mode == BookingsMode.Edit) viewModel.toggleEditMode()
                 else viewModel.openAddSheet()
             },
-            modifier          = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(Spacing.lg),
-            shape             = RoundedCornerShape(Radius.fab),
-            containerColor    = AppColor.primary,
-            contentColor      = AppColor.onPrimary,
-        ) {
-            Icon(
-                imageVector        = if (uiState.mode == BookingsMode.Edit) Icons.Rounded.Check else Icons.Rounded.Add,
-                contentDescription = if (uiState.mode == BookingsMode.Edit) "Done" else "Add booking",
-            )
-        }
+            icon = if (uiState.mode == BookingsMode.Edit) Icons.Rounded.Check else Icons.Rounded.Add,
+            contentDescription = if (uiState.mode == BookingsMode.Edit) "Done" else "Add booking",
+            modifier = Modifier.align(Alignment.BottomEnd),
+        )
 
         // â”€â”€ Snackbar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         SnackbarHost(
