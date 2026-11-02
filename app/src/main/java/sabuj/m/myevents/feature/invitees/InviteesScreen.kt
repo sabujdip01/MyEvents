@@ -20,7 +20,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Checkbox
@@ -42,18 +41,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import sabuj.m.myevents.core.theme.AppColor
+import sabuj.m.myevents.core.theme.PaletteId
 import sabuj.m.myevents.core.theme.Radius
 import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
+import sabuj.m.myevents.core.theme.gradientFor
 import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.labelM
-import sabuj.m.myevents.core.theme.labelS
 import sabuj.m.myevents.core.theme.titleL
-import sabuj.m.myevents.core.theme.titleM
 import sabuj.m.myevents.core.theme.titleS
+import sabuj.m.myevents.core.ui.AppDeleteDialog
 import sabuj.m.myevents.core.ui.AppFab
 import sabuj.m.myevents.core.ui.AppTopBar
 import sabuj.m.myevents.core.ui.Pill
@@ -123,6 +125,7 @@ fun InviteesScreen(
                 } else {
                     InviteesTableContent(
                         invitees           = list,
+                        events             = uiState.events,
                         isDeleteMode       = uiState.isDeleteMode,
                         selectedForDelete  = uiState.selectedForDelete,
                         onSelectForDelete  = { viewModel.toggleSelectForDelete(it) },
@@ -185,6 +188,16 @@ fun InviteesScreen(
             onSave                 = { viewModel.saveInvitee() },
         )
         else -> Unit
+    }
+
+    // Universal Delete Dialog
+    if (uiState.isDeleteMode && uiState.selectedForDelete.isNotEmpty()) {
+        AppDeleteDialog(
+            title     = "Delete Guests?",
+            message   = "Selected guests will be permanently deleted.",
+            onDismiss = { viewModel.toggleDeleteMode() },
+            onConfirm = { viewModel.deleteSelectedInvitees() },
+        )
     }
 }
 
@@ -290,7 +303,7 @@ private fun InviteeSearchAndFilterBar(
         )
 
         Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-            InviteeFilter.values().forEach { filter ->
+            InviteeFilter.entries.forEach { filter ->
                 val isSelected = activeFilter == filter
                 Surface(
                     onClick  = { onFilterChange(filter) },
@@ -318,6 +331,7 @@ private fun InviteeSearchAndFilterBar(
 @Composable
 private fun InviteesTableContent(
     invitees: List<Invitee>,
+    events: List<Event>,
     isDeleteMode: Boolean,
     selectedForDelete: Set<String>,
     onSelectForDelete: (String) -> Unit,
@@ -333,9 +347,12 @@ private fun InviteesTableContent(
             contentPadding = PaddingValues(bottom = 96.dp),
             verticalArrangement = Arrangement.spacedBy(Spacing.xs),
         ) {
-            itemsIndexed(invitees, key = { _, item -> item.id }) { _, item ->
+            itemsIndexed(invitees, key = { _, item -> item.id }) { index, item ->
+                val event = events.find { it.id == item.eventId }
                 InviteeRowCard(
                     invitee           = item,
+                    event             = event,
+                    slot              = index % 6,
                     isDeleteMode      = isDeleteMode,
                     isSelected        = selectedForDelete.contains(item.id),
                     onSelectForDelete = { onSelectForDelete(item.id) },
@@ -345,7 +362,7 @@ private fun InviteesTableContent(
             }
         }
 
-        // Summary footer
+        // Summary footer (Item H1)
         Surface(
             modifier = Modifier.fillMaxWidth(),
             color    = AppColor.primaryContainer,
@@ -355,22 +372,34 @@ private fun InviteesTableContent(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Text("Total Families: ${invitees.size}", style = labelL, color = AppColor.onPrimaryContainer)
+                Text("Total", style = labelL, color = AppColor.onPrimaryContainer, fontWeight = FontWeight.Bold)
                 Text("Total Guests: $totalGuests", style = labelL, color = AppColor.onPrimaryContainer)
+                Text("Total Families: ${invitees.size}", style = labelL, color = AppColor.onPrimaryContainer)
             }
         }
     }
 }
 
+/**
+ * Invitee Card Layout matching Item H1 specification:
+ * Row 1: <Guest Title> (using slot gradient for different events)
+ * Row 2: <Checkbox (visible in Delete/Edit mode)> <Event Name> <Guest Count> <Invitation Status>
+ */
 @Composable
 private fun InviteeRowCard(
     invitee: Invitee,
+    event: Event?,
+    slot: Int,
     isDeleteMode: Boolean,
     isSelected: Boolean,
     onSelectForDelete: () -> Unit,
     onEdit: () -> Unit,
     onToggleInvited: () -> Unit,
 ) {
+    val isDark = AppColor.isDark
+    val palette = PaletteId.A
+    val gradient: Brush = remember(slot, isDark) { gradientFor(slot, palette, isDark) }
+
     Surface(
         modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.lg),
         shape    = RoundedCornerShape(Radius.field),
@@ -381,34 +410,57 @@ private fun InviteeRowCard(
             if (AppColor.isDark) AppColor.outlineVariant else AppColor.outlineVariant.copy(alpha = 0.5f),
         ),
     ) {
-        Row(
-            modifier          = Modifier.padding(horizontal = Spacing.md, vertical = Spacing.sm),
-            verticalAlignment = Alignment.CenterVertically,
+        Column(
+            modifier = Modifier
+                .background(gradient)
+                .clickable { onEdit() }
+                .padding(Spacing.md),
         ) {
-            if (isDeleteMode) {
-                Checkbox(
-                    checked         = isSelected,
-                    onCheckedChange = { onSelectForDelete() },
-                    colors          = CheckboxDefaults.colors(checkedColor = AppColor.danger),
-                )
-                Spacer(Modifier.width(Spacing.sm))
-            }
-
-            Column(modifier = Modifier.weight(1f).clickable { onEdit() }) {
-                Text(invitee.name, style = titleS, color = AppColor.text)
-                if (invitee.address.isNotBlank()) {
-                    Text(invitee.address, style = bodyM, color = AppColor.text2)
-                }
-            }
-
-            Text("${invitee.expectedCount} guests", style = labelM, color = AppColor.text2)
-            Spacer(Modifier.width(Spacing.sm))
-
-            Pill(
-                text    = if (invitee.invited) "Invited" else "Pending",
-                variant = if (invitee.invited) PillVariant.Success else PillVariant.Warning,
-                modifier = Modifier.clickable { onToggleInvited() },
+            // Row 1: <Guest Title>
+            Text(
+                text     = invitee.name,
+                style    = titleS,
+                color    = AppColor.text,
+                modifier = Modifier.fillMaxWidth(),
             )
+
+            Spacer(Modifier.height(Spacing.xs))
+
+            // Row 2: <Checkbox (visible in delete mode)> <Event Name> <Guest Count> <Invitation Status>
+            Row(
+                modifier          = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
+            ) {
+                if (isDeleteMode) {
+                    Checkbox(
+                        checked         = isSelected,
+                        onCheckedChange = { onSelectForDelete() },
+                        colors          = CheckboxDefaults.colors(checkedColor = AppColor.danger),
+                    )
+                }
+
+                Text(
+                    text     = event?.title ?: "General",
+                    style    = bodyM,
+                    color    = AppColor.text2,
+                    modifier = Modifier.weight(1f),
+                )
+
+                Text(
+                    text  = "${invitee.expectedCount} guests",
+                    style = labelM,
+                    color = AppColor.text2,
+                )
+
+                Spacer(Modifier.width(Spacing.xs))
+
+                Pill(
+                    text     = if (invitee.invited) "Invited" else "Pending",
+                    variant  = if (invitee.invited) PillVariant.Success else PillVariant.Warning,
+                    modifier = Modifier.clickable { onToggleInvited() },
+                )
+            }
         }
     }
 }
