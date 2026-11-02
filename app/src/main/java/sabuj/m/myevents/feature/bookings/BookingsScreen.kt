@@ -148,23 +148,10 @@ fun BookingsScreen(
                                 booking       = booking,
                                 slot          = index % 6,
                                 editMode      = uiState.mode == BookingsMode.Edit,
-                                onTap         = {
-                                    if (uiState.mode == BookingsMode.Edit) {
-                                        viewModel.openEditSheet(booking)
-                                    }
-                                },
+                                onEditClick   = { viewModel.openEditSheet(booking) },
                                 onDeleteClick = { viewModel.requestDelete(booking.id) },
                                 event         = event,
-                                modifier      = Modifier
-                                    .fillMaxWidth()
-                                    .combinedClickable(
-                                        onClick     = {
-                                            if (uiState.mode == BookingsMode.Normal) {
-                                                viewModel.openEditSheet(booking)
-                                            }
-                                        },
-                                        onLongClick = { viewModel.toggleEditMode() },
-                                    ),
+                                modifier      = Modifier.fillMaxWidth(),
                             )
                         }
                     }
@@ -203,6 +190,7 @@ fun BookingsScreen(
             onPhoneChange = { viewModel.updateAddSheetField { s -> s.copy(phone = it) } },
             onTotalChange = { viewModel.updateAddSheetField { s -> s.copy(totalAmountPaise = it) } },
             onBookingAmountChange = { viewModel.updateAddSheetField { s -> s.copy(bookingAmountPaise = it) } },
+            onBookingMadeChange = { viewModel.updateAddSheetField { s -> s.copy(bookingMade = it) } },
             onDueDateChange = { viewModel.updateAddSheetField { s -> s.copy(nextDueDateEpochDay = it) } },
             onSave        = { viewModel.saveBooking() },
             onAddPayment  = {},
@@ -218,6 +206,7 @@ fun BookingsScreen(
             onContactChange = { viewModel.updateEditSheetField { s -> s.copy(contactName = it) } },
             onPhoneChange = { viewModel.updateEditSheetField { s -> s.copy(phone = it) } },
             onTotalChange = { viewModel.updateEditSheetField { s -> s.copy(totalAmountPaise = it) } },
+            onBookingMadeChange = { viewModel.updateEditSheetField { s -> s.copy(bookingMade = it) } },
             onDueDateChange = { viewModel.updateEditSheetField { s -> s.copy(nextDueDateEpochDay = it) } },
             onSave        = { viewModel.saveBooking() },
             onAddPayment  = { viewModel.openPaymentDialog(sheet.bookingId) },

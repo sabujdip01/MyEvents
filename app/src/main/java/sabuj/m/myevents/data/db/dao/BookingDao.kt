@@ -26,9 +26,13 @@ interface BookingDao {
     @Query("SELECT * FROM bookings WHERE eventId = :eventId AND deleted = 0 ORDER BY createdAt DESC")
     fun observeByEvent(eventId: String): Flow<List<BookingWithPayments>>
 
-    /** Insert or replace a booking row. */
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsertBooking(entity: BookingEntity)
+    /** Insert a booking row. */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertBooking(entity: BookingEntity): Long
+
+    /** Update an existing booking row without triggering ON DELETE CASCADE. */
+    @androidx.room.Update
+    suspend fun updateBooking(entity: BookingEntity): Int
 
     /** Soft-delete a booking (sets deleted = 1). */
     @Query("UPDATE bookings SET deleted = 1, syncState = 'PENDING', updatedAt = :now WHERE id = :id")

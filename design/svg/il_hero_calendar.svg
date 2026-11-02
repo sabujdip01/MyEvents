@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  il_hero_calendar.svg — Source SVG for the desk-calendar hero illustration.
+  Design spec: design.md §5.8.  ViewBox: 180×180.
+
+  Colours below use Palette A Light as reference. The Kotlin composable
+  (HeroIllustration.kt) builds an ImageVector from these paths and substitutes
+  theme tokens at runtime, so this file is documentation / design-tool source only.
+
+  Layers (back to front):
+    1. Background blobs        (doodle @8%/6%)
+    2. Leaf sprigs              (accent @70%)
+    3. Ground shadow            (doodle @12%)
+    4. Calendar body            (surface)
+    5. Right depth edge         (primary @35%)
+    6. Purple header strip      (primary)
+    7. Strip sheen              (white @10%)
+    8. Three binder rings       (primary stroke)
+    9. Ring highlights          (white @35% stroke)
+   10. Main heart               (primary)
+   11. Heart gloss              (white @28%)
+   12. Floating hearts          (primary @60%/@35%)
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180">
+
+  <!-- 1. Background blobs -->
+  <circle cx="68" cy="140" r="99" fill="#4A0E8F" fill-opacity="0.08"/>
+  <circle cx="36" cy="90"  r="59" fill="#4A0E8F" fill-opacity="0.06"/>
+
+  <g transform="rotate(-8,90,96)">
+
+    <!-- 2. Leaf sprigs (left, rotated –28°) -->
+    <g transform="rotate(-28,33,155)" fill="#8B5CF6" fill-opacity="0.70">
+      <line x1="33" y1="155" x2="33" y2="130.4" stroke="#8B5CF6" stroke-opacity="0.35" stroke-width="1.3" stroke-linecap="round"/>
+      <path d="M16.5,155 C9,143 13.9,127.5 16.5,127.2 C19.1,127.5 24,143 16.5,155Z"/>
+      <path d="M24.75,155 C17.25,143.8 22.15,128.4 24.75,127.8 C27.35,128.4 32.25,143.8 24.75,155Z"/>
+      <path d="M33,155 C25.5,143.3 30.4,127 33,126.2 C35.6,127 40.5,143.3 33,155Z"/>
+      <path d="M41.25,155 C33.75,143.8 38.65,128.4 41.25,127.8 C43.85,128.4 48.75,143.8 41.25,155Z"/>
+      <path d="M49.5,155 C42,143 46.9,127.5 49.5,127.2 C52.1,127.5 57,143 49.5,155Z"/>
+    </g>
+
+    <!-- 2. Leaf sprigs (right, rotated +28°) -->
+    <g transform="rotate(28,147,155)" fill="#8B5CF6" fill-opacity="0.70">
+      <line x1="147" y1="155" x2="147" y2="130.4" stroke="#8B5CF6" stroke-opacity="0.35" stroke-width="1.3" stroke-linecap="round"/>
+      <path d="M130.5,155 C123,143 127.9,127.5 130.5,127.2 C133.1,127.5 138,143 130.5,155Z"/>
+      <path d="M138.75,155 C131.25,143.8 136.15,128.4 138.75,127.8 C141.35,128.4 146.25,143.8 138.75,155Z"/>
+      <path d="M147,155 C139.5,143.3 144.4,127 147,126.2 C149.6,127 154.5,143.3 147,155Z"/>
+      <path d="M155.25,155 C147.75,143.8 152.65,128.4 155.25,127.8 C157.85,128.4 162.75,143.8 155.25,155Z"/>
+      <path d="M163.5,155 C156,143 160.9,127.5 163.5,127.2 C166.1,127.5 171,143 163.5,155Z"/>
+    </g>
+
+    <!-- 3. Ground shadow -->
+    <ellipse cx="90" cy="157" rx="44" ry="6" fill="#4A0E8F" fill-opacity="0.12"/>
+
+    <!-- 4. Calendar body -->
+    <rect x="36" y="40" width="108" height="112" rx="10" fill="#FFFFFF"/>
+
+    <!-- 5. Right depth edge -->
+    <rect x="141" y="50" width="3" height="92" fill="#4A0E8F" fill-opacity="0.35"/>
+
+    <!-- 6. Header strip -->
+    <path d="M46,40 L134,40 Q144,40 144,50 L144,69 L36,69 L36,50 Q36,40 46,40Z" fill="#4A0E8F"/>
+
+    <!-- 7. Strip sheen -->
+    <path d="M46,40 L134,40 Q144,40 144,50 L144,51 L36,51 L36,50 Q36,40 46,40Z" fill="#FFFFFF" fill-opacity="0.10"/>
+
+    <!-- 8–9. Binder rings -->
+    <g fill="none" stroke="#4A0E8F" stroke-width="4.5" stroke-linecap="round">
+      <path d="M55.5,41 A7.5,7.5 0 0,0 70.5,41"/>
+      <path d="M82.5,41 A7.5,7.5 0 0,0 97.5,41"/>
+      <path d="M109.5,41 A7.5,7.5 0 0,0 124.5,41"/>
+    </g>
+    <g fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="1.6" stroke-linecap="round">
+      <path d="M57,39 A4.1,4.1 0 0,0 62,34.5"/>
+      <path d="M84,39 A4.1,4.1 0 0,0 89,34.5"/>
+      <path d="M111,39 A4.1,4.1 0 0,0 116,34.5"/>
+    </g>
+
+    <!-- 10. Main heart -->
+    <path d="
+      M90,130
+      C75.1,122.7 58.4,111.6 55.0,96.8
+      C52.5,86.4 58.2,74.8 70.2,72.0
+      C78.4,70.0 85.0,74.0 88.0,78.5
+      C89.2,80.4 89.8,82.0 90.0,83.2
+      C90.2,82.0 90.8,80.4 92.0,78.5
+      C95.0,74.0 101.6,70.0 109.8,72.0
+      C121.8,74.8 127.5,86.4 125.0,96.8
+      C121.6,111.6 104.9,122.7 90,130Z
+    " fill="#4A0E8F"/>
+
+    <!-- 11. Heart gloss -->
+    <path d="
+      M82,104
+      C78.6,101.5 74.4,97.8 73.5,93.4
+      C72.8,90.0 74.5,86.5 78.1,85.6
+      C80.5,85.0 82.4,86.2 83.3,87.5
+      C83.7,88.1 83.9,88.7 84.0,89.1
+      C84.1,88.7 84.3,88.1 84.7,87.5
+      C85.6,86.2 87.5,85.0 89.9,85.6
+      C93.5,86.5 95.2,90.0 94.5,93.4
+      C93.6,97.8 89.4,101.5 86,104Z
+    " fill="#FFFFFF" fill-opacity="0.28"/>
+
+    <!-- 12. Floating hearts -->
+    <path d="
+      M19,22 C14.5,19.5 10.5,15.6 9.5,12
+      C8.7,9.3 10.5,6.2 13.4,5.5 C15.2,5.1 16.7,6.0 17.5,7.0
+      C17.8,7.4 18.0,7.9 18.0,8.2 C18.2,7.9 18.4,7.4 18.7,7.0
+      C19.5,6.0 21.0,5.1 22.8,5.5 C25.7,6.2 27.5,9.3 26.7,12
+      C25.7,15.6 21.7,19.5 19,22Z
+    " fill="#4A0E8F" fill-opacity="0.60"/>
+    <path d="
+      M154,35 C148.0,31.5 142.5,26.5 141.0,21.5
+      C139.8,17.8 142.2,13.5 146.2,12.5 C148.7,11.9 150.8,13.1 152.0,14.5
+      C152.5,15.0 152.8,15.7 153.0,16.2 C153.2,15.7 153.5,15.0 154.0,14.5
+      C155.2,13.1 157.3,11.9 159.8,12.5 C163.8,13.5 166.2,17.8 165.0,21.5
+      C163.5,26.5 158.0,31.5 154,35Z
+    " fill="#4A0E8F" fill-opacity="0.60"/>
+    <path d="
+      M162,65 C159.2,63.2 156.6,60.6 155.8,58
+      C155.2,56.0 156.5,53.8 158.4,53.3 C159.6,53.0 160.6,53.6 161.1,54.3
+      C161.3,54.6 161.5,54.9 161.5,55.1 C161.7,54.9 161.8,54.6 162.1,54.3
+      C162.6,53.6 163.6,53.0 164.8,53.3 C166.7,53.8 168.0,56.0 167.4,58
+      C166.6,60.6 164.0,63.2 162,65Z
+    " fill="#4A0E8F" fill-opacity="0.35"/>
+
+  </g>
+</svg>
+

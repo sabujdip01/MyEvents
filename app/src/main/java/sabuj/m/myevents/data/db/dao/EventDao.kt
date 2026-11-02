@@ -22,9 +22,13 @@ interface EventDao {
     @Query("SELECT * FROM events WHERE id = :id AND deleted = 0")
     fun observeById(id: String): Flow<EventEntity?>
 
-    /** Insert or replace a row. */
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsert(event: EventEntity)
+    /** Insert a new row. */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(event: EventEntity): Long
+
+    /** Update an existing row without triggering ON DELETE CASCADE. */
+    @androidx.room.Update
+    suspend fun update(event: EventEntity): Int
 
     /** Mark as soft-deleted and set updatedAt. */
     @Query("UPDATE events SET deleted = 1, syncState = 'PENDING', updatedAt = :now WHERE id = :id")

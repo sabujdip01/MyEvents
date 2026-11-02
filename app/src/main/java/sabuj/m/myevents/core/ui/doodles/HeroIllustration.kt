@@ -2,16 +2,17 @@ package sabuj.m.myevents.core.ui.doodles
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -20,342 +21,307 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import sabuj.m.myevents.core.preview.LightDarkPreviews
-import sabuj.m.myevents.core.theme.AppColor
 import sabuj.m.myevents.core.theme.AppTheme
 import sabuj.m.myevents.core.theme.Spacing
 
 /**
- * Desk-calendar hero illustration matching design.md §5.8 and Sample UI Nav-Light.png.
- *
- * A table calendar viewed from the front-left with a purple header strip,
- * three binder rings, a plump heart on the white page, leafy sprigs on both
- * sides, floating hearts above, and a ground shadow. Background blobs are
- * drawn outside this composable (by the screen / drawer).
- *
- * @param size Diameter of bounding box. Use 120 dp on Home, 180 dp in drawer.
+ * 3D-style desk-calendar illustration drawn entirely with Compose Canvas.
+ * Coordinates use the supplied 1280 x 1180 reference image as the design grid.
+ * The composition deliberately keeps the large open area above the illustration.
  */
 @Composable
 fun HeroIllustration(
     modifier: Modifier = Modifier,
     size: Dp = 120.dp,
 ) {
-    val primary          = AppColor.primary
-    val surface          = AppColor.surface
-    val primaryContainer = AppColor.primaryContainer
-    val accent           = AppColor.accent
-    val doodle           = AppColor.doodle
-    val isDark           = AppColor.isDark
-
-    Canvas(modifier = modifier.size(size)) {
-        val s = this.size.width // square
-        drawCalendarScene(s, primary, surface, primaryContainer, accent, doodle, isDark)
+    val isDark = sabuj.m.myevents.core.theme.AppColor.isDark
+    Canvas(modifier = modifier.width(size).aspectRatio(1280f / 1180f)) {
+        scale(
+            scaleX = this.size.width / 1280f,
+            scaleY = this.size.height / 1180f,
+            pivot = Offset.Zero,
+        ) {
+            drawCalendarReference(isDark)
+        }
     }
 }
 
-// ---------------------------------------------------------------------------
-// Scene composition
-// ---------------------------------------------------------------------------
+private val Purple = Color(0xFF8B4BEF)
+private val PurpleDeep = Color(0xFF6424D8)
+private val PurpleMid = Color(0xFFA875F4)
+private val PurplePale = Color(0xFFD2BDFB)
+private val LeafColor = Color(0xFFB49AF1)
 
-private fun DrawScope.drawCalendarScene(
-    s: Float,
-    primary: Color,
-    surface: Color,
-    primaryContainer: Color,
-    accent: Color,
-    doodle: Color,
-    isDark: Boolean,
-) {
-    val pivot = Offset(s * 0.50f, s * 0.50f)
+private fun DrawScope.drawCalendarReference(isDark: Boolean) {
+    val background = if (isDark) Color(0xFF171321) else Color(0xFFFAF9FF)
+    val bubble = if (isDark) Color(0xFF9A7BE7).copy(alpha = 0.075f)
+                 else Color(0xFFE9E3FF).copy(alpha = 0.40f)
+    drawRect(background)
 
-    // ── Background blobs (design.md §6.1 drawer: 200 dp & 120 dp) ──────────
-    drawCircle(
-        color  = doodle.copy(alpha = if (isDark) 0.14f else 0.08f),
-        radius = s * 0.55f,
-        center = Offset(s * 0.38f, s * 0.78f),
+    // Soft, oversized backdrop circles from the reference.
+    drawCircle(bubble, 245f, Offset(238f, 319f))
+    drawCircle(bubble.copy(alpha = bubble.alpha * 0.82f), 275f, Offset(663f, 583f))
+    drawCircle(bubble.copy(alpha = bubble.alpha * 0.78f), 168f, Offset(54f, 553f))
+    drawCircle(bubble.copy(alpha = bubble.alpha * 0.68f), 266f, Offset(1068f, 1130f))
+
+    // Ambient shadow beneath the calendar.
+    drawOval(
+        brush = Brush.radialGradient(
+            colors = listOf(Color(0xFF7E52D5).copy(alpha = if (isDark) 0.22f else 0.15f), Color.Transparent),
+            center = Offset(486f, 1080f),
+            radius = 315f,
+        ),
+        topLeft = Offset(105f, 1025f),
+        size = Size(765f, 112f),
     )
-    drawCircle(
-        color  = doodle.copy(alpha = if (isDark) 0.10f else 0.06f),
-        radius = s * 0.33f,
-        center = Offset(s * 0.20f, s * 0.50f),
+
+    // Leaves are behind the calendar and sit low around its two sides.
+    drawLeftBranch()
+    drawRightBranch()
+
+    // Rear purple cover: the thick visible left spine and lower-left bevel.
+    val rear = Path().apply {
+        moveTo(310f, 604f)
+        cubicTo(288f, 606f, 278f, 624f, 276f, 650f)
+        lineTo(266f, 1016f)
+        cubicTo(264f, 1050f, 280f, 1068f, 310f, 1070f)
+        lineTo(654f, 1045f)
+        cubicTo(682f, 1043f, 692f, 1024f, 690f, 995f)
+        lineTo(678f, 622f)
+        close()
+    }
+    drawPath(
+        rear,
+        Brush.linearGradient(
+            colors = listOf(Color(0xFF7D38E9), Color(0xFF6925DD), Color(0xFF8D4AF0)),
+            start = Offset(278f, 810f), end = Offset(688f, 830f),
+        ),
+    )
+    // Bright narrow bevel along the left spine.
+    drawPath(
+        Path().apply {
+            moveTo(306f, 617f)
+            cubicTo(287f, 620f, 284f, 638f, 282f, 665f)
+            lineTo(273f, 1005f)
+            cubicTo(273f, 1038f, 287f, 1055f, 309f, 1060f)
+            lineTo(326f, 1047f)
+            lineTo(322f, 630f)
+            close()
+        },
+        Brush.horizontalGradient(listOf(Color(0xFF5F1FD4), Color(0xFF9B5AF4), Color(0xFF7D37E8))),
     )
 
-    // ── Everything tilted ~-8° (front-left viewpoint) ───────────────────────
-    rotate(degrees = -8f, pivot = pivot) {
+    // Calendar page: a slightly skewed front plane, not a flat rectangle.
+    val page = Path().apply {
+        moveTo(302f, 699f)
+        lineTo(682f, 695f)
+        lineTo(702f, 1016f)
+        cubicTo(704f, 1042f, 690f, 1057f, 666f, 1059f)
+        lineTo(359f, 1073f)
+        cubicTo(333f, 1074f, 322f, 1057f, 319f, 1033f)
+        lineTo(300f, 727f)
+        cubicTo(298f, 712f, 297f, 704f, 302f, 699f)
+        close()
+    }
+    // Soft drop shadow offset just below/right of the paper.
+    drawPath(page, Color(0xFF5630A8).copy(alpha = if (isDark) 0.24f else 0.09f), style = Stroke(width = 15f, cap = StrokeCap.Round))
+    drawPath(
+        page,
+        Brush.linearGradient(
+            colors = listOf(Color.White, Color(0xFFFFFEFF), Color(0xFFF8F6FF)),
+            start = Offset(320f, 700f), end = Offset(685f, 1065f),
+        ),
+    )
+    // Subtle paper edge shading along right and bottom edges.
+    drawPath(
+        Path().apply {
+            moveTo(682f, 700f)
+            lineTo(702f, 1016f)
+            cubicTo(704f, 1042f, 690f, 1057f, 666f, 1059f)
+            lineTo(359f, 1073f)
+        },
+        Color(0xFFB9A5E8).copy(alpha = 0.26f),
+        style = Stroke(width = 7f, cap = StrokeCap.Round),
+    )
+    drawPath(
+        Path().apply {
+            moveTo(327f, 1045f)
+            cubicTo(333f, 1062f, 344f, 1069f, 364f, 1068f)
+            lineTo(665f, 1054f)
+        },
+        Color.White.copy(alpha = 0.85f),
+        style = Stroke(width = 5f, cap = StrokeCap.Round),
+    )
 
-        // Calendar bounds
-        val calL = s * 0.20f
-        val calT = s * 0.22f
-        val calR = s * 0.78f
-        val calB = s * 0.84f
-        val calW = calR - calL
-        val calH = calB - calT
-        val cr   = s * 0.06f         // corner radius
-        val stripH = calH * 0.26f    // purple header height
-
-        // ── Leaf sprigs (behind calendar, accent@70%) ───────────────────────
-        drawLeafSprig(
-            pivotX = calL - s * 0.01f,
-            pivotY = calB + s * 0.02f,
-            angleDeg = -28f,
-            color = accent.copy(alpha = 0.70f),
-            s = s,
-        )
-        drawLeafSprig(
-            pivotX = calR + s * 0.01f,
-            pivotY = calB + s * 0.02f,
-            angleDeg = 28f,
-            color = accent.copy(alpha = 0.70f),
-            s = s,
-        )
-
-        // ── Ground shadow (doodle@12%) ──────────────────────────────────────
-        drawOval(
-            color   = doodle.copy(alpha = 0.12f),
-            topLeft = Offset(calL + s * 0.02f, calB + s * 0.01f),
-            size    = Size(calW - s * 0.04f, s * 0.06f),
-        )
-
-        // ── Calendar body (surface / primaryContainer) ──────────────────────
-        val bodyPath = Path().apply {
-            addRoundRect(
-                RoundRect(
-                    left = calL, top = calT,
-                    right = calR, bottom = calB,
-                    radiusX = cr, radiusY = cr,
-                )
-            )
+    // Four thick, rounded binder loops. Layered strokes simulate a glossy 3D tube.
+    val ringCenters = listOf(390f, 477f, 548f, 615f)
+    ringCenters.forEachIndexed { index, x ->
+        val y = 603f + if (index == 1 || index == 2) -2f else 0f
+        val ring = Path().apply {
+            moveTo(x - 25f, y + 36f)
+            cubicTo(x - 39f, y - 30f, x - 12f, y - 49f, x + 7f, y - 43f)
+            cubicTo(x + 35f, y - 36f, x + 34f, y + 5f, x + 23f, y + 38f)
+            cubicTo(x + 17f, y + 58f, x - 3f, y + 64f, x - 12f, y + 48f)
         }
-        drawPath(bodyPath, color = if (isDark) primaryContainer else surface, style = Fill)
-
-        // Thin right-side depth edge (darker primary)
-        val edgeW = s * 0.018f
-        drawRect(
-            color   = primary.copy(alpha = 0.35f),
-            topLeft = Offset(calR - edgeW, calT + cr),
-            size    = Size(edgeW, calH - cr * 2f),
-        )
-
-        // Soft bottom inner shadow on page
-        drawRect(
-            color   = primary.copy(alpha = 0.06f),
-            topLeft = Offset(calL + cr, calB - s * 0.025f),
-            size    = Size(calW - cr * 2f, s * 0.025f),
-        )
-
-        // ── Purple header strip ─────────────────────────────────────────────
-        val stripPath = Path().apply {
-            addRoundRect(
-                RoundRect(
-                    rect = Rect(calL, calT, calR, calT + stripH),
-                    topLeft     = CornerRadius(cr),
-                    topRight    = CornerRadius(cr),
-                    bottomLeft  = CornerRadius(0f),
-                    bottomRight = CornerRadius(0f),
-                )
-            )
-        }
-        drawPath(stripPath, color = primary, style = Fill)
-
-        // Lighter sheen on top half of strip
-        val sheenPath = Path().apply {
-            addRoundRect(
-                RoundRect(
-                    rect = Rect(calL, calT, calR, calT + stripH * 0.38f),
-                    topLeft     = CornerRadius(cr),
-                    topRight    = CornerRadius(cr),
-                    bottomLeft  = CornerRadius(0f),
-                    bottomRight = CornerRadius(0f),
-                )
-            )
-        }
-        drawPath(sheenPath, color = Color.White.copy(alpha = 0.10f), style = Fill)
-
-        // ── Three binder rings (design.md: "three round binder rings") ──────
-        val ringR      = s * 0.040f       // radius of each ring loop
-        val ringStroke = s * 0.026f       // thickness
-        val ringCY     = calT + s * 0.005f // centre Y at top edge of strip
-        val ringXs     = listOf(
-            calL + calW * 0.25f,
-            calL + calW * 0.50f,
-            calL + calW * 0.75f,
-        )
-
-        for (rx in ringXs) {
-            // Upper semicircle (the loop visible above the strip)
-            drawArc(
-                color      = primary,
-                startAngle = 180f,
-                sweepAngle = 180f,        // clockwise from 9-o'clock through top to 3-o'clock
-                useCenter  = false,
-                topLeft    = Offset(rx - ringR, ringCY - ringR),
-                size       = Size(ringR * 2f, ringR * 2f),
-                style      = Stroke(width = ringStroke, cap = StrokeCap.Round),
-            )
-            // Lighter highlight on the left edge of the ring
-            drawArc(
-                color      = Color.White.copy(alpha = 0.35f),
-                startAngle = 200f,
-                sweepAngle = 55f,
-                useCenter  = false,
-                topLeft    = Offset(rx - ringR * 0.60f, ringCY - ringR * 0.60f),
-                size       = Size(ringR * 1.20f, ringR * 1.20f),
-                style      = Stroke(width = ringStroke * 0.35f, cap = StrokeCap.Round),
-            )
-        }
-
-        // ── Plump heart on the page centre ──────────────────────────────────
-        val heartCX   = calL + calW * 0.50f
-        val heartCY   = calT + stripH + (calH - stripH) * 0.48f
-        val heartSize = calW * 0.46f
-
-        // Gradient: lighter upper-left highlight → solid primary
-        val heartBrush = Brush.radialGradient(
-            colors = listOf(
-                primary.copy(alpha = 0.50f),
-                primary,
+        // Deep soft underside, purple tube, and specular highlight.
+        drawPath(ring, Color(0xFF5420C8).copy(alpha = 0.24f), style = Stroke(width = 29f, cap = StrokeCap.Round))
+        drawPath(
+            ring,
+            Brush.linearGradient(
+                colors = listOf(Color(0xFFC7A8FF), Color(0xFF9B63F1), Color(0xFF6B2DDB), Color(0xFF4E16C7)),
+                start = Offset(x - 25f, y - 43f), end = Offset(x + 20f, y + 62f),
             ),
-            center = Offset(heartCX - heartSize * 0.12f, heartCY - heartSize * 0.14f),
-            radius = heartSize * 0.80f,
+            style = Stroke(width = 22f, cap = StrokeCap.Round),
         )
-        drawHeart(heartCX, heartCY, heartSize, brush = heartBrush)
-
-        // Small white gloss highlight top-left of heart
-        drawHeart(
-            heartCX - heartSize * 0.16f,
-            heartCY - heartSize * 0.12f,
-            heartSize * 0.18f,
-            color = Color.White.copy(alpha = 0.30f),
-        )
-
-        // ── Floating hearts above (primary@60% and @35%) ────────────────────
-        // Upper-left
-        drawHeart(
-            s * 0.12f, s * 0.10f,
-            s * 0.09f,
-            color = primary.copy(alpha = 0.60f),
-        )
-        // Upper-right (larger)
-        drawHeart(
-            s * 0.84f, s * 0.16f,
-            s * 0.11f,
-            color = primary.copy(alpha = 0.60f),
-        )
-        // Small one right of calendar
-        drawHeart(
-            s * 0.90f, s * 0.36f,
-            s * 0.06f,
-            color = primary.copy(alpha = 0.35f),
+        drawPath(
+            ring,
+            Color.White.copy(alpha = 0.38f),
+            style = Stroke(width = 4.5f, cap = StrokeCap.Round),
         )
     }
+
+    // Header band has rounded top corners and a straight lower edge.
+    val header = Path().apply {
+        moveTo(329f, 600f)
+        cubicTo(340f, 596f, 351f, 596f, 366f, 596f)
+        lineTo(650f, 596f)
+        cubicTo(672f, 596f, 684f, 611f, 685f, 632f)
+        lineTo(688f, 695f)
+        lineTo(303f, 700f)
+        lineTo(287f, 634f)
+        cubicTo(283f, 615f, 299f, 603f, 329f, 600f)
+        close()
+    }
+    drawPath(
+        header,
+        Brush.linearGradient(
+            colors = listOf(Color(0xFFB58CFA), Color(0xFF9B63F1), Color(0xFF8C4BEF), Color(0xFF8750E9)),
+            start = Offset(320f, 595f), end = Offset(680f, 700f),
+        ),
+    )
+    // Soft glossy bloom over the upper part of the band.
+    drawPath(
+        Path().apply {
+            moveTo(323f, 604f)
+            cubicTo(350f, 593f, 626f, 593f, 660f, 600f)
+            cubicTo(676f, 604f, 682f, 615f, 683f, 632f)
+            lineTo(685f, 653f)
+            cubicTo(570f, 643f, 420f, 646f, 294f, 657f)
+            lineTo(289f, 632f)
+            cubicTo(288f, 617f, 300f, 608f, 323f, 604f)
+            close()
+        },
+        Brush.verticalGradient(listOf(Color.White.copy(alpha = 0.23f), Color.White.copy(alpha = 0.04f), Color.Transparent), 595f, 660f),
+    )
+    // A fine saturated lower lip gives the header thickness.
+    drawLine(Color(0xFF7132DF).copy(alpha = 0.34f), Offset(303f, 699f), Offset(687f, 695f), 5f, cap = StrokeCap.Round)
+
+    // Binder ends in front of the header: four small curled tips visible below the arches.
+    ringCenters.forEachIndexed { index, x ->
+        val y = 617f + if (index == 1 || index == 2) -2f else 0f
+        val tail = Path().apply {
+            moveTo(x + 22f, y - 2f)
+            cubicTo(x + 25f, y + 22f, x + 16f, y + 44f, x + 2f, y + 49f)
+            cubicTo(x - 10f, y + 53f, x - 16f, y + 43f, x - 12f, y + 31f)
+        }
+        drawPath(tail, Color(0xFF5E1BCC).copy(alpha = 0.20f), style = Stroke(width = 25f, cap = StrokeCap.Round))
+        drawPath(tail, Brush.linearGradient(listOf(Color(0xFFB68CFF), Color(0xFF8B4BEF), Color(0xFF5E1BD0)), Offset(x - 12f, y), Offset(x + 22f, y + 50f)), style = Stroke(width = 19f, cap = StrokeCap.Round))
+        drawPath(tail, Color.White.copy(alpha = 0.30f), style = Stroke(width = 3.5f, cap = StrokeCap.Round))
+    }
+
+    // Large raised heart centered on the white page.
+    val heart = heartPath(523f, 875f, 154f)
+    drawPath(heart, Color(0xFF5B2AB8).copy(alpha = 0.18f), style = Stroke(width = 13f, cap = StrokeCap.Round))
+    drawPath(
+        heart,
+        Brush.radialGradient(
+            colors = listOf(Color(0xFFC6A8FF), Color(0xFFA77AF6), Color(0xFF8D55EF), Color(0xFF7739E4)),
+            center = Offset(484f, 833f), radius = 150f,
+        ),
+    )
+    drawPath(
+        heartPath(490f, 833f, 31f),
+        Color.White.copy(alpha = 0.13f),
+    )
+
+    // Floating glossy hearts at the same relative positions as the reference.
+    drawFloatingHeart(241f, 554f, 66f)
+    drawFloatingHeart(780f, 685f, 82f)
 }
 
-// ---------------------------------------------------------------------------
-// Heart helper
-// ---------------------------------------------------------------------------
-
-/** Classic plump heart centred at ([cx],[cy]) with total [size] height. */
-private fun heartPath(cx: Float, cy: Float, size: Float): Path {
-    val r = size * 0.50f
+private fun heartPath(cx: Float, cy: Float, height: Float): Path {
+    val r = height * 0.5f
     return Path().apply {
-        // Bottom tip
-        moveTo(cx, cy + r * 0.80f)
-        // Left lobe → top centre dip
-        cubicTo(
-            cx - r * 1.15f, cy + r * 0.20f,
-            cx - r * 1.15f, cy - r * 0.80f,
-            cx,             cy - r * 0.30f,
-        )
-        // Right lobe → back to bottom tip
-        cubicTo(
-            cx + r * 1.15f, cy - r * 0.80f,
-            cx + r * 1.15f, cy + r * 0.20f,
-            cx,             cy + r * 0.80f,
-        )
+        moveTo(cx, cy + r * 0.82f)
+        cubicTo(cx - r * 1.15f, cy + r * 0.18f, cx - r * 1.18f, cy - r * 0.78f, cx, cy - r * 0.28f)
+        cubicTo(cx + r * 1.18f, cy - r * 0.78f, cx + r * 1.15f, cy + r * 0.18f, cx, cy + r * 0.82f)
         close()
     }
 }
 
-private fun DrawScope.drawHeart(cx: Float, cy: Float, size: Float, color: Color) {
-    drawPath(heartPath(cx, cy, size), color = color, style = Fill)
+private fun DrawScope.drawFloatingHeart(cx: Float, cy: Float, height: Float) {
+    val path = heartPath(cx, cy, height)
+    drawPath(path, Color(0xFF6C35D1).copy(alpha = 0.14f), style = Stroke(width = 7f))
+    drawPath(
+        path,
+        Brush.radialGradient(
+            colors = listOf(Color(0xFFD7C2FF), Color(0xFFB58CF7), Color(0xFF965DF0), Color(0xFF7439E1)),
+            center = Offset(cx - height * 0.20f, cy - height * 0.25f),
+            radius = height * 0.82f,
+        ),
+    )
+    drawPath(heartPath(cx - height * 0.20f, cy - height * 0.27f, height * 0.17f), Color.White.copy(alpha = 0.17f))
 }
 
-private fun DrawScope.drawHeart(cx: Float, cy: Float, size: Float, brush: Brush) {
-    drawPath(heartPath(cx, cy, size), brush = brush, style = Fill)
-}
-
-// ---------------------------------------------------------------------------
-// Leaf-sprig helper
-// ---------------------------------------------------------------------------
-
-/**
- * Five slim leaf shapes fanning from ([pivotX],[pivotY]) at [angleDeg].
- * Drawn with manual trig so it nests safely inside an outer [rotate] block.
- */
-private fun DrawScope.drawLeafSprig(
-    pivotX: Float,
-    pivotY: Float,
-    angleDeg: Float,
-    color: Color,
-    s: Float,
-) {
-    val leafW = s * 0.042f
-    val leafH = s * 0.16f
-
-    rotate(degrees = angleDeg, pivot = Offset(pivotX, pivotY)) {
-        // Thin stem
-        drawLine(
-            color       = color.copy(alpha = 0.45f),
-            start       = Offset(pivotX, pivotY),
-            end         = Offset(pivotX, pivotY - leafH * 0.90f),
-            strokeWidth = s * 0.007f,
-            cap         = StrokeCap.Round,
-        )
-
-        for (i in -2..2) {
-            val lx  = pivotX + i * leafW * 1.10f
-            val hf  = 1.0f - kotlin.math.abs(i) * 0.08f
-            val top = pivotY - leafH * hf
-
-            val path = Path().apply {
-                moveTo(lx, pivotY)
-                cubicTo(
-                    lx - leafW, top + leafH * 0.45f,
-                    lx - leafW * 0.30f, top,
-                    lx, top + leafH * 0.10f,
-                )
-                cubicTo(
-                    lx + leafW * 0.30f, top,
-                    lx + leafW, top + leafH * 0.45f,
-                    lx, pivotY,
-                )
-                close()
-            }
-            // Outer leaves slightly lighter for depth
-            val a = if (kotlin.math.abs(i) <= 1) 1.0f else 0.65f
-            drawPath(path, color = color.copy(alpha = color.alpha * a), style = Fill)
-        }
+private fun DrawScope.drawLeaf(base: Offset, tip: Offset, width: Float, color: Color, bend: Float) {
+    val leaf = Path().apply {
+        moveTo(base.x, base.y)
+        cubicTo(base.x + bend * width, base.y - width * 0.52f, tip.x + bend * width * 0.58f, tip.y + width * 0.52f, tip.x, tip.y)
+        cubicTo(tip.x - bend * width * 0.54f, tip.y - width * 0.45f, base.x - bend * width * 0.42f, base.y - width * 0.26f, base.x, base.y)
+        close()
     }
+    drawPath(
+        leaf,
+        Brush.linearGradient(
+            colors = listOf(Color(0xFFD9C9FF).copy(alpha = color.alpha), color),
+            start = Offset(tip.x - width * 0.4f, tip.y), end = base,
+        ),
+    )
 }
 
-// ---------------------------------------------------------------------------
-// Preview
-// ---------------------------------------------------------------------------
+private fun DrawScope.drawLeftBranch() {
+    val base = Offset(224f, 914f)
+    drawLine(LeafColor.copy(alpha = 0.62f), base, Offset(165f, 719f), 5f, cap = StrokeCap.Round)
+    drawLeaf(Offset(194f, 826f), Offset(134f, 711f), 38f, LeafColor.copy(alpha = 0.82f), -1.1f)
+    drawLeaf(Offset(205f, 872f), Offset(102f, 839f), 37f, LeafColor.copy(alpha = 0.78f), -1.0f)
+    drawLeaf(Offset(213f, 895f), Offset(145f, 968f), 34f, LeafColor.copy(alpha = 0.82f), -0.8f)
+    drawLeaf(Offset(220f, 907f), Offset(107f, 900f), 35f, LeafColor.copy(alpha = 0.78f), -1.0f)
+    drawLeaf(Offset(205f, 858f), Offset(269f, 798f), 32f, LeafColor.copy(alpha = 0.76f), 0.9f)
+}
+
+private fun DrawScope.drawRightBranch() {
+    val base = Offset(699f, 1066f)
+    drawLine(LeafColor.copy(alpha = 0.66f), base, Offset(835f, 856f), 5f, cap = StrokeCap.Round)
+    drawLeaf(Offset(731f, 1014f), Offset(714f, 935f), 32f, LeafColor.copy(alpha = 0.82f), -0.6f)
+    drawLeaf(Offset(753f, 978f), Offset(771f, 862f), 35f, LeafColor.copy(alpha = 0.82f), 0.4f)
+    drawLeaf(Offset(786f, 928f), Offset(895f, 831f), 37f, LeafColor.copy(alpha = 0.84f), 0.8f)
+    drawLeaf(Offset(783f, 949f), Offset(896f, 956f), 34f, LeafColor.copy(alpha = 0.78f), 0.8f)
+    drawLeaf(Offset(740f, 1028f), Offset(831f, 1053f), 32f, LeafColor.copy(alpha = 0.78f), 0.8f)
+}
 
 @LightDarkPreviews
 @Composable
 private fun HeroIllustrationPreview() {
     AppTheme {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(Spacing.lg),
+            modifier = Modifier.fillMaxSize().padding(Spacing.lg),
             contentAlignment = Alignment.Center,
         ) {
-            HeroIllustration(size = 180.dp)
+            HeroIllustration(size = 360.dp)
         }
     }
 }

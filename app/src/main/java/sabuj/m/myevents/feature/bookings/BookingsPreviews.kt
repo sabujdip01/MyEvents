@@ -18,7 +18,7 @@ private fun BookingCardFilledPreview() {
             booking       = PreviewData.sampleBooking,
             slot          = 0,
             editMode      = false,
-            onTap         = {},
+            onEditClick   = {},
             onDeleteClick = {},
             event         = PreviewData.sampleEvents.first(),
         )
@@ -33,7 +33,7 @@ private fun BookingCardEditModePreview() {
             booking       = PreviewData.sampleBooking,
             slot          = 2,
             editMode      = true,
-            onTap         = {},
+            onEditClick   = {},
             onDeleteClick = {},
             event         = PreviewData.sampleEvents.first(),
         )

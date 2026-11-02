@@ -95,6 +95,7 @@ fun AddEditBookingSheet(
     onPhoneChange: (String) -> Unit,
     onTotalChange: (Long) -> Unit,
     onBookingAmountChange: (Long) -> Unit = {},
+    onBookingMadeChange: (Boolean) -> Unit = {},
     onDueDateChange: (Long?) -> Unit,
     onSave: () -> Unit,
     onAddPayment: () -> Unit,
@@ -109,6 +110,7 @@ fun AddEditBookingSheet(
     val totalAmountPaise: Long
     val bookingAmountPaise: Long
     val nextDueDateEpochDay: Long?
+    val bookingMade: Boolean
     val eventError: String?
     val totalError: String?
     val payments: List<BookingPayment>
@@ -121,6 +123,7 @@ fun AddEditBookingSheet(
             totalAmountPaise = sheetState.totalAmountPaise
             bookingAmountPaise = sheetState.bookingAmountPaise
             nextDueDateEpochDay = sheetState.nextDueDateEpochDay
+            bookingMade = sheetState.bookingMade
             eventError = sheetState.eventError
             totalError = sheetState.totalError; payments = emptyList()
         }
@@ -131,10 +134,11 @@ fun AddEditBookingSheet(
             totalAmountPaise = sheetState.totalAmountPaise
             bookingAmountPaise = sheetState.bookingAmountPaise
             nextDueDateEpochDay = sheetState.nextDueDateEpochDay
+            bookingMade = sheetState.bookingMade
             eventError = sheetState.eventError
             totalError = sheetState.totalError; payments = sheetState.payments
         }
-        else -> return // Hidden â€” nothing to show
+        else -> return // Hidden — nothing to show
     }
 
     val paidPaise = payments.sumOf { it.amountPaise }
@@ -228,6 +232,30 @@ fun AddEditBookingSheet(
                 placeholder   = "10-digit number",
                 keyboardType  = KeyboardType.Phone,
             )
+
+            // Booking Made? Yes/No toggle (Item E2)
+            Row(
+                modifier          = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text     = "Booking Made?",
+                    style    = labelL,
+                    color    = AppColor.text,
+                    modifier = Modifier.weight(1f),
+                )
+                androidx.compose.material3.Switch(
+                    checked         = bookingMade,
+                    onCheckedChange = onBookingMadeChange,
+                    colors          = androidx.compose.material3.SwitchDefaults.colors(
+                        checkedThumbColor    = AppColor.onPrimary,
+                        checkedTrackColor    = AppColor.primary,
+                        uncheckedThumbColor  = AppColor.text3,
+                        uncheckedTrackColor  = AppColor.surfaceVariant,
+                        uncheckedBorderColor = AppColor.outline,
+                    ),
+                )
+            }
 
             // Contract Amount
             val contractRupeesStr = if (totalAmountPaise == 0L) "" else formatIndianDigits((totalAmountPaise / 100L).toString())
