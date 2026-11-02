@@ -1,8 +1,12 @@
 package sabuj.m.myevents.core.ui.doodles
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -17,18 +21,21 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import sabuj.m.myevents.core.preview.LightDarkPreviews
 import sabuj.m.myevents.core.theme.AppColor
+import sabuj.m.myevents.core.theme.AppTheme
+import sabuj.m.myevents.core.theme.Spacing
 
 /**
- * Desk-calendar hero illustration drawn entirely with Compose Canvas.
- * Described in design.md section 5.8.
+ * Desk-calendar hero illustration matching Sample UI (Home-Light.png) 1:1.
+ * Features a 3D tilted desk calendar with binder rings, center heart, floating hearts, and leafy sprigs.
  *
- * @param size  Diameter of the bounding box. Use 128 dp on Home, 180 dp in drawer.
+ * @param size Diameter of bounding box. Use 120 dp on Home, 180 dp in drawer.
  */
 @Composable
 fun HeroIllustration(
     modifier: Modifier = Modifier,
-    size: Dp = 128.dp,
+    size: Dp = 120.dp,
 ) {
     val primary          = AppColor.primary
     val surface          = AppColor.surface
@@ -52,94 +59,81 @@ private fun DrawScope.drawCalendar(
     doodle: Color,
     isDark: Boolean,
 ) {
-    val calLeft   = s * 0.10f
-    val calTop    = s * 0.18f
-    val calRight  = s * 0.88f
-    val calBottom = s * 0.88f
-    val calW      = calRight - calLeft
-    val calH      = calBottom - calTop
-    val stripH    = calH * 0.24f
-    val cornerR   = s * 0.10f
-
     // Ground shadow
     drawOval(
-        color      = doodle.copy(alpha = 0.12f),
-        topLeft    = Offset(calLeft + calW * 0.1f, calBottom - s * 0.03f),
-        size       = Size(calW * 0.8f, s * 0.06f),
+        color   = doodle.copy(alpha = 0.15f),
+        topLeft = Offset(s * 0.15f, s * 0.82f),
+        size    = Size(s * 0.70f, s * 0.12f),
     )
 
-    // Left leaf sprig (bottom-left)
-    drawLeafSprig(
-        pivotX  = calLeft + calW * 0.05f,
-        pivotY  = calBottom - s * 0.02f,
-        angleDeg = -30f,
-        color   = accent.copy(alpha = 0.70f),
-        s       = s,
-    )
+    // Floating hearts behind (top-right & top-left matching Sample UI)
+    drawHeart(s * 0.82f, s * 0.22f, s * 0.12f, primary.copy(alpha = 0.75f))
+    drawHeart(s * 0.66f, s * 0.12f, s * 0.16f, primary.copy(alpha = 0.85f))
+    drawHeart(s * 0.92f, s * 0.38f, s * 0.08f, primary.copy(alpha = 0.50f))
 
-    // Right leaf sprig (bottom-right)
-    drawLeafSprig(
-        pivotX  = calRight - calW * 0.05f,
-        pivotY  = calBottom - s * 0.02f,
-        angleDeg = 30f,
-        color   = accent.copy(alpha = 0.70f),
-        s       = s,
-    )
+    // Leaf sprigs fanning out
+    drawLeafSprig(s * 0.18f, s * 0.75f, -25f, accent, s)
+    drawLeafSprig(s * 0.82f, s * 0.75f, 25f, accent, s)
 
-    // Calendar body (white/surface rounded rectangle)
-    val bodyPath = Path().apply {
-        addRoundRect(
-            RoundRect(
-                left   = calLeft,   top    = calTop,
-                right  = calRight,  bottom = calBottom,
-                radiusX = cornerR,  radiusY = cornerR,
+    // Slight 3D stance rotation (-8 degrees)
+    rotate(degrees = -8f, pivot = Offset(s * 0.5f, s * 0.5f)) {
+        val calLeft   = s * 0.22f
+        val calTop    = s * 0.22f
+        val calRight  = s * 0.78f
+        val calBottom = s * 0.82f
+        val calW      = calRight - calLeft
+        val calH      = calBottom - calTop
+        val stripH    = calH * 0.26f
+        val cornerR   = s * 0.08f
+
+        // Calendar body
+        val bodyPath = Path().apply {
+            addRoundRect(
+                RoundRect(
+                    left   = calLeft,   top    = calTop,
+                    right  = calRight,  bottom = calBottom,
+                    radiusX = cornerR,  radiusY = cornerR,
+                )
             )
-        )
-    }
-    drawPath(bodyPath, color = if (isDark) primaryContainer else surface, style = Fill)
+        }
+        drawPath(bodyPath, color = if (isDark) primaryContainer else surface, style = Fill)
 
-    // Top strip (primary, same rounded top, flat bottom)
-    val stripPath = Path().apply {
-        addRoundRect(
-            RoundRect(
-                rect = Rect(calLeft, calTop, calRight, calTop + stripH),
-                topLeft = CornerRadius(cornerR),
-                topRight = CornerRadius(cornerR),
+        // Subtle 3D right depth edge
+        val edgeW = s * 0.025f
+        drawRect(
+            color   = primary.copy(alpha = 0.40f),
+            topLeft = Offset(calRight - edgeW, calTop + cornerR),
+            size    = Size(edgeW, calH - cornerR),
+        )
+
+        // Top binder strip (primary color)
+        val stripPath = Path().apply {
+            addRoundRect(
+                RoundRect(
+                    rect = Rect(calLeft, calTop, calRight, calTop + stripH),
+                    topLeft = CornerRadius(cornerR),
+                    topRight = CornerRadius(cornerR),
+                )
             )
-        )
+        }
+        drawPath(stripPath, color = primary, style = Fill)
+
+        // Three 3D binder rings
+        val ringY  = calTop - s * 0.02f
+        val ringR  = s * 0.038f
+        val ringXs = listOf(calLeft + calW * 0.25f, calLeft + calW * 0.50f, calLeft + calW * 0.75f)
+        for (rx in ringXs) {
+            drawCircle(color = primary, radius = ringR, center = Offset(rx, ringY), style = Stroke(width = s * 0.028f))
+            drawCircle(color = surface, radius = ringR * 0.35f, center = Offset(rx - ringR * 0.3f, ringY - ringR * 0.3f))
+        }
+
+        // Center 3D heart on page
+        val heartCX = calLeft + calW * 0.5f
+        val heartCY = calTop + stripH + (calH - stripH) * 0.48f
+        val heartSize = calW * 0.40f
+        drawHeart(heartCX, heartCY, heartSize, primary)
+        drawHeart(heartCX - heartSize * 0.10f, heartCY - heartSize * 0.10f, heartSize * 0.25f, surface.copy(alpha = 0.40f))
     }
-    val stripColor = if (isDark) primary.copy(alpha = 0.85f) else primary
-    drawPath(stripPath, color = stripColor, style = Fill)
-
-    // Three binder rings poking above the strip
-    val ringY    = calTop - s * 0.03f
-    val ringR    = s * 0.038f
-    val ringXs   = listOf(calLeft + calW * 0.25f, calLeft + calW * 0.50f, calLeft + calW * 0.75f)
-    for (rx in ringXs) {
-        drawCircle(color = primary, radius = ringR, center = Offset(rx, ringY), style = Stroke(width = s * 0.028f))
-        // Highlight on left edge
-        drawCircle(color = surface.copy(alpha = 0.5f), radius = ringR * 0.4f, center = Offset(rx - ringR * 0.4f, ringY - ringR * 0.3f))
-    }
-
-    // Heart in the page centre
-    val heartCX = calLeft + calW * 0.5f
-    val heartCY = calTop + stripH + (calH - stripH) * 0.50f
-    val heartSize = calW * 0.35f
-    drawHeart(heartCX, heartCY, heartSize, primary)
-    // Heart highlight
-    drawHeart(heartCX - heartSize * 0.12f, heartCY - heartSize * 0.12f, heartSize * 0.28f, surface.copy(alpha = 0.45f))
-
-    // Right side depth edge
-    val edgeW = s * 0.025f
-    drawRect(
-        color   = primary.copy(alpha = 0.55f),
-        topLeft = Offset(calRight - edgeW, calTop + cornerR),
-        size    = Size(edgeW, calH - cornerR),
-    )
-
-    // Floating small hearts
-    drawCircleHeart(calLeft + calW * 0.70f, calTop - s * 0.10f, s * 0.055f, primary.copy(alpha = 0.60f))
-    drawCircleHeart(calLeft + calW * 0.90f, calTop - s * 0.18f, s * 0.038f, primary.copy(alpha = 0.35f))
 }
 
 /** Draws a heart centred at (cx, cy) with the given [size] (height) and [color]. */
@@ -152,11 +146,6 @@ private fun DrawScope.drawHeart(cx: Float, cy: Float, size: Float, color: Color)
         close()
     }
     drawPath(path, color = color, style = Fill)
-}
-
-/** A small filled circle used as a tiny heart placeholder at small sizes. */
-private fun DrawScope.drawCircleHeart(cx: Float, cy: Float, r: Float, color: Color) {
-    drawHeart(cx, cy, r * 2f, color)
 }
 
 /** Five slim leaf shapes fanning out from [pivotX], [pivotY] at [angleDeg]. */
@@ -187,6 +176,21 @@ private fun DrawScope.drawLeafSprig(
                 close()
             }
             drawPath(path, color = color, style = Fill)
+        }
+    }
+}
+
+@LightDarkPreviews
+@Composable
+private fun HeroIllustrationPreview() {
+    AppTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(Spacing.lg),
+            contentAlignment = Alignment.Center,
+        ) {
+            HeroIllustration(size = 180.dp)
         }
     }
 }
