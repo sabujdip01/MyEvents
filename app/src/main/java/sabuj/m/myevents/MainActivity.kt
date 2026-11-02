@@ -23,6 +23,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -86,11 +87,15 @@ class MainActivity : FragmentActivity() {
                 sabuj.m.myevents.data.settings.ThemeMode.System -> isSystemInDarkTheme()
             }
 
-            var showSplash by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(true) }
+            // A1 & A2: Splash duration increased by 100% (1.2s), persisted via rememberSaveable
+            // so theme/configuration changes never re-trigger a glimpse of the splash screen.
+            var showSplash by rememberSaveable { mutableStateOf(true) }
 
-            androidx.compose.runtime.LaunchedEffect(Unit) {
-                kotlinx.coroutines.delay(600)
-                showSplash = false
+            LaunchedEffect(Unit) {
+                if (showSplash) {
+                    delay(1200)
+                    showSplash = false
+                }
             }
 
             AppTheme(palette = settings.paletteId, isDark = isDark) {
