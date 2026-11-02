@@ -16,6 +16,7 @@ import sabuj.m.myevents.domain.usecase.ExpenseSaveResult
 import sabuj.m.myevents.domain.usecase.ObserveBookingsUseCase
 import sabuj.m.myevents.domain.usecase.ObserveEventsUseCase
 import sabuj.m.myevents.domain.usecase.ObserveExpensesUseCase
+import sabuj.m.myevents.domain.usecase.ObserveTasksUseCase
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,6 +24,7 @@ class ExpensesViewModel @Inject constructor(
     private val observeEvents: ObserveEventsUseCase,
     private val observeBookings: ObserveBookingsUseCase,
     private val observeExpenses: ObserveExpensesUseCase,
+    private val observeTasks: ObserveTasksUseCase,
     private val addExpense: AddExpenseUseCase,
     private val editExpense: EditExpenseUseCase,
     private val deleteExpenses: DeleteExpensesUseCase,
@@ -37,12 +39,14 @@ class ExpensesViewModel @Inject constructor(
                 observeEvents(),
                 observeBookings(),
                 observeExpenses(),
-            ) { events, bookings, expenses ->
+                observeTasks(),
+            ) { events, bookings, expenses, tasks ->
                 _uiState.value.copy(
                     isLoading = false,
                     events    = events,
                     bookings  = bookings,
                     expenses  = expenses,
+                    tasks     = tasks,
                 )
             }.collect { newState ->
                 _uiState.value = newState
@@ -58,17 +62,15 @@ class ExpensesViewModel @Inject constructor(
         _uiState.update { it.copy(searchQuery = query) }
     }
 
-    fun setFilter(filter: ExpenseFilter) {
+    fun setFilter(filter: ExpenseCategory) {
         _uiState.update { it.copy(filter = filter) }
     }
 
     fun showAddSheet() {
-        val preselected = uiState.value.selectedEventId?.let { setOf(it) } ?: emptySet()
         _uiState.update {
             it.copy(
                 sheetState = ExpenseSheetState.Add(
-                    selectedEventIds = preselected,
-                    items = listOf(""),
+                    eventId = "", // Item G7: Do not auto-select event name
                 )
             )
         }
@@ -83,9 +85,6 @@ class ExpensesViewModel @Inject constructor(
                     eventId          = exp.eventId,
                     purpose          = exp.purpose,
                     totalAmountPaise = exp.amountPaise,
-                    amountDuePaise   = exp.amountDuePaise,
-                    items            = if (exp.items.isEmpty()) listOf("") else exp.items + "",
-                    allReceived      = exp.allReceived,
                 )
             )
         }
@@ -111,11 +110,11 @@ class ExpensesViewModel @Inject constructor(
                 is ExpenseSheetState.Add -> {
                     val result = addExpense(
                         purpose        = sheet.purpose,
-                        eventIds       = sheet.selectedEventIds.toList(),
+                        eventIds       = listOf(sheet.eventId),
                         amountPaise    = sheet.totalAmountPaise,
-                        amountDuePaise = sheet.amountDuePaise,
-                        items          = sheet.items,
-                        allReceived    = sheet.allReceived,
+                        amountDuePaise = 0L,
+                        items          = emptyList(),
+                        allReceived    = false,
                     )
                     handleSaveResult(result, sheet)
                 }
@@ -125,9 +124,9 @@ class ExpensesViewModel @Inject constructor(
                         existing       = existing,
                         purpose        = sheet.purpose,
                         amountPaise    = sheet.totalAmountPaise,
-                        amountDuePaise = sheet.amountDuePaise,
-                        items          = sheet.items,
-                        allReceived    = sheet.allReceived,
+                        amountDuePaise = existing.amountDuePaise,
+                        items          = existing.items,
+                        allReceived    = existing.allReceived,
                     )
                     handleSaveResult(result, sheet)
                 }
@@ -140,7 +139,7 @@ class ExpensesViewModel @Inject constructor(
         when (result) {
             ExpenseSaveResult.Success -> hideSheet()
             ExpenseSaveResult.PurposeBlank -> applySheetError(sheet, purposeError = "Enter purpose")
-            ExpenseSaveResult.EventsEmpty -> applySheetError(sheet, eventsError = "Select at least one event")
+            ExpenseSaveResult.EventsEmpty -> applySheetError(sheet, eventsError = "Select an event")
             ExpenseSaveResult.AmountInvalid -> applySheetError(sheet, amountError = "Enter a valid amount")
         }
     }
@@ -156,7 +155,7 @@ class ExpensesViewModel @Inject constructor(
                 sheetState = when (sheet) {
                     is ExpenseSheetState.Add -> sheet.copy(
                         purposeError = purposeError,
-                        eventsError  = eventsError,
+                        eventError   = eventsError,
                         amountError  = amountError,
                     )
                     is ExpenseSheetState.Edit -> sheet.copy(
@@ -165,19 +164,6 @@ class ExpensesViewModel @Inject constructor(
                     )
                     else -> sheet
                 }
-            )
-        }
-    }
-
-    fun toggleAllReceived(expense: sabuj.m.myevents.domain.model.Expense) {
-        viewModelScope.launch {
-            editExpense(
-                existing       = expense,
-                purpose        = expense.purpose,
-                amountPaise    = expense.amountPaise,
-                amountDuePaise = expense.amountDuePaise,
-                items          = expense.items,
-                allReceived    = !expense.allReceived,
             )
         }
     }

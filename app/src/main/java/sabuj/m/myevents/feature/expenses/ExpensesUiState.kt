@@ -3,21 +3,32 @@ package sabuj.m.myevents.feature.expenses
 import sabuj.m.myevents.domain.model.Booking
 import sabuj.m.myevents.domain.model.Event
 import sabuj.m.myevents.domain.model.Expense
+import sabuj.m.myevents.domain.model.Task
 
-enum class ExpenseFilter { All, DuePending, ItemsPending }
+enum class ExpenseCategory { All, Vendor, ItemList, Other, DuePending }
+
+data class DisplayExpense(
+    val id: String,
+    val originalId: String,
+    val eventId: String,
+    val purpose: String,
+    val totalAmountPaise: Long,
+    val paidAmountPaise: Long,
+    val dueAmountPaise: Long,
+    val category: ExpenseCategory,
+    val isReadOnly: Boolean = false,
+    val statusText: String,
+)
 
 sealed class ExpenseSheetState {
     object Hidden : ExpenseSheetState()
 
     data class Add(
         val purpose: String = "",
-        val selectedEventIds: Set<String> = emptySet(),
+        val eventId: String = "",
         val totalAmountPaise: Long = 0L,
-        val amountDuePaise: Long = 0L,
-        val items: List<String> = listOf(""), // initial blank box
-        val allReceived: Boolean = false,
         val purposeError: String? = null,
-        val eventsError: String? = null,
+        val eventError: String? = null,
         val amountError: String? = null,
     ) : ExpenseSheetState()
 
@@ -26,9 +37,6 @@ sealed class ExpenseSheetState {
         val eventId: String,
         val purpose: String,
         val totalAmountPaise: Long,
-        val amountDuePaise: Long,
-        val items: List<String>,
-        val allReceived: Boolean,
         val purposeError: String? = null,
         val amountError: String? = null,
     ) : ExpenseSheetState()
@@ -41,35 +49,97 @@ data class ExpensesUiState(
     val selectedEventId: String? = null, // null = All
     val expenses: List<Expense> = emptyList(),
     val bookings: List<Booking> = emptyList(),
+    val tasks: List<Task> = emptyList(),
     val searchQuery: String = "",
-    val filter: ExpenseFilter = ExpenseFilter.All,
+    val filter: ExpenseCategory = ExpenseCategory.All,
     val sheetState: ExpenseSheetState = ExpenseSheetState.Hidden,
     val isDeleteMode: Boolean = false,
     val selectedForDelete: Set<String> = emptySet(),
+    val deleteExpenseId: String? = null,
     val snackbarMessage: String? = null,
 ) {
-    /** Filtered list of expenses according to selected event, search query, and filter chips. */
-    val filteredExpenses: List<Expense>
+    /** Aggregated list of display expenses combining Direct Expenses, Vendor Bookings, and Item Lists. */
+    val allDisplayExpenses: List<DisplayExpense>
         get() {
-            var result = if (selectedEventId == null) expenses else expenses.filter { it.eventId == selectedEventId }
+            val list = mutableListOf<DisplayExpense>()
+
+            // 1. Direct Expenses
+            expenses.forEach { exp ->
+                list.add(
+                    DisplayExpense(
+                        id               = exp.id,
+                        originalId       = exp.id,
+                        eventId          = exp.eventId,
+                        purpose          = exp.purpose,
+                        totalAmountPaise = exp.amountPaise,
+                        paidAmountPaise  = (exp.amountPaise - exp.amountDuePaise).coerceAtLeast(0L),
+                        dueAmountPaise   = exp.amountDuePaise,
+                        category         = ExpenseCategory.Other,
+                        isReadOnly       = false,
+                        statusText       = if (exp.amountDuePaise <= 0L) "Paid" else "Due",
+                    )
+                )
+            }
+
+            // 2. Vendor Bookings
+            bookings.forEach { b ->
+                list.add(
+                    DisplayExpense(
+                        id               = "vendor-${b.id}",
+                        originalId       = b.id,
+                        eventId          = b.eventId,
+                        purpose          = "${b.title} (Vendor)",
+                        totalAmountPaise = b.totalAmountPaise,
+                        paidAmountPaise  = b.paidPaise,
+                        dueAmountPaise   = b.amountLeftPaise,
+                        category         = ExpenseCategory.Vendor,
+                        isReadOnly       = true,
+                        statusText       = if (b.isFullyPaid) "Paid" else "Due",
+                    )
+                )
+            }
+
+            // 3. Item Lists (Tasks)
+            tasks.forEach { t ->
+                val paidPaise = t.items.filter { it.checked }.sumOf { it.pricePaise }
+                val duePaise = (t.totalAmountPaise - paidPaise).coerceAtLeast(0L)
+                list.add(
+                    DisplayExpense(
+                        id               = "itemlist-${t.id}",
+                        originalId       = t.id,
+                        eventId          = t.eventId,
+                        purpose          = "${t.title} (Item List)",
+                        totalAmountPaise = t.totalAmountPaise,
+                        paidAmountPaise  = paidPaise,
+                        dueAmountPaise   = duePaise,
+                        category         = ExpenseCategory.ItemList,
+                        isReadOnly       = true,
+                        statusText       = if (t.completed || (t.totalAmountPaise > 0 && duePaise <= 0L)) "Paid" else "Pending",
+                    )
+                )
+            }
+
+            return list
+        }
+
+    /** Filtered display expenses based on event tab, search query, and category filter chip. */
+    val filteredDisplayExpenses: List<DisplayExpense>
+        get() {
+            var result = if (selectedEventId == null) allDisplayExpenses else allDisplayExpenses.filter { it.eventId == selectedEventId }
 
             if (searchQuery.isNotBlank()) {
                 val q = searchQuery.lowercase()
-                result = result.filter { exp ->
-                    exp.purpose.lowercase().contains(q) || exp.items.any { it.lowercase().contains(q) }
-                }
+                result = result.filter { it.purpose.lowercase().contains(q) }
             }
 
             result = when (filter) {
-                ExpenseFilter.All -> result
-                ExpenseFilter.DuePending -> result.filter { it.amountDuePaise > 0 }
-                ExpenseFilter.ItemsPending -> result.filter { !it.allReceived }
+                ExpenseCategory.All -> result
+                ExpenseCategory.Vendor -> result.filter { it.category == ExpenseCategory.Vendor }
+                ExpenseCategory.ItemList -> result.filter { it.category == ExpenseCategory.ItemList }
+                ExpenseCategory.Other -> result.filter { it.category == ExpenseCategory.Other }
+                ExpenseCategory.DuePending -> result.filter { it.dueAmountPaise > 0L }
             }
 
             return result
         }
-
-    /** Filtered list of bookings for read-only expense rows. */
-    val filteredBookings: List<Booking>
-        get() = if (selectedEventId == null) bookings else bookings.filter { it.eventId == selectedEventId }
 }
