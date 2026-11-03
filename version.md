@@ -1,9 +1,10 @@
 # Version History
 
-Current: V0.10.3
+Current: V0.10.4
 
 | Version | Phase | Build | Commit    | Summary                                                                                             |
 | ------- | ----- | ----- |-----------|-----------------------------------------------------------------------------------------------------|
+| V0.10.4 | 10    | 5     | 63f3d83   | chore(merge): resolve KSP build errors and merge fix/ksp-processing-error into main                 |
 | V0.10.3 | 10    | 4     | ca79928   | feat(settings/sync): 56dp circular swatches, font size tuning, SYNC AND EXPORT section & 1h sync  |
 | V0.10.2 | 10    | 3     | 6f74e01   | feat(ui): comprehensive UI/UX overhaul across splash, home, nav bar, events, bookings, item lists, invitees |
 | V0.10.1 | 10    | 2     | c9d80e9   | fix(security): resolve all security audit findings (SEC-001 through SEC-010)                        |
