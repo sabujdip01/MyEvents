@@ -35,6 +35,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
+import sabuj.m.myevents.core.ui.AppSheet
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,21 +49,38 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
+import androidx.compose.ui.text.font.FontWeight
+import sabuj.m.myevents.core.icons.AppIcon
 import sabuj.m.myevents.core.theme.AppColor
 import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.labelM
+import sabuj.m.myevents.core.theme.titleL
+import sabuj.m.myevents.core.theme.titleM
 import sabuj.m.myevents.core.theme.titleS
 import sabuj.m.myevents.core.ui.AppTopBar
+import sabuj.m.myevents.core.ui.Pill
+import sabuj.m.myevents.core.ui.PillVariant
 import sabuj.m.myevents.core.ui.ScreenScaffold
 import sabuj.m.myevents.core.util.DateUtils
 import sabuj.m.myevents.domain.model.Event
 import java.time.LocalDate
 import java.time.YearMonth
 
-private const val PAGE_COUNT = 400
-private const val INITIAL_PAGE = PAGE_COUNT / 2
+private const val START_YEAR = 2026
+
+private fun pageForMonth(month: YearMonth): Int =
+    ((month.year - START_YEAR) * 12 + (month.monthValue - 1)).coerceAtLeast(0)
+
+private fun monthForPage(page: Int): YearMonth =
+    YearMonth.of(START_YEAR + page / 12, (page % 12) + 1)
+
+private fun getTotalPageCount(): Int {
+    val maxYear = maxOf(2028, LocalDate.now().year + 2)
+    return (maxYear - START_YEAR + 1) * 12
+}
 
 /**
  * Events calendar screen — Items D1–D6.
@@ -70,6 +94,12 @@ fun EventsScreen(
     viewModel: EventsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+    var showMonthPicker by remember { mutableStateOf(false) }
+
+    val pageCount = remember { getTotalPageCount() }
+    val initialPage = remember { pageForMonth(uiState.currentMonth).coerceIn(0, pageCount - 1) }
+    val pagerState = rememberPagerState(initialPage = initialPage) { pageCount }
 
     ScreenScaffold(onMenuClick = onMenuClick) {
         if (uiState.isLoading) {
@@ -84,52 +114,83 @@ fun EventsScreen(
             EventsTopBar(
                 currentMonth = uiState.currentMonth,
                 onMenuClick  = onMenuClick,
+                onReturnToCurrentMonth = {
+                    val targetPage = pageForMonth(YearMonth.now()).coerceIn(0, pageCount - 1)
+                    coroutineScope.launch { pagerState.animateScrollToPage(targetPage) }
+                },
+                onOpenMonthPicker = { showMonthPicker = true },
             )
 
             Spacer(Modifier.height(Spacing.xs))
 
             // Calendar pager
             CalendarPager(
-                initialMonth    = uiState.currentMonth,
                 eventsByDate    = uiState.eventsByDate,
                 onMonthChanged  = { viewModel.onEvent(EventsUiEvent.MonthChanged(it)) },
                 onDateTap       = { viewModel.onEvent(EventsUiEvent.DateTapped(it)) },
                 onDateLongPress = { viewModel.onEvent(EventsUiEvent.DateLongPressed(it)) },
+                pagerState      = pagerState,
                 modifier        = Modifier.fillMaxWidth(),
             )
 
-            Spacer(Modifier.height(Spacing.sm))
+            // Space between calendar and event list = 1/4 of current Calendar height (~340dp / 4 = 85dp)
+            Spacer(Modifier.height(85.dp))
 
             // Item D1: Monthly Events List under the calendar
-            val currentMonthEvents = remember(uiState.currentMonth, uiState.eventsByDate) {
-                uiState.eventsByDate.values
+            val currentMonthEvents = remember(uiState.currentMonth, uiState.events) {
+                uiState.events
                     .filter { YearMonth.from(it.date) == uiState.currentMonth }
                     .sortedBy { it.date }
             }
 
-            if (currentMonthEvents.isNotEmpty()) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(horizontal = Spacing.lg),
+            ) {
                 Text(
-                    text     = "Events in ${DateUtils.formatMonth(uiState.currentMonth)}",
-                    style    = titleS,
-                    color    = AppColor.text2,
-                    modifier = Modifier.padding(horizontal = Spacing.lg, vertical = Spacing.xs),
+                    text       = "Event(s) in this month:",
+                    style      = titleM,
+                    fontWeight = FontWeight.Bold,
+                    color      = AppColor.text,
+                    modifier   = Modifier.padding(bottom = Spacing.sm),
                 )
-                LazyColumn(
-                    modifier       = Modifier.weight(1f),
-                    contentPadding = PaddingValues(start = Spacing.lg, end = Spacing.lg, bottom = 32.dp),
-                    verticalArrangement = Arrangement.spacedBy(Spacing.xs),
-                ) {
-                    itemsIndexed(currentMonthEvents, key = { _, ev -> ev.id }) { _, event ->
-                        MonthlyEventRow(
-                            event   = event,
-                            onClick = { viewModel.onEvent(EventsUiEvent.DateTapped(event.date)) },
-                        )
+
+                if (currentMonthEvents.isNotEmpty()) {
+                    LazyColumn(
+                        modifier       = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(bottom = 32.dp),
+                        verticalArrangement = Arrangement.spacedBy(Spacing.sm),
+                    ) {
+                        itemsIndexed(currentMonthEvents, key = { _, ev -> ev.id }) { _, event ->
+                            MonthlyEventRow(
+                                event   = event,
+                                onClick = { viewModel.onEvent(EventsUiEvent.DateTapped(event.date)) },
+                            )
+                        }
                     }
+                } else {
+                    Text(
+                        text     = "No events planned for this month",
+                        style    = bodyM,
+                        color    = AppColor.text2,
+                        modifier = Modifier.padding(vertical = Spacing.xs),
+                    )
                 }
-            } else {
-                Spacer(Modifier.weight(1f))
             }
         }
+    }
+
+    if (showMonthPicker) {
+        MonthPickerSheet(
+            currentMonth = uiState.currentMonth,
+            onMonthSelected = { selectedMonth ->
+                val targetPage = pageForMonth(selectedMonth).coerceIn(0, pageCount - 1)
+                coroutineScope.launch { pagerState.animateScrollToPage(targetPage) }
+            },
+            onDismiss = { showMonthPicker = false },
+        )
     }
 
     // Bottom sheets & Dialogs
@@ -175,59 +236,81 @@ fun EventsScreen(
 private fun EventsTopBar(
     currentMonth: YearMonth,
     onMenuClick: () -> Unit,
+    onReturnToCurrentMonth: () -> Unit,
+    onOpenMonthPicker: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     AppTopBar(
         titleText   = "Events",
         onMenuClick = onMenuClick,
         modifier    = modifier,
-        actions     = { MonthSelectorPill(currentMonth = currentMonth) },
+        titleContent = {
+            Text(
+                text     = "Events",
+                style    = titleL,
+                color    = AppColor.text,
+                modifier = Modifier.pointerInput(Unit) {
+                    detectTapGestures(
+                        onDoubleTap = { onReturnToCurrentMonth() }
+                    )
+                },
+            )
+        },
+        actions = {
+            MonthSelectorPill(
+                currentMonth = currentMonth,
+                onClick      = onOpenMonthPicker,
+            )
+        },
     )
 }
 
 @Composable
 private fun MonthSelectorPill(
     currentMonth: YearMonth,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier          = modifier
-            .clip(RoundedCornerShape(999.dp))
-            .background(AppColor.primaryContainer)
-            .padding(horizontal = 14.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    Surface(
+        onClick  = onClick,
+        shape    = RoundedCornerShape(999.dp),
+        color    = AppColor.primaryContainer,
+        modifier = modifier,
     ) {
-        Text(
-            text  = DateUtils.formatMonth(currentMonth),
-            style = labelL,
-            color = AppColor.onPrimaryContainer,
-        )
-        Icon(
-            imageVector        = Icons.Rounded.KeyboardArrowDown,
-            contentDescription = null,
-            tint               = AppColor.onPrimaryContainer,
-            modifier           = Modifier.size(20.dp),
-        )
+        Row(
+            modifier          = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text(
+                text  = DateUtils.formatMonth(currentMonth),
+                style = labelL,
+                color = AppColor.onPrimaryContainer,
+            )
+            Icon(
+                imageVector        = Icons.Rounded.KeyboardArrowDown,
+                contentDescription = "Select Month",
+                tint               = AppColor.onPrimaryContainer,
+                modifier           = Modifier.size(20.dp),
+            )
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CalendarPager(
-    initialMonth: YearMonth,
     eventsByDate: Map<Long, Event>,
     onMonthChanged: (YearMonth) -> Unit,
     onDateTap: (LocalDate) -> Unit,
     onDateLongPress: (LocalDate) -> Unit,
+    pagerState: androidx.compose.foundation.pager.PagerState,
     modifier: Modifier = Modifier,
 ) {
     val today = remember { LocalDate.now() }
-    val pagerState = rememberPagerState(initialPage = INITIAL_PAGE) { PAGE_COUNT }
-    val baseMonth  = remember { YearMonth.now() }
 
     LaunchedEffect(pagerState.currentPage) {
-        val month = baseMonth.plusMonths((pagerState.currentPage - INITIAL_PAGE).toLong())
+        val month = monthForPage(pagerState.currentPage)
         onMonthChanged(month)
     }
 
@@ -235,7 +318,7 @@ private fun CalendarPager(
         state    = pagerState,
         modifier = modifier,
     ) { page ->
-        val month = baseMonth.plusMonths((page - INITIAL_PAGE).toLong())
+        val month = monthForPage(page)
         MonthGrid(
             month           = month,
             today           = today,
@@ -244,8 +327,96 @@ private fun CalendarPager(
             onDateLongPress = onDateLongPress,
             modifier        = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = Spacing.sm), // Item D1: 50% reduced horizontal padding
+                .padding(horizontal = Spacing.sm),
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MonthPickerSheet(
+    currentMonth: YearMonth,
+    onMonthSelected: (YearMonth) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    var selectedYear by remember { mutableStateOf(currentMonth.year) }
+    val endYear = maxOf(2028, LocalDate.now().year + 2)
+    val years = remember { (START_YEAR..endYear).toList() }
+
+    AppSheet(onDismiss = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Spacing.lg, vertical = Spacing.md),
+        ) {
+            Text(
+                text  = "Select Month & Year",
+                style = titleS,
+                color = AppColor.text,
+            )
+            Spacer(Modifier.height(Spacing.md))
+
+            // Year Selector Row
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                years.forEach { year ->
+                    val isSelected = year == selectedYear
+                    Surface(
+                        onClick = { selectedYear = year },
+                        shape   = RoundedCornerShape(999.dp),
+                        color   = if (isSelected) AppColor.primary else AppColor.primaryContainer,
+                        modifier = Modifier.weight(1f).height(40.dp),
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                text  = "$year",
+                                style = labelL,
+                                color = if (isSelected) AppColor.onPrimary else AppColor.onPrimaryContainer,
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(Spacing.lg))
+
+            // Months Grid (4 rows of 3)
+            val monthNames = listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+            monthNames.chunked(3).forEachIndexed { rowIndex, rowMonths ->
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                ) {
+                    rowMonths.forEachIndexed { colIndex, name ->
+                        val monthVal = rowIndex * 3 + colIndex + 1
+                        val monthYr = YearMonth.of(selectedYear, monthVal)
+                        val isSelected = monthYr == currentMonth
+
+                        Surface(
+                            onClick = {
+                                onMonthSelected(monthYr)
+                                onDismiss()
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            color = if (isSelected) AppColor.primary else AppColor.surfaceVariant,
+                            modifier = Modifier.weight(1f).height(44.dp),
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    text  = name,
+                                    style = labelL,
+                                    color = if (isSelected) AppColor.onPrimary else AppColor.text,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(Spacing.xl))
+        }
     }
 }
 
@@ -377,37 +548,49 @@ private fun DateCell(
     }
 }
 
-/** Item D1: Row layout for monthly events list under the calendar */
+/** Item D1: Row layout for monthly events list under the calendar — matching "Upcoming Events" card */
 @Composable
 private fun MonthlyEventRow(event: Event, onClick: () -> Unit) {
+    val daysLeft = DateUtils.daysUntil(event.date)
+    val pillVariant = when {
+        daysLeft <= 0L -> PillVariant.Danger
+        daysLeft <= 7L -> PillVariant.Warning
+        else           -> PillVariant.Default
+    }
+    val pillText = when {
+        daysLeft == 0L -> "Today"
+        daysLeft < 0L  -> "Passed"
+        else           -> "$daysLeft days left"
+    }
     Surface(
         onClick  = onClick,
-        modifier = Modifier.fillMaxWidth().height(56.dp),
+        modifier = Modifier.fillMaxWidth().height(64.dp),
         shape    = RoundedCornerShape(14.dp),
-        color    = AppColor.surface,
-        border   = BorderStroke(0.8.dp, if (AppColor.isDark) AppColor.outlineVariant else Color(0xFFE2E8F0)),
+        color    = AppColor.surfaceVariant.copy(alpha = if (AppColor.isDark) 0.5f else 0.35f),
     ) {
         Row(
             modifier          = Modifier.padding(horizontal = Spacing.md),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
-                modifier        = Modifier.size(36.dp).clip(CircleShape).background(AppColor.primaryContainer),
+                modifier        = Modifier.size(40.dp).clip(CircleShape).background(AppColor.primaryContainer),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(event.icon.fallback, null, tint = AppColor.primary, modifier = Modifier.size(20.dp))
             }
             Spacer(Modifier.width(Spacing.md))
-            Text(
-                text     = event.title,
-                style    = titleS,
-                color    = AppColor.text,
-                modifier = Modifier.weight(1f),
-            )
-            Text(
-                text  = DateUtils.formatDisplay(event.date),
-                style = bodyM,
-                color = AppColor.text2,
+            Column(modifier = Modifier.weight(1f)) {
+                Text(event.title, style = titleS, color = AppColor.text, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(Spacing.xs))
+                Text(DateUtils.formatDisplay(event.date), style = bodyM, color = AppColor.text2)
+            }
+            Pill(text = pillText, icon = AppIcon.Clock.fallback, variant = pillVariant)
+            Spacer(Modifier.width(Spacing.sm))
+            Icon(
+                imageVector        = Icons.AutoMirrored.Rounded.ArrowForwardIos,
+                contentDescription = "View Event Details",
+                tint               = AppColor.primary,
+                modifier           = Modifier.size(16.dp),
             )
         }
     }

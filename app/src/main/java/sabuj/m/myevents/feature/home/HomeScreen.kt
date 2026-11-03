@@ -446,23 +446,26 @@ private fun BudgetCard(spentPaise: Long, totalPaise: Long) {
                     Spacer(Modifier.width(Spacing.md))
                     Text("Budget vs Spent", style = titleM, color = AppColor.text, modifier = Modifier.weight(1f))
                 }
-                Spacer(Modifier.height(Spacing.sm))
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
-                            append(MoneyFormatter.format(spentPaise))
-                        }
-                        withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
-                            append(" of ")
-                        }
-                        withStyle(SpanStyle(fontSize = 22.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
-                            append(MoneyFormatter.format(totalPaise))
-                        }
-                        withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
-                            append(" spent")
-                        }
-                    },
-                )
+                Spacer(Modifier.height(Spacing.xs))
+                Row {
+                    Spacer(Modifier.width(44.dp + Spacing.md))
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
+                                append(MoneyFormatter.format(spentPaise))
+                            }
+                            withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
+                                append(" of ")
+                            }
+                            withStyle(SpanStyle(fontSize = 22.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
+                                append(MoneyFormatter.format(totalPaise))
+                            }
+                            withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
+                                append(" spent")
+                            }
+                        },
+                    )
+                }
                 Spacer(Modifier.height(Spacing.sm))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     LinearProgressIndicator(

@@ -1,9 +1,10 @@
 # Version History
 
-Current: V0.10.7
+Current: V0.10.8
 
 | Version | Phase | Build | Commit    | Summary                                                                                             |
 | ------- |-------|-------|-----------|-----------------------------------------------------------------------------------------------------|
+| V0.10.8 | Test  | 4     | c35c310   | fix(ui): Budget card title alignment, monthly events list filtering & row styling                    |
 | V0.10.7 | Test  | 3     | eb3e309   | fix(home): layout adjustments for Budget vs Spent, Items Pending position & Guests card title       |
 | V0.10.6 | Test  | 2     | 2bb6584   | fix(home): align title font & spacing on 7 cards, center small card values, 40% font scaling on 'of'/'Invited' |
 | V0.10.5 | Test  | 1     | 2a1e874   | fix(splash): bypass OS preview window & show custom artwork splash screen                           |
