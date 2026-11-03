@@ -55,8 +55,6 @@ import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.labelM
 import sabuj.m.myevents.core.theme.paletteColors
-import sabuj.m.myevents.core.theme.titleM
-import sabuj.m.myevents.core.theme.titleS
 import sabuj.m.myevents.core.ui.AppButton
 import sabuj.m.myevents.core.ui.AppButtonTonal
 import sabuj.m.myevents.core.ui.AppTopBar
@@ -120,7 +118,7 @@ fun SettingsScreenContent(
     onExportDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(uiState.snackbarMessage) {
         val msg = uiState.snackbarMessage ?: return@LaunchedEffect
@@ -183,7 +181,6 @@ fun SettingsScreenContent(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         PaletteCircleSwatch(
-                            paletteId      = PaletteId.A,
                             name           = "Toxic Violet",
                             primaryColor   = paletteColors(PaletteId.A, isDark = false).primary,
                             containerColor = paletteColors(PaletteId.A, isDark = false).primaryContainer,
@@ -192,7 +189,6 @@ fun SettingsScreenContent(
                             modifier       = Modifier.weight(1f),
                         )
                         PaletteCircleSwatch(
-                            paletteId      = PaletteId.B,
                             name           = "Machine Red",
                             primaryColor   = paletteColors(PaletteId.B, isDark = false).primary,
                             containerColor = paletteColors(PaletteId.B, isDark = false).primaryContainer,
@@ -201,7 +197,6 @@ fun SettingsScreenContent(
                             modifier       = Modifier.weight(1f),
                         )
                         PaletteCircleSwatch(
-                            paletteId      = PaletteId.C,
                             name           = "Hyper Cobalt",
                             primaryColor   = paletteColors(PaletteId.C, isDark = false).primary,
                             containerColor = paletteColors(PaletteId.C, isDark = false).primaryContainer,
@@ -210,7 +205,6 @@ fun SettingsScreenContent(
                             modifier       = Modifier.weight(1f),
                         )
                         PaletteCircleSwatch(
-                            paletteId      = PaletteId.D,
                             name           = "Dark Aubergine",
                             primaryColor   = paletteColors(PaletteId.D, isDark = false).primary,
                             containerColor = paletteColors(PaletteId.D, isDark = false).primaryContainer,
@@ -323,7 +317,6 @@ private fun formatSyncTime(epochMs: Long): String {
 /** Item I2: 56 dp circular swatch with 135 degree primary/soft split */
 @Composable
 private fun PaletteCircleSwatch(
-    paletteId: PaletteId,
     name: String,
     primaryColor: Color,
     containerColor: Color,

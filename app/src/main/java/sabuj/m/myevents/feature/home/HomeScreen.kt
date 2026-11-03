@@ -2,7 +2,6 @@
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,8 +21,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.ArrowForwardIos
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -58,7 +57,6 @@ import sabuj.m.myevents.core.theme.Radius
 import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
-import sabuj.m.myevents.core.theme.labelM
 import sabuj.m.myevents.core.theme.titleL
 import sabuj.m.myevents.core.theme.titleM
 import sabuj.m.myevents.core.theme.titleS
@@ -323,7 +321,7 @@ private fun EventRow(event: EventSummary, onClick: () -> Unit) {
             }
             Pill(text = pillText, icon = AppIcon.Clock.fallback, variant = pillVariant)
             Spacer(Modifier.width(Spacing.sm))
-            Icon(Icons.Rounded.ArrowForwardIos, "View Event Details", tint = AppColor.primary, modifier = Modifier.size(16.dp))
+            Icon(Icons.AutoMirrored.Rounded.ArrowForwardIos, "View Event Details", tint = AppColor.primary, modifier = Modifier.size(16.dp))
         }
     }
 }
