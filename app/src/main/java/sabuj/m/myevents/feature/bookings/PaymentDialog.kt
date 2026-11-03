@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import sabuj.m.myevents.core.theme.AppColor
+import sabuj.m.myevents.core.theme.AppTheme
 import sabuj.m.myevents.core.theme.Radius
 import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
@@ -251,3 +252,18 @@ private fun paymentFieldColors() = OutlinedTextFieldDefaults.colors(
     cursorColor          = AppColor.primary,
     errorBorderColor     = AppColor.danger,
 )
+
+@sabuj.m.myevents.core.preview.LightDarkPreviews
+@Composable
+private fun PaymentDialogPreview() {
+    AppTheme {
+        PaymentDialogFull(
+            state          = PaymentDialogState.Add(bookingId = "bk-1", amountPaise = 5_000_00L, note = "Advance payment"),
+            onDismiss      = {},
+            onDateChange   = {},
+            onAmountChange = {},
+            onNoteChange   = {},
+            onSave         = {},
+        )
+    }
+}

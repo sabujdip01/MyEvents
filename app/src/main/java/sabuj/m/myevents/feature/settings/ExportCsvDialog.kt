@@ -108,3 +108,15 @@ fun ExportCsvDialog(
         }
     }
 }
+
+@sabuj.m.myevents.core.preview.LightDarkPreviews
+@Composable
+private fun ExportCsvDialogPreview() {
+    sabuj.m.myevents.core.theme.AppTheme {
+        ExportCsvDialog(
+            events    = sabuj.m.myevents.core.preview.PreviewData.sampleEvents,
+            onDismiss = {},
+            onExport  = {},
+        )
+    }
+}

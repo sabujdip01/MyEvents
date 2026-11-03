@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -50,5 +52,17 @@ fun AppFab(
                 modifier           = Modifier.size(24.dp),
             )
         }
+    }
+}
+
+@sabuj.m.myevents.core.preview.LightDarkPreviews
+@Composable
+private fun AppFabPreview() {
+    sabuj.m.myevents.core.theme.AppTheme {
+        AppFab(
+            onClick            = {},
+            icon               = androidx.compose.material.icons.Icons.Rounded.Add,
+            contentDescription = "Add",
+        )
     }
 }

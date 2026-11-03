@@ -17,12 +17,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -46,6 +44,7 @@ import sabuj.m.myevents.feature.lock.LockViewModel
 import sabuj.m.myevents.feature.lock.PinScreen
 import sabuj.m.myevents.navigation.AppNavHost
 import javax.inject.Inject
+import androidx.compose.runtime.Composable as Composable1
 
 /**
  * Single Activity. Flow:
@@ -152,7 +151,7 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    @Composable
+    @Composable1
     private fun CustomSplashScreen() {
         ScreenScaffold {
             Box(

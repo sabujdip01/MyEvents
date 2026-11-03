@@ -136,3 +136,14 @@ fun ChangePinDialog(
         }
     }
 }
+
+@sabuj.m.myevents.core.preview.LightDarkPreviews
+@Composable
+private fun ChangePinDialogPreview() {
+    sabuj.m.myevents.core.theme.AppTheme {
+        ChangePinDialog(
+            onDismiss = {},
+            onConfirm = { _, _ -> true },
+        )
+    }
+}
