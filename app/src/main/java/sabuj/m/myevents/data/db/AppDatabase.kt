@@ -74,82 +74,53 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        val MIGRATION_3_4 = object : Migration(3, 4) {
-            override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL(
-                    """
-                    CREATE TABLE IF NOT EXISTS `invitees` (
-                        `id` TEXT NOT NULL,
-                        `eventId` TEXT NOT NULL,
-                        `groupId` TEXT NOT NULL,
-                        `name` TEXT NOT NULL,
-                        `expectedCount` INTEGER NOT NULL,
-                        `address` TEXT NOT NULL,
-                        `invited` INTEGER NOT NULL DEFAULT 0,
-                        `note` TEXT NOT NULL DEFAULT '',
-                        `createdAt` INTEGER NOT NULL,
-                        `updatedAt` INTEGER NOT NULL,
-                        `syncState` TEXT NOT NULL DEFAULT 'PENDING',
-                        `deleted` INTEGER NOT NULL DEFAULT 0,
-                        PRIMARY KEY(`id`),
-                        FOREIGN KEY(`eventId`) REFERENCES `events`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+        val MIGRATION_3_4: Migration
+            get() = object : Migration(3, 4) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    db.execSQL(
+                        """
+                        CREATE TABLE IF NOT EXISTS `invitees` (
+                            `id` TEXT NOT NULL,
+                            `eventId` TEXT NOT NULL,
+                            `groupId` TEXT NOT NULL,
+                            `name` TEXT NOT NULL,
+                            `expectedCount` INTEGER NOT NULL,
+                            `address` TEXT NOT NULL,
+                            `invited` INTEGER NOT NULL DEFAULT 0,
+                            `note` TEXT NOT NULL DEFAULT '',
+                            `createdAt` INTEGER NOT NULL,
+                            `updatedAt` INTEGER NOT NULL,
+                            `syncState` TEXT NOT NULL DEFAULT 'PENDING',
+                            `deleted` INTEGER NOT NULL DEFAULT 0,
+                            PRIMARY KEY(`id`),
+                            FOREIGN KEY(`eventId`) REFERENCES `events`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+                        )
+                        """.trimIndent()
                     )
-                    """.trimIndent()
-                )
-                db.execSQL("CREATE INDEX IF NOT EXISTS `index_invitees_eventId` ON `invitees` (`eventId`)")
-                db.execSQL("CREATE INDEX IF NOT EXISTS `index_invitees_groupId` ON `invitees` (`groupId`)")
-
-                db.execSQL(
-                    """
-                    CREATE TABLE IF NOT EXISTS `gifts` (
-                        `id` TEXT NOT NULL,
-                        `eventId` TEXT NOT NULL,
-                        `giverName` TEXT NOT NULL,
-                        `amountPaise` INTEGER NOT NULL,
-                        `description` TEXT NOT NULL,
-                        `inviteeId` TEXT,
-                        `createdAt` INTEGER NOT NULL,
-                        `updatedAt` INTEGER NOT NULL,
-                        `syncState` TEXT NOT NULL DEFAULT 'PENDING',
-                        `deleted` INTEGER NOT NULL DEFAULT 0,
-                        PRIMARY KEY(`id`),
-                        FOREIGN KEY(`eventId`) REFERENCES `events`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+                    db.execSQL("CREATE INDEX IF NOT EXISTS `index_invitees_eventId` ON `invitees` (`eventId`)")
+                    db.execSQL("CREATE INDEX IF NOT EXISTS `index_invitees_groupId` ON `invitees` (`groupId`)")
+    
+                    db.execSQL(
+                        """
+                        CREATE TABLE IF NOT EXISTS `gifts` (
+                            `id` TEXT NOT NULL,
+                            `eventId` TEXT NOT NULL,
+                            `giverName` TEXT NOT NULL,
+                            `amountPaise` INTEGER NOT NULL,
+                            `description` TEXT NOT NULL,
+                            `inviteeId` TEXT,
+                            `createdAt` INTEGER NOT NULL,
+                            `updatedAt` INTEGER NOT NULL,
+                            `syncState` TEXT NOT NULL DEFAULT 'PENDING',
+                            `deleted` INTEGER NOT NULL DEFAULT 0,
+                            PRIMARY KEY(`id`),
+                            FOREIGN KEY(`eventId`) REFERENCES `events`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+                        )
+                        """.trimIndent()
                     )
-                    """.trimIndent()
-                )
-                db.execSQL("CREATE INDEX IF NOT EXISTS `index_gifts_eventId` ON `gifts` (`eventId`)")
+                    db.execSQL("CREATE INDEX IF NOT EXISTS `index_gifts_eventId` ON `gifts` (`eventId`)")
+                }
             }
-        }
 
-        val MIGRATION_4_5 = object : Migration(4, 5) {
-            override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL(
-                    """
-                    CREATE TABLE IF NOT EXISTS `tasks` (
-                        `id` TEXT NOT NULL,
-                        `eventId` TEXT NOT NULL,
-                        `title` TEXT NOT NULL,
-                        `dueDateEpochDay` INTEGER,
-                        `completed` INTEGER NOT NULL DEFAULT 0,
-                        `createdAt` INTEGER NOT NULL,
-                        `updatedAt` INTEGER NOT NULL,
-                        `syncState` TEXT NOT NULL DEFAULT 'PENDING',
-                        `deleted` INTEGER NOT NULL DEFAULT 0,
-                        PRIMARY KEY(`id`),
-                        FOREIGN KEY(`eventId`) REFERENCES `events`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
-                    )
-                    """.trimIndent()
-                )
-                db.execSQL("CREATE INDEX IF NOT EXISTS `index_tasks_eventId` ON `tasks` (`eventId`)")
-            }
-        }
-
-        val MIGRATION_5_6 = object : Migration(5, 6) {
-            override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("ALTER TABLE `bookings` ADD COLUMN `bookingMade` INTEGER NOT NULL DEFAULT 1")
-                db.execSQL("ALTER TABLE `tasks` ADD COLUMN `totalAmountPaise` INTEGER NOT NULL DEFAULT 0")
-                db.execSQL("ALTER TABLE `tasks` ADD COLUMN `itemsEncoded` TEXT NOT NULL DEFAULT ''")
-            }
-        }
     }
 }

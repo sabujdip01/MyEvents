@@ -6,7 +6,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import sabuj.m.myevents.data.db.AppDatabase
 import sabuj.m.myevents.data.db.dao.BookingDao
-import sabuj.m.myevents.data.db.dao.EventDao
 import sabuj.m.myevents.data.db.dao.ExpenseDao
 import sabuj.m.myevents.data.db.dao.GiftDao
 import sabuj.m.myevents.data.db.dao.InviteeDao
@@ -18,9 +17,6 @@ import sabuj.m.myevents.data.db.dao.TaskDao
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
-
-    @Provides
-    fun provideEventDao(db: AppDatabase): EventDao = db.eventDao()
 
     @Provides
     fun provideBookingDao(db: AppDatabase): BookingDao = db.bookingDao()
