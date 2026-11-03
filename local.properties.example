@@ -1,0 +1,9 @@
+# local.properties.example
+# Copy this file to local.properties and fill in real values.
+# local.properties is git-ignored — never commit it.
+
+sdk.dir=C\:\\Users\\<you>\\AppData\\Local\\Android\\Sdk
+
+# Firebase — download google-services.json from Firebase Console instead.
+# google-services.json is git-ignored.
+

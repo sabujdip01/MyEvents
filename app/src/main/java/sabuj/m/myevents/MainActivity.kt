@@ -26,9 +26,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
+import sabuj.m.myevents.core.preview.LightDarkPreviews
 import sabuj.m.myevents.core.theme.AppColor
 import sabuj.m.myevents.core.theme.AppTheme
 import sabuj.m.myevents.core.theme.Spacing
@@ -44,7 +44,7 @@ import sabuj.m.myevents.navigation.AppNavHost
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG as BS
-import androidx.compose.runtime.Composable as Composable1
+import androidx.compose.runtime.Composable
 
 /**
  * Single Activity. Flow:
@@ -70,9 +70,6 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val splash = installSplashScreen()
-        splash.setKeepOnScreenCondition { false }
-
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
@@ -151,7 +148,7 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    @Composable1
+    @Composable
     private fun CustomSplashScreen() {
         ScreenScaffold {
             Box(
@@ -244,5 +241,55 @@ class MainActivity : FragmentActivity() {
         }
         // Clear the background timestamp so a quick resume doesn't re-lock
         pinStore.saveBackgroundTime(-1L)
+    }
+}
+
+@Composable
+fun CustomSplashScreen() {
+    ScreenScaffold {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                HeroIllustration(size = 120.dp)
+                Spacer(Modifier.height(Spacing.md))
+                androidx.compose.material3.Text(
+                    text = "My Events",
+                    style = titleL,
+                    color = AppColor.text,
+                )
+                Spacer(Modifier.height(Spacing.xs))
+                androidx.compose.material3.Text(
+                    text = "Made with ❤️ by Sabuj",
+                    style = bodyM,
+                    color = AppColor.primary,
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .navigationBarsPadding()
+                    .padding(bottom = Spacing.xl),
+            ) {
+                androidx.compose.material3.Text(
+                    text = "Version ${BuildConfig.APP_VERSION}",
+                    style = labelM,
+                    color = AppColor.text3,
+                )
+            }
+        }
+    }
+}
+
+@LightDarkPreviews
+@Composable
+private fun CustomSplashScreenPreview() {
+    AppTheme {
+        CustomSplashScreen()
     }
 }

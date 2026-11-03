@@ -20,7 +20,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MyEvents.Splash">
+        android:theme="@style/Theme.MyEvents">
 
         <activity
             android:name=".MainActivity"
@@ -35,7 +35,7 @@
 
         <!-- Glance App Widget Receiver -->
         <receiver
-            android:name=".widget.EventGlanceWidgetReceiver"
+            android:name=".widget.EventWidgetReceiver"
             android:exported="true"
             android:label="My Events Widget">
             <intent-filter>
@@ -43,7 +43,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/event_widget_info" />
+                android:resource="@xml/widget_info" />
         </receiver>
 
         <!-- FileProvider for CSV Share -->

@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import sabuj.m.myevents.core.theme.PaletteId
-import sabuj.m.myevents.core.util.CsvExporter
+import sabuj.m.myevents.core.util.CsvWriter
 import sabuj.m.myevents.data.sample.SampleDataManager
 import sabuj.m.myevents.data.security.PinHasher
 import sabuj.m.myevents.data.security.PinStore
@@ -134,7 +134,7 @@ class SettingsViewModel @Inject constructor(
             val event = uiState.value.events.find { it.id == eventId } ?: return@launch
             val expenses = observeExpenses(eventId).first()
             val invitees = observeInvitees(eventId).first()
-            CsvExporter.exportAndShare(context, event.title, expenses, invitees)
+            CsvWriter.exportAndShare(context, event.title, expenses, invitees)
             hideExportDialog()
         }
     }

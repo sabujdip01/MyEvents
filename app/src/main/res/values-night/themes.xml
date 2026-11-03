@@ -4,6 +4,7 @@
     <!-- Night variant: dark splash background (Palette A dark background) -->
     <style name="Theme.MyEvents.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">#0E0A1A</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_transparent</item>
         <item name="postSplashScreenTheme">@style/Theme.MyEvents</item>
     </style>
 

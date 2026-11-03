@@ -11,7 +11,6 @@ import androidx.navigation.compose.rememberNavController
 import sabuj.m.myevents.feature.bookings.BookingsScreen
 import sabuj.m.myevents.feature.events.EventsScreen
 import sabuj.m.myevents.feature.home.HomeScreen
-import sabuj.m.myevents.feature.placeholder.PlaceholderScreen
 import sabuj.m.myevents.feature.settings.SettingsScreen
 
 /**
@@ -43,7 +42,7 @@ fun AppNavHost(
             }
         },
     ) {
-        // Read INSIDE the content lambda — AppDrawer provides LocalOpenDrawer here
+        // Read INSIDE the content lambda - AppDrawer provides LocalOpenDrawer here
         val openDrawer = LocalOpenDrawer.current
 
         NavHost(
