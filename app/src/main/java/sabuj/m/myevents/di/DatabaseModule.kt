@@ -8,6 +8,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import sabuj.m.myevents.data.db.AppDatabase
+import sabuj.m.myevents.data.db.dao.BookingDao
 import sabuj.m.myevents.data.db.dao.EventDao
 import sabuj.m.myevents.data.db.dao.ExpenseDao
 import sabuj.m.myevents.data.db.dao.GiftDao
@@ -17,7 +18,6 @@ import javax.inject.Singleton
 
 /**
  * Hilt module that provides the [AppDatabase] and all DAOs as singletons.
- * New DAOs should be added here as more phases complete.
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -36,11 +36,16 @@ object DatabaseModule {
                 AppDatabase.MIGRATION_2_3,
                 AppDatabase.MIGRATION_3_4,
                 AppDatabase.MIGRATION_4_5,
+                AppDatabase.MIGRATION_5_6,
             )
+            .fallbackToDestructiveMigration()
             .build()
 
     @Provides
     fun provideEventDao(db: AppDatabase): EventDao = db.eventDao()
+
+    @Provides
+    fun provideBookingDao(db: AppDatabase): BookingDao = db.bookingDao()
 
     @Provides
     fun provideExpenseDao(db: AppDatabase): ExpenseDao = db.expenseDao()

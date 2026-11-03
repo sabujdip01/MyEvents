@@ -21,7 +21,7 @@ import sabuj.m.myevents.data.db.entity.TaskEntity
 
 /**
  * Single Room database for the app.
- * Version 5 — adds tasks table.
+ * Version 6 — adds bookingMade column to bookings, totalAmountPaise and itemsEncoded to tasks.
  */
 @Database(
     entities = [
@@ -33,7 +33,7 @@ import sabuj.m.myevents.data.db.entity.TaskEntity
         GiftEntity::class,
         TaskEntity::class,
     ],
-    version = 5,
+    version = 6,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -188,6 +188,14 @@ abstract class AppDatabase : RoomDatabase() {
                     """.trimIndent()
                 )
                 database.execSQL("CREATE INDEX IF NOT EXISTS `index_tasks_eventId` ON `tasks` (`eventId`)")
+            }
+        }
+
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE `bookings` ADD COLUMN `bookingMade` INTEGER NOT NULL DEFAULT 1")
+                database.execSQL("ALTER TABLE `tasks` ADD COLUMN `totalAmountPaise` INTEGER NOT NULL DEFAULT 0")
+                database.execSQL("ALTER TABLE `tasks` ADD COLUMN `itemsEncoded` TEXT NOT NULL DEFAULT ''")
             }
         }
     }
