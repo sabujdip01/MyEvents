@@ -401,7 +401,7 @@ private fun BookingAmountCard(paidPaise: Long, totalPaise: Long, modifier: Modif
                 ) {
                     Text(
                         text      = MoneyFormatter.format(paidPaise),
-                        style     = TextStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold),
+                        style     = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold),
                         color     = AppColor.primary,
                         textAlign = TextAlign.Center,
                     )
@@ -444,21 +444,25 @@ private fun BudgetCard(spentPaise: Long, totalPaise: Long) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CardIcon(icon = AppIcon.Budget.fallback)
                     Spacer(Modifier.width(Spacing.md))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text("Budget vs Spent", style = titleM, color = AppColor.text)
-                        Text("${MoneyFormatter.format(totalPaise)} budget", style = bodyM, color = AppColor.text2)
-                    }
+                    Text("Budget vs Spent", style = titleM, color = AppColor.text, modifier = Modifier.weight(1f))
                 }
                 Spacer(Modifier.height(Spacing.sm))
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Text(
-                        text  = MoneyFormatter.format(spentPaise),
-                        style = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold),
-                        color = AppColor.text,
-                    )
-                    Spacer(Modifier.width(Spacing.xs))
-                    Text("spent", style = bodyM, color = AppColor.text2)
-                }
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
+                            append(MoneyFormatter.format(spentPaise))
+                        }
+                        withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
+                            append(" of ")
+                        }
+                        withStyle(SpanStyle(fontSize = 22.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
+                            append(MoneyFormatter.format(totalPaise))
+                        }
+                        withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
+                            append(" spent")
+                        }
+                    },
+                )
                 Spacer(Modifier.height(Spacing.sm))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     LinearProgressIndicator(
@@ -544,7 +548,7 @@ private fun InviteesCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CardIcon(icon = AppIcon.Invitees.fallback)
                     Spacer(Modifier.width(Spacing.md))
-                    Text("Invitees", style = titleM, color = AppColor.text, modifier = Modifier.weight(1f))
+                    Text("Guests", style = titleM, color = AppColor.text, modifier = Modifier.weight(1f))
                 }
                 Column(
                     modifier            = Modifier.fillMaxWidth().weight(1f),
@@ -553,22 +557,20 @@ private fun InviteesCard(
                 ) {
                     Text(
                         text = buildAnnotatedString {
-                            withStyle(SpanStyle(fontSize = 26.sp, fontWeight = FontWeight.Bold)) {
+                            withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
                                 append("$invitedGuests")
                             }
-                            withStyle(SpanStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
+                            withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
                                 append(" of ")
                             }
-                            withStyle(SpanStyle(fontSize = 26.sp, fontWeight = FontWeight.Bold)) {
+                            withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
                                 append("$totalGuests")
                             }
-                            withStyle(SpanStyle(fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = AppColor.primary)) {
+                            withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
                                 append(" Invited")
                             }
                         },
-                        color     = AppColor.primary,
                         textAlign = TextAlign.Center,
-                        maxLines  = 1,
                     )
                     Spacer(Modifier.height(2.dp))
                     Text(
@@ -602,26 +604,28 @@ private fun ItemsPendingCard(count: Int) {
                     .fillMaxWidth()
                     .padding(Spacing.md),
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier          = Modifier.fillMaxWidth().padding(end = 80.dp),
-                ) {
+                Row(verticalAlignment = Alignment.Top) {
                     CardIcon(icon = AppIcon.Checklist.fallback)
                     Spacer(Modifier.width(Spacing.md))
-                    Column {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text("Items Pending", style = titleM, color = AppColor.text)
-                        Text("items left", style = bodyM, color = AppColor.text2)
+                        Spacer(Modifier.height(Spacing.xs))
+                        Text(
+                            text  = "$count",
+                            style = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold),
+                            color = AppColor.primary,
+                        )
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            text  = "items left",
+                            style = bodyM,
+                            color = AppColor.text2,
+                        )
                     }
                 }
-                Spacer(Modifier.height(Spacing.xs))
-                Text(
-                    text  = "$count",
-                    style = TextStyle(fontSize = 36.sp, fontWeight = FontWeight.Bold),
-                    color = AppColor.primary,
-                )
             }
             Box(
-                modifier        = Modifier.align(Alignment.CenterEnd).size(80.dp).padding(end = Spacing.md),
+                modifier        = Modifier.align(Alignment.CenterEnd).size(72.dp).padding(end = Spacing.xs),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(AppIcon.Checklist.fallback, null, tint = AppColor.primary.copy(alpha = 0.08f), modifier = Modifier.size(64.dp))
