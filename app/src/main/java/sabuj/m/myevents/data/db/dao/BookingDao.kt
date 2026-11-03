@@ -1,10 +1,9 @@
 package sabuj.m.myevents.data.db.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import sabuj.m.myevents.data.db.entity.BookingEntity
 import sabuj.m.myevents.data.db.entity.BookingPaymentEntity
@@ -26,13 +25,9 @@ interface BookingDao {
     @Query("SELECT * FROM bookings WHERE eventId = :eventId AND deleted = 0 ORDER BY createdAt DESC")
     fun observeByEvent(eventId: String): Flow<List<BookingWithPayments>>
 
-    /** Insert a booking row. */
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertBooking(entity: BookingEntity): Long
-
-    /** Update an existing booking row without triggering ON DELETE CASCADE. */
-    @androidx.room.Update
-    suspend fun updateBooking(entity: BookingEntity): Int
+    /** Insert or update a booking row. */
+    @Upsert
+    suspend fun upsertBooking(entity: BookingEntity)
 
     /** Soft-delete a booking (sets deleted = 1). */
     @Query("UPDATE bookings SET deleted = 1, syncState = 'PENDING', updatedAt = :now WHERE id = :id")
@@ -46,8 +41,8 @@ interface BookingDao {
     @Query("DELETE FROM bookings WHERE id = :id")
     suspend fun hardDeleteBooking(id: String)
 
-    /** Insert or replace a payment row. */
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    /** Insert or update a payment row. */
+    @Upsert
     suspend fun upsertPayment(payment: BookingPaymentEntity)
 
     /** Hard-delete a payment row by its id. */
