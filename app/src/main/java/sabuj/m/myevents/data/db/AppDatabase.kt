@@ -21,7 +21,7 @@ import sabuj.m.myevents.data.db.entity.TaskEntity
 
 /**
  * Single Room database for the app.
- * Version 5 — adds tasks table.
+ * Version 6 — adds bookingMade column to bookings, totalAmountPaise and itemsEncoded to tasks.
  */
 @Database(
     entities = [
@@ -33,7 +33,7 @@ import sabuj.m.myevents.data.db.entity.TaskEntity
         GiftEntity::class,
         TaskEntity::class,
     ],
-    version = 5,
+    version = 6,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -46,57 +46,10 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
 
     companion object {
-        val MIGRATION_1_2 = object : Migration(1, 2) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL(
-                    """
-                    CREATE TABLE IF NOT EXISTS `bookings` (
-                        `id` TEXT NOT NULL,
-                        `eventId` TEXT NOT NULL,
-                        `title` TEXT NOT NULL,
-                        `bookingType` TEXT NOT NULL,
-                        `bookingIconKey` TEXT NOT NULL,
-                        `contactName` TEXT NOT NULL,
-                        `phone` TEXT NOT NULL,
-                        `totalAmountPaise` INTEGER NOT NULL,
-                        `nextDueDateEpochDay` INTEGER,
-                        `createdAt` INTEGER NOT NULL,
-                        `updatedAt` INTEGER NOT NULL,
-                        `syncState` TEXT NOT NULL DEFAULT 'PENDING',
-                        `deleted` INTEGER NOT NULL DEFAULT 0,
-                        PRIMARY KEY(`id`),
-                        FOREIGN KEY(`eventId`) REFERENCES `events`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
-                    )
-                    """.trimIndent()
-                )
-                database.execSQL(
-                    "CREATE INDEX IF NOT EXISTS `index_bookings_eventId` ON `bookings` (`eventId`)"
-                )
-
-                database.execSQL(
-                    """
-                    CREATE TABLE IF NOT EXISTS `booking_payments` (
-                        `id` TEXT NOT NULL,
-                        `bookingId` TEXT NOT NULL,
-                        `dateEpochDay` INTEGER NOT NULL,
-                        `amountPaise` INTEGER NOT NULL,
-                        `note` TEXT NOT NULL,
-                        `createdAt` INTEGER NOT NULL,
-                        `updatedAt` INTEGER NOT NULL,
-                        PRIMARY KEY(`id`),
-                        FOREIGN KEY(`bookingId`) REFERENCES `bookings`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
-                    )
-                    """.trimIndent()
-                )
-                database.execSQL(
-                    "CREATE INDEX IF NOT EXISTS `index_booking_payments_bookingId` ON `booking_payments` (`bookingId`)"
-                )
-            }
-        }
 
         val MIGRATION_2_3 = object : Migration(2, 3) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL(
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
                     """
                     CREATE TABLE IF NOT EXISTS `expenses` (
                         `id` TEXT NOT NULL,
@@ -116,14 +69,14 @@ abstract class AppDatabase : RoomDatabase() {
                     )
                     """.trimIndent()
                 )
-                database.execSQL("CREATE INDEX IF NOT EXISTS `index_expenses_eventId` ON `expenses` (`eventId`)")
-                database.execSQL("CREATE INDEX IF NOT EXISTS `index_expenses_groupId` ON `expenses` (`groupId`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_expenses_eventId` ON `expenses` (`eventId`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_expenses_groupId` ON `expenses` (`groupId`)")
             }
         }
 
         val MIGRATION_3_4 = object : Migration(3, 4) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL(
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
                     """
                     CREATE TABLE IF NOT EXISTS `invitees` (
                         `id` TEXT NOT NULL,
@@ -143,10 +96,10 @@ abstract class AppDatabase : RoomDatabase() {
                     )
                     """.trimIndent()
                 )
-                database.execSQL("CREATE INDEX IF NOT EXISTS `index_invitees_eventId` ON `invitees` (`eventId`)")
-                database.execSQL("CREATE INDEX IF NOT EXISTS `index_invitees_groupId` ON `invitees` (`groupId`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_invitees_eventId` ON `invitees` (`eventId`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_invitees_groupId` ON `invitees` (`groupId`)")
 
-                database.execSQL(
+                db.execSQL(
                     """
                     CREATE TABLE IF NOT EXISTS `gifts` (
                         `id` TEXT NOT NULL,
@@ -164,13 +117,13 @@ abstract class AppDatabase : RoomDatabase() {
                     )
                     """.trimIndent()
                 )
-                database.execSQL("CREATE INDEX IF NOT EXISTS `index_gifts_eventId` ON `gifts` (`eventId`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_gifts_eventId` ON `gifts` (`eventId`)")
             }
         }
 
         val MIGRATION_4_5 = object : Migration(4, 5) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL(
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
                     """
                     CREATE TABLE IF NOT EXISTS `tasks` (
                         `id` TEXT NOT NULL,
@@ -187,7 +140,15 @@ abstract class AppDatabase : RoomDatabase() {
                     )
                     """.trimIndent()
                 )
-                database.execSQL("CREATE INDEX IF NOT EXISTS `index_tasks_eventId` ON `tasks` (`eventId`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_tasks_eventId` ON `tasks` (`eventId`)")
+            }
+        }
+
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `bookings` ADD COLUMN `bookingMade` INTEGER NOT NULL DEFAULT 1")
+                db.execSQL("ALTER TABLE `tasks` ADD COLUMN `totalAmountPaise` INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE `tasks` ADD COLUMN `itemsEncoded` TEXT NOT NULL DEFAULT ''")
             }
         }
     }
