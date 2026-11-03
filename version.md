@@ -1,9 +1,10 @@
 # Version History
 
-Current: V0.10.5
+Current: V0.10.6
 
 | Version | Phase | Build | Commit    | Summary                                                                                             |
 | ------- | ----- | ----- |-----------|-----------------------------------------------------------------------------------------------------|
+| V0.10.6 | 10    | 7     | 2bb6584   | fix(home): align title font & spacing on 7 cards, center small card values, 40% font scaling on 'of'/'Invited' |
 | V0.10.5 | 10    | 6     | 2a1e874   | fix(splash): bypass OS preview window & show custom artwork splash screen                           |
 | V0.10.4 | 10    | 5     | 63f3d83   | chore(merge): resolve KSP build errors and merge fix/ksp-processing-error into main                 |
 | V0.10.3 | 10    | 4     | ca79928   | feat(settings/sync): 56dp circular swatches, font size tuning, SYNC AND EXPORT section & 1h sync  |

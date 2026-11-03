@@ -317,6 +317,7 @@ private fun EventRow(event: EventSummary, onClick: () -> Unit) {
             Spacer(Modifier.width(Spacing.md))
             Column(modifier = Modifier.weight(1f)) {
                 Text(event.title, style = titleS, color = AppColor.text, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(Spacing.xs))
                 Text(DateUtils.formatDisplay(event.date), style = bodyM, color = AppColor.text2)
             }
             Pill(text = pillText, icon = AppIcon.Clock.fallback, variant = pillVariant)
@@ -337,24 +338,37 @@ private fun BookingsDoneCard(done: Int, total: Int, modifier: Modifier) {
             Column(modifier = Modifier.fillMaxHeight().padding(Spacing.md)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CardIcon(icon = AppIcon.Bookings.fallback)
-                    Spacer(Modifier.width(Spacing.xs))
-                    Text("Bookings Done", style = labelL, color = AppColor.text2)
+                    Spacer(Modifier.width(Spacing.md))
+                    Text("Bookings Done", style = titleM, color = AppColor.text, modifier = Modifier.weight(1f))
                 }
-                Spacer(Modifier.height(Spacing.sm))
-                Text(
-                    text      = "$done of $total",
-                    style     = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold),
-                    color     = AppColor.primary,
-                    textAlign = TextAlign.Center,
-                    modifier  = Modifier.fillMaxWidth(),
-                )
-                Text(
-                    text      = "bookings made",
-                    style     = bodyM,
-                    color     = AppColor.text2,
-                    textAlign = TextAlign.Center,
-                    modifier  = Modifier.fillMaxWidth(),
-                )
+                Column(
+                    modifier            = Modifier.fillMaxWidth().weight(1f),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold)) {
+                                append("$done")
+                            }
+                            withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
+                                append(" of ")
+                            }
+                            withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold)) {
+                                append("$total")
+                            }
+                        },
+                        color     = AppColor.primary,
+                        textAlign = TextAlign.Center,
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text      = "bookings made",
+                        style     = bodyM,
+                        color     = AppColor.text2,
+                        textAlign = TextAlign.Center,
+                    )
+                }
             }
             Box(
                 modifier        = Modifier.align(Alignment.BottomEnd).size(48.dp).padding(Spacing.xs),
@@ -377,24 +391,28 @@ private fun BookingAmountCard(paidPaise: Long, totalPaise: Long, modifier: Modif
             Column(modifier = Modifier.fillMaxHeight().padding(Spacing.md)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CardIcon(icon = AppIcon.Expenses.fallback)
-                    Spacer(Modifier.width(Spacing.xs))
-                    Text("Booking Amount", style = labelL, color = AppColor.text2)
+                    Spacer(Modifier.width(Spacing.md))
+                    Text("Booking Amount", style = titleM, color = AppColor.text, modifier = Modifier.weight(1f))
                 }
-                Spacer(Modifier.height(Spacing.sm))
-                Text(
-                    text      = MoneyFormatter.format(paidPaise),
-                    style     = TextStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold),
-                    color     = AppColor.primary,
-                    textAlign = TextAlign.Center,
-                    modifier  = Modifier.fillMaxWidth(),
-                )
-                Text(
-                    text      = "paid of ${MoneyFormatter.format(totalPaise)}",
-                    style     = bodyM,
-                    color     = AppColor.text2,
-                    textAlign = TextAlign.Center,
-                    modifier  = Modifier.fillMaxWidth(),
-                )
+                Column(
+                    modifier            = Modifier.fillMaxWidth().weight(1f),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text      = MoneyFormatter.format(paidPaise),
+                        style     = TextStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold),
+                        color     = AppColor.primary,
+                        textAlign = TextAlign.Center,
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text      = "paid of ${MoneyFormatter.format(totalPaise)}",
+                        style     = bodyM,
+                        color     = AppColor.text2,
+                        textAlign = TextAlign.Center,
+                    )
+                }
             }
             Box(
                 modifier        = Modifier.align(Alignment.BottomEnd).size(48.dp).padding(Spacing.xs),
@@ -475,24 +493,28 @@ private fun PendingDuesCard(paise: Long, modifier: Modifier) {
             Column(modifier = Modifier.fillMaxHeight().padding(Spacing.md)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CardIcon(icon = AppIcon.Dues.fallback)
-                    Spacer(Modifier.width(Spacing.xs))
-                    Text("Pending Dues", style = labelL, color = AppColor.text2)
+                    Spacer(Modifier.width(Spacing.md))
+                    Text("Pending Dues", style = titleM, color = AppColor.text, modifier = Modifier.weight(1f))
                 }
-                Spacer(Modifier.height(Spacing.sm))
-                Text(
-                    text      = MoneyFormatter.format(paise),
-                    style     = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold),
-                    color     = if (paise > 0) AppColor.danger else AppColor.success,
-                    textAlign = TextAlign.Center,
-                    modifier  = Modifier.fillMaxWidth(),
-                )
-                Text(
-                    text      = "unpaid balance",
-                    style     = bodyM,
-                    color     = AppColor.text2,
-                    textAlign = TextAlign.Center,
-                    modifier  = Modifier.fillMaxWidth(),
-                )
+                Column(
+                    modifier            = Modifier.fillMaxWidth().weight(1f),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text      = MoneyFormatter.format(paise),
+                        style     = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold),
+                        color     = if (paise > 0) AppColor.danger else AppColor.success,
+                        textAlign = TextAlign.Center,
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text      = "unpaid balance",
+                        style     = bodyM,
+                        color     = AppColor.text2,
+                        textAlign = TextAlign.Center,
+                    )
+                }
             }
             Box(
                 modifier        = Modifier.align(Alignment.BottomEnd).size(48.dp).padding(Spacing.xs),
@@ -521,24 +543,41 @@ private fun InviteesCard(
             Column(modifier = Modifier.fillMaxHeight().padding(Spacing.md)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CardIcon(icon = AppIcon.Invitees.fallback)
-                    Spacer(Modifier.width(Spacing.xs))
-                    Text("Invitees", style = labelL, color = AppColor.text2)
+                    Spacer(Modifier.width(Spacing.md))
+                    Text("Invitees", style = titleM, color = AppColor.text, modifier = Modifier.weight(1f))
                 }
-                Spacer(Modifier.height(Spacing.sm))
-                Text(
-                    text      = "$invitedGuests of $totalGuests",
-                    style     = TextStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold),
-                    color     = AppColor.primary,
-                    textAlign = TextAlign.Center,
-                    modifier  = Modifier.fillMaxWidth(),
-                )
-                Text(
-                    text      = "Invited ($invitedFamilies of $totalFamilies families)",
-                    style     = bodyM,
-                    color     = AppColor.text2,
-                    textAlign = TextAlign.Center,
-                    modifier  = Modifier.fillMaxWidth(),
-                )
+                Column(
+                    modifier            = Modifier.fillMaxWidth().weight(1f),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(SpanStyle(fontSize = 26.sp, fontWeight = FontWeight.Bold)) {
+                                append("$invitedGuests")
+                            }
+                            withStyle(SpanStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
+                                append(" of ")
+                            }
+                            withStyle(SpanStyle(fontSize = 26.sp, fontWeight = FontWeight.Bold)) {
+                                append("$totalGuests")
+                            }
+                            withStyle(SpanStyle(fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = AppColor.primary)) {
+                                append(" Invited")
+                            }
+                        },
+                        color     = AppColor.primary,
+                        textAlign = TextAlign.Center,
+                        maxLines  = 1,
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text      = "($invitedFamilies of $totalFamilies families)",
+                        style     = bodyM,
+                        color     = AppColor.text2,
+                        textAlign = TextAlign.Center,
+                    )
+                }
             }
             Box(
                 modifier        = Modifier.align(Alignment.BottomEnd).size(48.dp).padding(Spacing.xs),
