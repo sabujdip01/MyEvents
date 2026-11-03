@@ -48,7 +48,6 @@ import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.gradientChipColor
 import sabuj.m.myevents.core.theme.gradientFor
 import sabuj.m.myevents.core.theme.gradientIconColor
-import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.labelM
 import sabuj.m.myevents.core.theme.numberL
 import sabuj.m.myevents.core.theme.titleL

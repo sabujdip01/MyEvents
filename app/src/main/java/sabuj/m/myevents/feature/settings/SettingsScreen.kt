@@ -55,8 +55,6 @@ import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.labelM
 import sabuj.m.myevents.core.theme.paletteColors
-import sabuj.m.myevents.core.theme.titleM
-import sabuj.m.myevents.core.theme.titleS
 import sabuj.m.myevents.core.ui.AppButton
 import sabuj.m.myevents.core.ui.AppButtonTonal
 import sabuj.m.myevents.core.ui.AppTopBar

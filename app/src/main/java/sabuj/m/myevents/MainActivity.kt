@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -38,12 +37,13 @@ import sabuj.m.myevents.core.theme.labelM
 import sabuj.m.myevents.core.theme.titleL
 import sabuj.m.myevents.core.ui.ScreenScaffold
 import sabuj.m.myevents.core.ui.doodles.HeroIllustration
-import sabuj.m.myevents.data.security.PinStore
 import sabuj.m.myevents.feature.lock.LockEvent
 import sabuj.m.myevents.feature.lock.LockViewModel
 import sabuj.m.myevents.feature.lock.PinScreen
 import sabuj.m.myevents.navigation.AppNavHost
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
+import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG as BS
 import androidx.compose.runtime.Composable as Composable1
 
 /**
@@ -92,7 +92,7 @@ class MainActivity : FragmentActivity() {
 
             LaunchedEffect(Unit) {
                 if (showSplash) {
-                    delay(1200)
+                    delay(1200.milliseconds)
                     showSplash = false
                 }
             }
@@ -196,7 +196,7 @@ class MainActivity : FragmentActivity() {
     /** Returns true if the device has at least one enrolled biometric credential. */
     private fun isBiometricAvailable(): Boolean =
         BiometricManager.from(this)
-            .canAuthenticate(BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS
+            .canAuthenticate(BS) == BiometricManager.BIOMETRIC_SUCCESS
 
     /** Launches the system BiometricPrompt dialog. */
     private fun showBiometricPrompt() {
@@ -210,13 +210,13 @@ class MainActivity : FragmentActivity() {
                     lockViewModel.onEvent(LockEvent.BiometricFailed)
                 }
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                    // User cancelled or hardware unavailable — stay on PIN screen silently
+                    // User canceled or hardware unavailable — stay on PIN screen silently
                 }
             })
         val info = BiometricPrompt.PromptInfo.Builder()
             .setTitle("Unlock MyEvents")
             .setSubtitle("Use your fingerprint to continue")
-            .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+            .setAllowedAuthenticators(BS)
             .setNegativeButtonText("Use PIN")
             .build()
         prompt.authenticate(info)
