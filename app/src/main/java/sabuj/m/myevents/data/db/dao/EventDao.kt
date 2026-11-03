@@ -1,9 +1,8 @@
 package sabuj.m.myevents.data.db.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import sabuj.m.myevents.data.db.entity.EventEntity
 
@@ -22,13 +21,9 @@ interface EventDao {
     @Query("SELECT * FROM events WHERE id = :id AND deleted = 0")
     fun observeById(id: String): Flow<EventEntity?>
 
-    /** Insert a new row. */
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(event: EventEntity): Long
-
-    /** Update an existing row without triggering ON DELETE CASCADE. */
-    @androidx.room.Update
-    suspend fun update(event: EventEntity): Int
+    /** Insert or update an event row. */
+    @Upsert
+    suspend fun upsert(event: EventEntity)
 
     /** Mark as soft-deleted and set updatedAt. */
     @Query("UPDATE events SET deleted = 1, syncState = 'PENDING', updatedAt = :now WHERE id = :id")
@@ -51,4 +46,3 @@ interface EventDao {
     )
     suspend fun countByDate(epochDay: Long, excludeId: String?): Int
 }
-

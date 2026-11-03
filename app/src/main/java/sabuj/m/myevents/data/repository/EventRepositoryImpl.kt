@@ -27,13 +27,8 @@ class EventRepositoryImpl @Inject constructor(
     override fun observeById(id: String): Flow<Event?> =
         dao.observeById(id).map { it?.toDomain() }
 
-    override suspend fun upsert(event: Event) {
-        val entity = event.toEntity()
-        val count = dao.update(entity)
-        if (count == 0) {
-            dao.insert(entity)
-        }
-    }
+    override suspend fun upsert(event: Event) =
+        dao.upsert(event.toEntity())
 
     override suspend fun softDelete(id: String) =
         dao.softDelete(id, System.currentTimeMillis())

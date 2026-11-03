@@ -38,13 +38,8 @@ class BookingRepositoryImpl @Inject constructor(
     override fun observeCountByEvent(eventId: String): Flow<Int> =
         dao.countByEvent(eventId)
 
-    override suspend fun upsertBooking(booking: Booking) {
-        val entity = booking.toEntity()
-        val count = dao.updateBooking(entity)
-        if (count == 0) {
-            dao.insertBooking(entity)
-        }
-    }
+    override suspend fun upsertBooking(booking: Booking) =
+        dao.upsertBooking(booking.toEntity())
 
     override suspend fun softDelete(id: String) =
         dao.softDeleteBooking(id, System.currentTimeMillis())

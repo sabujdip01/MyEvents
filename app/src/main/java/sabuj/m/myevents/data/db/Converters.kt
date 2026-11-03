@@ -9,9 +9,9 @@ import java.time.LocalDate
  */
 class Converters {
 
-    @TypeConverter fun fromEpochDay(value: Long): LocalDate = LocalDate.ofEpochDay(value)
+    @TypeConverter fun fromEpochDay(value: Long?): LocalDate? = value?.let { LocalDate.ofEpochDay(it) }
 
-    @TypeConverter fun toEpochDay(date: LocalDate): Long = date.toEpochDay()
+    @TypeConverter fun toEpochDay(date: LocalDate?): Long? = date?.toEpochDay()
 
     @TypeConverter fun fromStringList(value: String?): List<String> {
         if (value.isNullOrBlank()) return emptyList()
