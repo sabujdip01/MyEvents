@@ -46,6 +46,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import sabuj.m.myevents.core.icons.BookingIcon
+import sabuj.m.myevents.core.icons.EventIconDisplay
 import sabuj.m.myevents.core.theme.AppColor
 import sabuj.m.myevents.core.theme.Radius
 import sabuj.m.myevents.core.theme.Spacing
@@ -463,10 +464,9 @@ private fun EventDropdown(
                     text    = { Text("${event.title} (${event.eventName})", style = bodyM) },
                     onClick = { onSelect(event.id); expanded = false },
                     leadingIcon = {
-                        Icon(
-                            imageVector        = event.icon.fallback,
-                            contentDescription = null,
-                            tint               = AppColor.primary,
+                        EventIconDisplay(
+                            icon               = event.icon,
+                            contentDescription = event.title,
                             modifier           = Modifier.size(20.dp),
                         )
                     },

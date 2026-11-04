@@ -1,5 +1,6 @@
 package sabuj.m.myevents.core.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,6 +11,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import sabuj.m.myevents.core.preview.LightDarkPreviews
@@ -37,6 +40,7 @@ fun IconChip(
     size: IconChipSize = IconChipSize.Default,
     containerColor: Color = AppColor.primaryContainer,
     iconColor: Color = AppColor.primary,
+    customRes: Int? = null,
 ) {
     Surface(
         modifier = modifier.size(size.boxSize),
@@ -44,12 +48,21 @@ fun IconChip(
         color    = containerColor,
     ) {
         Box(contentAlignment = Alignment.Center) {
-            Icon(
-                imageVector        = icon,
-                contentDescription = contentDescription,
-                tint               = iconColor,
-                modifier           = Modifier.size(size.iconSize),
-            )
+            if (customRes != null) {
+                Image(
+                    painter            = painterResource(customRes),
+                    contentDescription = contentDescription,
+                    modifier           = Modifier.size(size.iconSize),
+                    contentScale       = ContentScale.Fit,
+                )
+            } else {
+                Icon(
+                    imageVector        = icon,
+                    contentDescription = contentDescription,
+                    tint               = iconColor,
+                    modifier           = Modifier.size(size.iconSize),
+                )
+            }
         }
     }
 }

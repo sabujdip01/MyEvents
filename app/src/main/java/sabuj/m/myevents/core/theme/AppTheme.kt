@@ -1,11 +1,23 @@
 package sabuj.m.myevents.core.theme
 
+import android.view.ContextThemeWrapper
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import sabuj.m.myevents.R
+
+/** Returns the XML style resource for [palette] and [isDark] mode. */
+fun getPaletteThemeResId(palette: PaletteId, isDark: Boolean): Int = when (palette) {
+    PaletteId.A -> if (!isDark) R.style.Theme_MyEvents_PaletteA_Light else R.style.Theme_MyEvents_PaletteA_Dark
+    PaletteId.B -> if (!isDark) R.style.Theme_MyEvents_PaletteB_Light else R.style.Theme_MyEvents_PaletteB_Dark
+    PaletteId.C -> if (!isDark) R.style.Theme_MyEvents_PaletteC_Light else R.style.Theme_MyEvents_PaletteC_Dark
+    PaletteId.D -> if (!isDark) R.style.Theme_MyEvents_PaletteD_Light else R.style.Theme_MyEvents_PaletteD_Dark
+}
 
 /**
  * Root theme composable. Wrap every screen (and every preview) in this.
@@ -23,7 +35,16 @@ fun AppTheme(
     val appColors = paletteColors(palette, isDark)
     val m3Scheme  = appColors.toM3ColorScheme()
 
-    CompositionLocalProvider(LocalAppColors provides appColors) {
+    val context = LocalContext.current
+    val themedContext = remember(palette, isDark) {
+        val themeResId = getPaletteThemeResId(palette, isDark)
+        ContextThemeWrapper(context, themeResId)
+    }
+
+    CompositionLocalProvider(
+        LocalAppColors provides appColors,
+        LocalContext provides themedContext,
+    ) {
         MaterialTheme(
             colorScheme = m3Scheme,
             typography  = AppTypography,

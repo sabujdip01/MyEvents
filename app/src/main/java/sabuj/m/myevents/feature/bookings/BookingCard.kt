@@ -127,6 +127,7 @@ fun BookingCard(
                     size               = IconChipSize.Default,
                     containerColor     = chipColor,
                     iconColor          = iconColor,
+                    customRes          = event?.icon?.customRes,
                 )
 
                 Spacer(Modifier.width(Spacing.md))

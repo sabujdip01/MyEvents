@@ -25,6 +25,7 @@ import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Spa
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.ui.graphics.vector.ImageVector
+import sabuj.m.myevents.R
 
 /**
  * Navigation and UI icons. Each entry carries a Material fallback [ImageVector]
@@ -58,24 +59,24 @@ enum class EventIcon(
     val fallback: ImageVector,
     @DrawableRes val customRes: Int? = null,
 ) {
-    Wedding(Icons.Rounded.LocalFlorist),
-    Engagement(Icons.Rounded.Favorite),
-    Birthday(Icons.Rounded.Celebration),
-    Reception(Icons.Rounded.Celebration),
-    Puja(Icons.Rounded.Spa),
-    Christmas(Icons.Rounded.CardGiftcard),
-    Vacation(Icons.Rounded.BeachAccess),
-    Party(Icons.Rounded.Celebration),
-    Festival(Icons.Rounded.Star),
-    Anniversary(Icons.Rounded.Favorite),
-    Honeymoon(Icons.Rounded.BeachAccess),
-    Haldi(Icons.Rounded.Spa),
-    Mehendi(Icons.Rounded.PanTool),
-    Sangeet(Icons.Rounded.MusicNote),
-    Dinner(Icons.Rounded.Celebration),
-    Cocktail(Icons.Rounded.Celebration),
-    Rituals(Icons.Rounded.Spa),
-    Other(Icons.Rounded.Star),
+    Wedding(Icons.Rounded.LocalFlorist, R.drawable.ic_category_marriage),
+    Engagement(Icons.Rounded.Favorite, R.drawable.ic_category_engagement),
+    Birthday(Icons.Rounded.Celebration, R.drawable.ic_category_birthday),
+    Reception(Icons.Rounded.Celebration, R.drawable.ic_category_reception),
+    Puja(Icons.Rounded.Spa, R.drawable.ic_category_puja),
+    Christmas(Icons.Rounded.CardGiftcard, R.drawable.ic_category_childhood),
+    Vacation(Icons.Rounded.BeachAccess, R.drawable.ic_category_honeymoon),
+    Party(Icons.Rounded.Celebration, R.drawable.ic_category_traditional),
+    Festival(Icons.Rounded.Star, R.drawable.ic_category_festivals),
+    Anniversary(Icons.Rounded.Favorite, R.drawable.ic_category_community),
+    Honeymoon(Icons.Rounded.BeachAccess, R.drawable.ic_category_honeymoon),
+    Haldi(Icons.Rounded.Spa, R.drawable.ic_category_traditional),
+    Mehendi(Icons.Rounded.PanTool, R.drawable.ic_category_traditional),
+    Sangeet(Icons.Rounded.MusicNote, R.drawable.ic_category_reception),
+    Dinner(Icons.Rounded.Celebration, R.drawable.ic_category_reception),
+    Cocktail(Icons.Rounded.Celebration, R.drawable.ic_category_community),
+    Rituals(Icons.Rounded.Spa, R.drawable.ic_category_puja),
+    Other(Icons.Rounded.Star, R.drawable.ic_category_community),
 }
 
 /**

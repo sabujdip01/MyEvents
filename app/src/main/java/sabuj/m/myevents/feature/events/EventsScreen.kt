@@ -50,6 +50,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
 import androidx.compose.ui.text.font.FontWeight
 import sabuj.m.myevents.core.icons.AppIcon
+import sabuj.m.myevents.core.icons.EventIconDisplay
 import sabuj.m.myevents.core.theme.AppColor
 import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
@@ -570,11 +571,10 @@ private fun DateCell(
                 )
                 if (event != null) {
                     Spacer(Modifier.height(3.6.dp))
-                    Icon(
-                        imageVector        = event.icon.fallback,
+                    EventIconDisplay(
+                        icon               = event.icon,
                         contentDescription = event.title,
-                        tint               = AppColor.primary,
-                        modifier           = Modifier.size(18.dp),
+                        modifier           = Modifier.size(20.dp),
                     )
                 }
             }
@@ -610,7 +610,11 @@ private fun MonthlyEventRow(event: Event, onClick: () -> Unit) {
                 modifier        = Modifier.size(40.dp).clip(CircleShape).background(AppColor.primaryContainer),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(event.icon.fallback, null, tint = AppColor.primary, modifier = Modifier.size(20.dp))
+                EventIconDisplay(
+                    icon               = event.icon,
+                    contentDescription = event.title,
+                    modifier           = Modifier.size(28.dp),
+                )
             }
             Spacer(Modifier.width(Spacing.md))
             Column(modifier = Modifier.weight(1f)) {

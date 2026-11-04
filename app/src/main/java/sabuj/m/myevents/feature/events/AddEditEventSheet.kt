@@ -40,11 +40,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import sabuj.m.myevents.core.icons.EventCategoryIcon
 import sabuj.m.myevents.core.icons.EventIcon
 import sabuj.m.myevents.core.theme.AppColor
 import sabuj.m.myevents.core.theme.Spacing
@@ -52,8 +56,6 @@ import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.labelM
 import sabuj.m.myevents.core.theme.titleL
-import sabuj.m.myevents.core.ui.IconChip
-import sabuj.m.myevents.core.ui.IconChipSize
 import sabuj.m.myevents.core.util.DateUtils
 import sabuj.m.myevents.domain.model.Event
 import java.text.NumberFormat
@@ -97,7 +99,7 @@ fun AddEditEventSheet(
             else ""
         )
     }
-    var inviteesRequired by remember { mutableStateOf(existingEvent?.inviteesRequired ?: true) }
+    var inviteesRequired by remember { mutableStateOf(existingEvent?.inviteesRequired ?: false) }
 
     val isFormValid = eventName.isNotBlank()
     val budgetPaise = budgetRaw.toLongOrNull()?.let { it * 100L } ?: 0L
@@ -198,30 +200,30 @@ fun AddEditEventSheet(
                 )
             }
 
-            // Event icon picker — 10 unique icons in 2 rows of 5
-            val pickerIcons = remember {
+            // Event category icon picker — 10 two-tone XML category icons in 2 rows of 5
+            val categoryIconPairs = remember {
                 listOf(
-                    EventIcon.Wedding,      // Marriage
-                    EventIcon.Engagement,   // Engagement
-                    EventIcon.Birthday,     // Birthday
-                    EventIcon.Reception,    // Reception
-                    EventIcon.Puja,         // Puja
-                    EventIcon.Christmas,    // Christmas
-                    EventIcon.Vacation,     // Vacation
-                    EventIcon.Party,        // Party
-                    EventIcon.Festival,     // Festival
-                    EventIcon.Anniversary,  // Anniversary
+                    EventCategoryIcon.MarriageWedding to EventIcon.Wedding,
+                    EventCategoryIcon.EngagementPreWedding to EventIcon.Engagement,
+                    EventCategoryIcon.BirthdayPersonal to EventIcon.Birthday,
+                    EventCategoryIcon.ReceptionPostWedding to EventIcon.Reception,
+                    EventCategoryIcon.PujaReligious to EventIcon.Puja,
+                    EventCategoryIcon.BirthChildhood to EventIcon.Christmas,
+                    EventCategoryIcon.HoneymoonRomantic to EventIcon.Vacation,
+                    EventCategoryIcon.TraditionalFamilyRituals to EventIcon.Party,
+                    EventCategoryIcon.ReligiousCulturalFestivals to EventIcon.Festival,
+                    EventCategoryIcon.SocialCommunity to EventIcon.Anniversary,
                 )
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
                 Text(text = "Event icon", style = labelM, color = AppColor.text2)
-                pickerIcons.chunked(5).forEach { rowIcons ->
+                categoryIconPairs.chunked(5).forEach { rowPairs ->
                     Row(
                         modifier              = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
                     ) {
-                        rowIcons.forEach { icon ->
+                        rowPairs.forEach { (category, icon) ->
                             val isSelected = icon == selectedIcon
                             Box(
                                 modifier = Modifier
@@ -239,12 +241,11 @@ fun AddEditEventSheet(
                                     .clickable { selectedIcon = icon },
                                 contentAlignment = Alignment.Center,
                             ) {
-                                IconChip(
-                                    icon               = icon.fallback,
-                                    contentDescription = icon.name,
-                                    size               = IconChipSize.Default,
-                                    containerColor     = if (isSelected) AppColor.primaryContainer else AppColor.surfaceVariant,
-                                    iconColor          = if (isSelected) AppColor.primary else AppColor.text2,
+                                Image(
+                                    painter            = painterResource(category.drawableRes),
+                                    contentDescription = category.title,
+                                    modifier           = Modifier.size(32.dp),
+                                    contentScale       = ContentScale.Fit,
                                 )
                             }
                         }

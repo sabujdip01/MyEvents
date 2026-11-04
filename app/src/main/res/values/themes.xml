@@ -4,11 +4,51 @@
     <!-- Base Material3 theme (used at runtime by Compose) -->
     <style name="Theme.MyEvents" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowDisablePreview">true</item>
+        <item name="colorPrimary">#4A0E8F</item>
+        <item name="colorSecondary">#8B5CF6</item>
     </style>
 
-    <!-- Splash screen theme: holds the app while Compose loads.
-         Light variant uses a clean off-white background (Palette A light).
-         The night variant (values-night/themes.xml) uses the dark background. -->
+    <!-- Palette A: Toxic Violet -->
+    <style name="Theme.MyEvents.PaletteA.Light" parent="Theme.MyEvents">
+        <item name="colorPrimary">#4A0E8F</item>
+        <item name="colorSecondary">#8B5CF6</item>
+    </style>
+    <style name="Theme.MyEvents.PaletteA.Dark" parent="Theme.MyEvents">
+        <item name="colorPrimary">#B79CFF</item>
+        <item name="colorSecondary">#A78BFA</item>
+    </style>
+
+    <!-- Palette B: Machine Red -->
+    <style name="Theme.MyEvents.PaletteB.Light" parent="Theme.MyEvents">
+        <item name="colorPrimary">#E5202E</item>
+        <item name="colorSecondary">#2A9FD6</item>
+    </style>
+    <style name="Theme.MyEvents.PaletteB.Dark" parent="Theme.MyEvents">
+        <item name="colorPrimary">#FF6B74</item>
+        <item name="colorSecondary">#5CC3F0</item>
+    </style>
+
+    <!-- Palette C: Hyper Cobalt -->
+    <style name="Theme.MyEvents.PaletteC.Light" parent="Theme.MyEvents">
+        <item name="colorPrimary">#0038FF</item>
+        <item name="colorSecondary">#38BDF8</item>
+    </style>
+    <style name="Theme.MyEvents.PaletteC.Dark" parent="Theme.MyEvents">
+        <item name="colorPrimary">#7C9BFF</item>
+        <item name="colorSecondary">#67D0FA</item>
+    </style>
+
+    <!-- Palette D: Dark Aubergine -->
+    <style name="Theme.MyEvents.PaletteD.Light" parent="Theme.MyEvents">
+        <item name="colorPrimary">#9C2A8F</item>
+        <item name="colorSecondary">#C04BD6</item>
+    </style>
+    <style name="Theme.MyEvents.PaletteD.Dark" parent="Theme.MyEvents">
+        <item name="colorPrimary">#FF7FEC</item>
+        <item name="colorSecondary">#E08CF0</item>
+    </style>
+
+    <!-- Splash screen theme: holds the app while Compose loads. -->
     <style name="Theme.MyEvents.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">#F4F6FB</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_transparent</item>

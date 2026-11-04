@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import sabuj.m.myevents.core.icons.AppIcon
+import sabuj.m.myevents.core.icons.EventIconDisplay
 import sabuj.m.myevents.core.preview.LightDarkPreviews
 import sabuj.m.myevents.core.theme.AppColor
 import sabuj.m.myevents.core.theme.AppTheme
@@ -312,7 +313,11 @@ private fun EventRow(event: EventSummary, onClick: () -> Unit) {
                 modifier        = Modifier.size(40.dp).clip(CircleShape).background(AppColor.primaryContainer),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(event.icon.fallback, null, tint = AppColor.primary, modifier = Modifier.size(20.dp))
+                EventIconDisplay(
+                    icon               = event.icon,
+                    contentDescription = event.title,
+                    modifier           = Modifier.size(28.dp),
+                )
             }
             Spacer(Modifier.width(Spacing.md))
             Column(modifier = Modifier.weight(1f)) {

@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
+import sabuj.m.myevents.core.icons.EventIconDisplay
 import androidx.hilt.navigation.compose.hiltViewModel
 import sabuj.m.myevents.core.icons.AppIcon
 import sabuj.m.myevents.core.theme.AppColor
@@ -246,7 +247,11 @@ private fun TaskEventTabsRow(
                     modifier          = Modifier.padding(horizontal = Spacing.md),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(event.icon.fallback, null, tint = if (isSelected) AppColor.primary else AppColor.text2, modifier = Modifier.size(16.dp))
+                    EventIconDisplay(
+                        icon               = event.icon,
+                        contentDescription = event.title,
+                        modifier           = Modifier.size(18.dp),
+                    )
                     Spacer(Modifier.width(Spacing.xs))
                     Text(event.title, style = labelM, color = if (isSelected) AppColor.primary else AppColor.text2)
                 }
@@ -348,6 +353,7 @@ private fun ItemListCard(
                     size               = IconChipSize.Default,
                     containerColor     = chipColor,
                     iconColor          = iconColor,
+                    customRes          = event?.icon?.customRes,
                 )
 
                 Spacer(Modifier.width(Spacing.md))

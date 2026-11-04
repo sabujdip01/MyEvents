@@ -1,9 +1,10 @@
 # Version History
 
-Current: V0.10.11
+Current: V0.10.12
 
 | Version  | Phase | Build | Commit    | Summary                                                                                             |
 | -------- |-------|-------|-----------|-----------------------------------------------------------------------------------------------------|
+| V0.10.12 | Test  | 8     | 1efab92   | fix(ui): propagate event category PNG icons across booking, item list, expenses & invitee screens  |
 | V0.10.11 | Test  | 7     | dcd8798   | fix(events): 10 event icons layout, budget field cursor & backspace, guest count sum                |
 | V0.10.10 | Test  | 6     | 563f11e   | fix(events): view event popup layout, stat cards swap, label rename & calendar cell spacing         |
 | V0.10.9  | Test  | 5     | bc7625f   | fix(events): add monthly events list section & align calendar grid cell height and spacing          |

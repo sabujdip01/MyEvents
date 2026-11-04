@@ -1,5 +1,6 @@
 package sabuj.m.myevents.feature.events
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,6 +34,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import sabuj.m.myevents.core.theme.AppColor
@@ -103,6 +106,7 @@ fun EventDetailsContent(
                 icon               = event.icon.fallback,
                 contentDescription = event.title,
                 size               = IconChipSize.Lg,
+                customRes          = event.icon.customRes,
             )
             Spacer(Modifier.width(18.dp))
             Column {
@@ -129,11 +133,11 @@ fun EventDetailsContent(
             horizontalArrangement = Arrangement.spacedBy(Spacing.md),
         ) {
             StatTile(
-                icon    = event.icon.fallback,
-                label   = "Booking / Contracts",
-                value   = bookingCount.toString(),
-                caption = if (bookingCount == 1) "contract" else "contracts",
-                modifier = Modifier.weight(1f),
+                icon      = event.icon.fallback,
+                label     = "Booking / Contracts",
+                value     = bookingCount.toString(),
+                caption   = if (bookingCount == 1) "contract" else "contracts",
+                modifier  = Modifier.weight(1f),
             )
             StatTile(
                 icon    = Icons.Rounded.Group,
@@ -218,6 +222,7 @@ private fun StatTile(
     value: String,
     caption: String,
     modifier: Modifier = Modifier,
+    customRes: Int? = null,
 ) {
     Box(
         modifier = modifier
@@ -234,7 +239,16 @@ private fun StatTile(
                     .background(AppColor.primaryContainer),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(icon, contentDescription = null, tint = AppColor.primary, modifier = Modifier.size(22.dp))
+                if (customRes != null) {
+                    Image(
+                        painter            = painterResource(customRes),
+                        contentDescription = null,
+                        modifier           = Modifier.size(28.dp),
+                        contentScale       = ContentScale.Fit,
+                    )
+                } else {
+                    Icon(icon, contentDescription = null, tint = AppColor.primary, modifier = Modifier.size(22.dp))
+                }
             }
             Spacer(Modifier.width(Spacing.sm))
             // Labels on right
