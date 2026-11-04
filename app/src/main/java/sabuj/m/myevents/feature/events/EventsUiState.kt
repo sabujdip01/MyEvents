@@ -22,6 +22,8 @@ data class EventsUiState(
     val eventsByDate: Map<Long, Event> = emptyMap(),
     val selectedDate: LocalDate? = null,
     val sheetMode: SheetMode = SheetMode.None,
+    val bookingCount: Int = 0,
+    val inviteeCount: Int = 0,
     val isLoading: Boolean = true,
     val errorMessage: String? = null,
 )

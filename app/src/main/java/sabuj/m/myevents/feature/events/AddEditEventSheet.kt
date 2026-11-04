@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,7 +41,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import sabuj.m.myevents.core.icons.EventIcon
 import sabuj.m.myevents.core.theme.AppColor
@@ -91,7 +92,9 @@ fun AddEditEventSheet(
     var selectedIcon by remember { mutableStateOf(existingEvent?.icon ?: EventIcon.Wedding) }
     var budgetRaw by remember {                                         // digits only, no commas
         mutableStateOf(
-            if (existingEvent != null) (existingEvent.budgetPaise / 100L).toString() else ""
+            if (existingEvent != null && existingEvent.budgetPaise > 0)
+                (existingEvent.budgetPaise / 100L).toString()
+            else ""
         )
     }
     var inviteesRequired by remember { mutableStateOf(existingEvent?.inviteesRequired ?: true) }
@@ -103,6 +106,11 @@ fun AddEditEventSheet(
     fun formatIndian(raw: String): String {
         val n = raw.toLongOrNull() ?: return raw
         return NumberFormat.getNumberInstance(Locale("en", "IN")).format(n)
+    }
+
+    var budgetTextFieldValue by remember {
+        val formatted = if (budgetRaw.isNotEmpty()) formatIndian(budgetRaw) else ""
+        mutableStateOf(TextFieldValue(text = formatted, selection = TextRange(formatted.length)))
     }
 
     /** Open system DatePickerDialog; updates selectedDate on confirm. */
@@ -190,52 +198,75 @@ fun AddEditEventSheet(
                 )
             }
 
-            // Event icon picker
+            // Event icon picker — 10 unique icons in 2 rows of 5
+            val pickerIcons = remember {
+                listOf(
+                    EventIcon.Wedding,      // Marriage
+                    EventIcon.Engagement,   // Engagement
+                    EventIcon.Birthday,     // Birthday
+                    EventIcon.Reception,    // Reception
+                    EventIcon.Puja,         // Puja
+                    EventIcon.Christmas,    // Christmas
+                    EventIcon.Vacation,     // Vacation
+                    EventIcon.Party,        // Party
+                    EventIcon.Festival,     // Festival
+                    EventIcon.Anniversary,  // Anniversary
+                )
+            }
+
             Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
                 Text(text = "Event icon", style = labelM, color = AppColor.text2)
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
-                    verticalArrangement   = Arrangement.spacedBy(Spacing.sm),
-                ) {
-                    EventIcon.entries.forEach { icon ->
-                        val isSelected = icon == selectedIcon
-                        Box(
-                            modifier = Modifier
-                                .size(52.dp)
-                                .clip(RoundedCornerShape(14.dp))
-                                .background(
-                                    if (isSelected) AppColor.primaryContainer else AppColor.surfaceVariant
+                pickerIcons.chunked(5).forEach { rowIcons ->
+                    Row(
+                        modifier              = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                    ) {
+                        rowIcons.forEach { icon ->
+                            val isSelected = icon == selectedIcon
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(52.dp)
+                                    .clip(RoundedCornerShape(14.dp))
+                                    .background(
+                                        if (isSelected) AppColor.primaryContainer else AppColor.surfaceVariant
+                                    )
+                                    .border(
+                                        width = if (isSelected) 2.dp else 0.dp,
+                                        color = if (isSelected) AppColor.primary else AppColor.surface,
+                                        shape = RoundedCornerShape(14.dp),
+                                    )
+                                    .clickable { selectedIcon = icon },
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                IconChip(
+                                    icon               = icon.fallback,
+                                    contentDescription = icon.name,
+                                    size               = IconChipSize.Default,
+                                    containerColor     = if (isSelected) AppColor.primaryContainer else AppColor.surfaceVariant,
+                                    iconColor          = if (isSelected) AppColor.primary else AppColor.text2,
                                 )
-                                .border(
-                                    width = if (isSelected) 2.dp else 0.dp,
-                                    color = if (isSelected) AppColor.primary else AppColor.surface,
-                                    shape = RoundedCornerShape(14.dp),
-                                )
-                                .clickable { selectedIcon = icon },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            IconChip(
-                                icon               = icon.fallback,
-                                contentDescription = icon.name,
-                                size               = IconChipSize.Default,
-                                containerColor     = if (isSelected) AppColor.primaryContainer else AppColor.surfaceVariant,
-                                iconColor          = if (isSelected) AppColor.primary else AppColor.text2,
-                            )
+                            }
                         }
                     }
                 }
             }
 
-            // Budget field — shows Indian-formatted number; stores raw digits
+            // Budget field — shows Indian-formatted number; keeps cursor at end
             OutlinedTextField(
-                value         = formatIndian(budgetRaw),
+                value         = budgetTextFieldValue,
                 onValueChange = { input ->
-                    // Strip commas and non-digits; cap at 10 digits
-                    budgetRaw = input.filter { it.isDigit() }.take(10)
+                    val newDigits = input.text.filter { it.isDigit() }.take(10)
+                    budgetRaw = newDigits
+                    val formatted = if (newDigits.isNotEmpty()) formatIndian(newDigits) else ""
+                    budgetTextFieldValue = TextFieldValue(
+                        text      = formatted,
+                        selection = TextRange(formatted.length)
+                    )
                 },
                 label         = { Text("Budget (₹)", style = bodyM) },
                 placeholder   = { Text("0", style = bodyM, color = AppColor.text3) },
-                prefix        = { Text("₹", style = bodyM, color = AppColor.text2) },
+                prefix        = { Text("₹ ", style = bodyM, color = AppColor.text2) },
                 modifier      = Modifier.fillMaxWidth(),
                 singleLine    = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),

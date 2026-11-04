@@ -59,6 +59,8 @@ import sabuj.m.myevents.domain.model.Event
 @Composable
 fun EventDetailsSheet(
     event: Event,
+    bookingCount: Int = 0,
+    inviteeCount: Int = 0,
     onDismiss: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
@@ -72,9 +74,11 @@ fun EventDetailsSheet(
         shape               = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
     ) {
         EventDetailsContent(
-            event    = event,
-            onEdit   = onEdit,
-            onDelete = onDelete,
+            event        = event,
+            bookingCount = bookingCount,
+            inviteeCount = inviteeCount,
+            onEdit       = onEdit,
+            onDelete     = onDelete,
         )
     }
 }
@@ -82,6 +86,8 @@ fun EventDetailsSheet(
 @Composable
 fun EventDetailsContent(
     event: Event,
+    bookingCount: Int = 0,
+    inviteeCount: Int = 0,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
 ) {
@@ -100,6 +106,7 @@ fun EventDetailsContent(
             )
             Spacer(Modifier.width(18.dp))
             Column {
+                Spacer(Modifier.height(2.dp))
                 Text(
                     text  = event.title,
                     style = titleL,
@@ -124,15 +131,15 @@ fun EventDetailsContent(
             StatTile(
                 icon    = event.icon.fallback,
                 label   = "Booking / Contracts",
-                value   = "0",
-                caption = "contracts",
+                value   = bookingCount.toString(),
+                caption = if (bookingCount == 1) "contract" else "contracts",
                 modifier = Modifier.weight(1f),
             )
             StatTile(
                 icon    = Icons.Rounded.Group,
-                label   = "Invitees",
-                value   = if (event.inviteesRequired) "0" else "—",
-                caption = if (event.inviteesRequired) "people" else "Not required",
+                label   = "Guests",
+                value   = inviteeCount.toString(),
+                caption = if (inviteeCount == 1) "person" else "people",
                 modifier = Modifier.weight(1f),
             )
         }

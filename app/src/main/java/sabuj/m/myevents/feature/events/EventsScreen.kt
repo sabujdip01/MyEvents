@@ -229,10 +229,12 @@ fun EventsContent(
     when (val mode = uiState.sheetMode) {
         SheetMode.None -> Unit
         is SheetMode.Details -> EventDetailsSheet(
-            event     = mode.event,
-            onDismiss = { onEvent(EventsUiEvent.SheetDismissed) },
-            onEdit    = { onEvent(EventsUiEvent.EditRequested(mode.event)) },
-            onDelete  = { onEvent(EventsUiEvent.DeleteRequested(mode.event)) },
+            event        = mode.event,
+            bookingCount = uiState.bookingCount,
+            inviteeCount = uiState.inviteeCount,
+            onDismiss    = { onEvent(EventsUiEvent.SheetDismissed) },
+            onEdit       = { onEvent(EventsUiEvent.EditRequested(mode.event)) },
+            onDelete     = { onEvent(EventsUiEvent.DeleteRequested(mode.event)) },
         )
         is SheetMode.Add -> AddEditEventSheet(
             prefilledDate = mode.date,

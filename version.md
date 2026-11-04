@@ -1,9 +1,10 @@
 # Version History
 
-Current: V0.10.10
+Current: V0.10.11
 
 | Version  | Phase | Build | Commit    | Summary                                                                                             |
 | -------- |-------|-------|-----------|-----------------------------------------------------------------------------------------------------|
+| V0.10.11 | Test  | 7     | dcd8798   | fix(events): 10 event icons layout, budget field cursor & backspace, guest count sum                |
 | V0.10.10 | Test  | 6     | 563f11e   | fix(events): view event popup layout, stat cards swap, label rename & calendar cell spacing         |
 | V0.10.9  | Test  | 5     | bc7625f   | fix(events): add monthly events list section & align calendar grid cell height and spacing          |
 | V0.10.8 | Test  | 4     | c35c310   | fix(ui): Budget card title alignment, monthly events list filtering & row styling                    |

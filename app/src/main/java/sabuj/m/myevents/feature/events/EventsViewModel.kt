@@ -14,6 +14,8 @@ import sabuj.m.myevents.domain.usecase.EditEventUseCase
 import sabuj.m.myevents.domain.usecase.EventSaveResult
 import sabuj.m.myevents.domain.usecase.HardDeleteEventUseCase
 import sabuj.m.myevents.domain.usecase.ObserveEventsUseCase
+import sabuj.m.myevents.domain.repository.BookingRepository
+import sabuj.m.myevents.domain.repository.InviteeRepository
 import java.time.YearMonth
 import javax.inject.Inject
 
@@ -28,6 +30,8 @@ class EventsViewModel @Inject constructor(
     private val addEvent: AddEventUseCase,
     private val editEvent: EditEventUseCase,
     private val hardDelete: HardDeleteEventUseCase,
+    private val bookingRepository: BookingRepository,
+    private val inviteeRepository: InviteeRepository,
 ) : ViewModel() {
 
     private val _month = MutableStateFlow(YearMonth.now())
@@ -39,15 +43,24 @@ class EventsViewModel @Inject constructor(
         _month,
         _sheet,
         _error,
-    ) { events, month, sheet, error ->
+        combine(bookingRepository.observeAll(), inviteeRepository.observeAllInvitees(), ::Pair),
+    ) { events, month, sheet, error, (bookings, invitees) ->
+        val selectedEvent = (sheet as? SheetMode.Details)?.event
+        val bCount = if (selectedEvent != null) bookings.count { it.eventId == selectedEvent.id } else 0
+        val iCount = if (selectedEvent != null) {
+            invitees.filter { it.eventId == selectedEvent.id }.sumOf { maxOf(1, it.expectedCount) }
+        } else 0
+
         EventsUiState(
             currentMonth  = month,
             events        = events,
             eventsByDate  = events.associateBy { it.date.toEpochDay() },
-            selectedDate  = (sheet as? SheetMode.Details)?.event?.date
+            selectedDate  = selectedEvent?.date
                 ?: (sheet as? SheetMode.Add)?.date
                 ?: (sheet as? SheetMode.Edit)?.event?.date,
             sheetMode     = sheet,
+            bookingCount  = bCount,
+            inviteeCount  = iCount,
             isLoading     = false,
             errorMessage  = error,
         )
