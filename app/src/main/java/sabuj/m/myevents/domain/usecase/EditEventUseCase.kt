@@ -24,10 +24,12 @@ class EditEventUseCase @Inject constructor(
         inviteesRequired: Boolean,
     ): EventSaveResult {
         if (repo.isDateTaken(date, excludeId = existing.id)) return EventSaveResult.DateTaken
+        val cleanTitle = title.trim()
+        val cleanEventName = eventName.trim()
         repo.upsert(
             existing.copy(
-                title            = title,
-                eventName        = eventName,
+                title            = cleanTitle,
+                eventName        = cleanEventName,
                 date             = date,
                 icon             = icon,
                 budgetPaise      = budgetPaise,

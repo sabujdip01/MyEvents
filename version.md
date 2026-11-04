@@ -1,9 +1,10 @@
 # Version History
 
-Current: V0.10.12
+Current: V0.10.13
 
 | Version  | Phase | Build | Commit    | Summary                                                                                             |
 | -------- |-------|-------|-----------|-----------------------------------------------------------------------------------------------------|
+| V0.10.13 | Test  | 9     | 62a14bf   | fix(events): trim event name, nav bar booking icon in view event sheet & delete dialog format       |
 | V0.10.12 | Test  | 8     | 1efab92   | fix(ui): propagate event category PNG icons across booking, item list, expenses & invitee screens  |
 | V0.10.11 | Test  | 7     | dcd8798   | fix(events): 10 event icons layout, budget field cursor & backspace, guest count sum                |
 | V0.10.10 | Test  | 6     | 563f11e   | fix(events): view event popup layout, stat cards swap, label rename & calendar cell spacing         |

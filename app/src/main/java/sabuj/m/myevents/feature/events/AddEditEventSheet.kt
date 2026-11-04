@@ -336,8 +336,8 @@ fun AddEditEventSheet(
                 Button(
                     onClick  = {
                         if (isFormValid) {
-                            // Use eventName as title so domain model stays intact
-                            onSave(eventName, eventName, selectedDate, selectedIcon, budgetPaise, inviteesRequired)
+                            val cleanName = eventName.trim()
+                            onSave(cleanName, cleanName, selectedDate, selectedIcon, budgetPaise, inviteesRequired)
                         }
                     },
                     enabled  = isFormValid,

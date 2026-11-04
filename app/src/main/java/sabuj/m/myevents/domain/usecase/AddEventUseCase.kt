@@ -31,11 +31,13 @@ class AddEventUseCase @Inject constructor(
     ): EventSaveResult {
         if (repo.isDateTaken(date)) return EventSaveResult.DateTaken
         val now = System.currentTimeMillis()
+        val cleanTitle = title.trim()
+        val cleanEventName = eventName.trim()
         repo.upsert(
             Event(
                 id               = UUID.randomUUID().toString(),
-                title            = title,
-                eventName        = eventName,
+                title            = cleanTitle,
+                eventName        = cleanEventName,
                 date             = date,
                 icon             = icon,
                 budgetPaise      = budgetPaise,

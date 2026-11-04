@@ -38,6 +38,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import sabuj.m.myevents.core.icons.AppIcon
 import sabuj.m.myevents.core.theme.AppColor
 import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
@@ -133,7 +134,7 @@ fun EventDetailsContent(
             horizontalArrangement = Arrangement.spacedBy(Spacing.md),
         ) {
             StatTile(
-                icon      = event.icon.fallback,
+                icon      = AppIcon.Bookings.fallback,
                 label     = "Booking / Contracts",
                 value     = bookingCount.toString(),
                 caption   = if (bookingCount == 1) "contract" else "contracts",

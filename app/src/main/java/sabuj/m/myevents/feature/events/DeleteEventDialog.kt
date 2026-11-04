@@ -15,8 +15,8 @@ fun DeleteEventDialog(
     onConfirm: () -> Unit,
 ) {
     AppDeleteDialog(
-        title     = "Delete event?",
-        message   = "\"${event.title}\" and all its linked bookings, expenses, invitees and tasks will be removed. You have 10 seconds to undo.",
+        title     = "Wait a sec!",
+        message   = "Event \"${event.title}\" and its linked Bookings, Expenses, Guests details will be completely removed.\n\nThis action is irreversible.",
         onDismiss = onDismiss,
         onConfirm = onConfirm,
     )
