@@ -50,7 +50,7 @@
     <string name="events_field_date">Event date</string>
     <string name="events_field_icon">Event icon</string>
     <string name="events_field_budget">Budget (₹)</string>
-    <string name="events_field_invitees_required">Invitees required</string>
+    <string name="events_field_invitees_required">Invite Guests?</string>
     <string name="events_delete_title">Delete event?</string>
     <string name="events_delete_body">This will also delete all bookings, expenses, invitees and tasks linked to this event.</string>
     <string name="events_deleted">Event deleted</string>

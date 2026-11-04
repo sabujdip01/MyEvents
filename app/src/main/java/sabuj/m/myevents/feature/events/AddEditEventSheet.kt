@@ -255,7 +255,7 @@ fun AddEditEventSheet(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text     = "Invitees required",
+                    text     = "Invite Guests?",
                     style    = labelL,
                     color    = AppColor.text,
                     modifier = Modifier.weight(1f),

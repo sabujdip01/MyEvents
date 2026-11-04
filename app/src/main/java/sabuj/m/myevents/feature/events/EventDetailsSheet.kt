@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import sabuj.m.myevents.core.theme.AppColor
 import sabuj.m.myevents.core.theme.Spacing
@@ -70,120 +71,135 @@ fun EventDetailsSheet(
         containerColor      = AppColor.surface,
         shape               = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = Spacing.lg, vertical = Spacing.md),
-        ) {
-            // ── Header: icon + title + date ─────────────────────────
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconChip(
-                    icon               = event.icon.fallback,
-                    contentDescription = event.title,
-                    size               = IconChipSize.Lg,
-                )
-                Spacer(Modifier.width(Spacing.md))
-                Column {
-                    Text(
-                        text  = event.title,
-                        style = titleL,
-                        color = AppColor.text,
-                    )
-                    Text(
-                        text  = DateUtils.formatDisplay(event.date),
-                        style = bodyM,
-                        color = AppColor.text2,
-                    )
-                }
-            }
+        EventDetailsContent(
+            event    = event,
+            onEdit   = onEdit,
+            onDelete = onDelete,
+        )
+    }
+}
 
-            Spacer(Modifier.height(Spacing.lg))
-
-            // ── Stat tiles (E4 — Icon on left, label/value on right) ──
-            Row(
-                modifier              = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(Spacing.md),
-            ) {
-                StatTile(
-                    icon    = Icons.Rounded.Group,
-                    label   = "Invitees",
-                    value   = if (event.inviteesRequired) "0" else "—",
-                    caption = if (event.inviteesRequired) "people" else "Not required",
-                    modifier = Modifier.weight(1f),
+@Composable
+fun EventDetailsContent(
+    event: Event,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(AppColor.surface)
+            .padding(horizontal = Spacing.lg, vertical = Spacing.md),
+    ) {
+        // ── Header: icon + title + date ─────────────────────────
+        Row(verticalAlignment = Alignment.Top) {
+            IconChip(
+                icon               = event.icon.fallback,
+                contentDescription = event.title,
+                size               = IconChipSize.Lg,
+            )
+            Spacer(Modifier.width(18.dp))
+            Column {
+                Text(
+                    text  = event.title,
+                    style = titleL,
+                    color = AppColor.text,
                 )
-                StatTile(
-                    icon    = event.icon.fallback,
-                    label   = "Booking / Contracts",
-                    value   = "0",
-                    caption = "contracts",
-                    modifier = Modifier.weight(1f),
+                Spacer(Modifier.height(Spacing.xs))
+                Text(
+                    text  = DateUtils.formatDisplay(event.date),
+                    style = bodyM,
+                    color = AppColor.text2,
                 )
             }
-
-            Spacer(Modifier.height(Spacing.lg))
-
-            // ── Detail list ─────────────────────────────────────────
-            DetailRow(
-                icon  = Icons.Rounded.Label,
-                label = "Event",
-                value = event.eventName,
-            )
-            HorizontalDivider(color = AppColor.outlineVariant, thickness = 0.5.dp)
-            DetailRow(
-                icon  = Icons.Rounded.CalendarMonth,
-                label = "Date",
-                value = DateUtils.formatDisplay(event.date),
-            )
-            HorizontalDivider(color = AppColor.outlineVariant, thickness = 0.5.dp)
-            DetailRow(
-                icon  = Icons.Rounded.MonetizationOn,
-                label = "Budget",
-                value = MoneyFormatter.format(event.budgetPaise),
-            )
-            HorizontalDivider(color = AppColor.outlineVariant, thickness = 0.5.dp)
-            DetailRow(
-                icon  = Icons.Rounded.Group,
-                label = "Invitees Required",
-                value = if (event.inviteesRequired) "Yes" else "No",
-            )
-
-            Spacer(Modifier.height(Spacing.xl))
-
-            // ── Action buttons ──────────────────────────────────────
-            Row(
-                modifier              = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(Spacing.md),
-            ) {
-                Button(
-                    onClick  = onEdit,
-                    modifier = Modifier.weight(1f).height(52.dp),
-                    colors   = ButtonDefaults.buttonColors(
-                        containerColor = AppColor.primaryContainer,
-                        contentColor   = AppColor.onPrimaryContainer,
-                    ),
-                    shape    = RoundedCornerShape(16.dp),
-                ) {
-                    Icon(Icons.Rounded.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text("Edit Event", style = labelL)
-                }
-                Button(
-                    onClick  = onDelete,
-                    modifier = Modifier.weight(1f).height(52.dp),
-                    colors   = ButtonDefaults.buttonColors(
-                        containerColor = AppColor.dangerContainer,
-                        contentColor   = AppColor.danger,
-                    ),
-                    shape    = RoundedCornerShape(16.dp),
-                ) {
-                    Icon(Icons.Rounded.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text("Delete Event", style = labelL)
-                }
-            }
-
-            Spacer(Modifier.height(Spacing.xl))
         }
+
+        Spacer(Modifier.height(Spacing.lg))
+
+        // ── Stat tiles (E4 — Icon on left, label/value on right) ──
+        Row(
+            modifier              = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+        ) {
+            StatTile(
+                icon    = event.icon.fallback,
+                label   = "Booking / Contracts",
+                value   = "0",
+                caption = "contracts",
+                modifier = Modifier.weight(1f),
+            )
+            StatTile(
+                icon    = Icons.Rounded.Group,
+                label   = "Invitees",
+                value   = if (event.inviteesRequired) "0" else "—",
+                caption = if (event.inviteesRequired) "people" else "Not required",
+                modifier = Modifier.weight(1f),
+            )
+        }
+
+        Spacer(Modifier.height(Spacing.lg))
+
+        // ── Detail list ─────────────────────────────────────────
+        DetailRow(
+            icon  = Icons.Rounded.Label,
+            label = "Event",
+            value = event.eventName,
+        )
+        HorizontalDivider(color = AppColor.outlineVariant, thickness = 0.5.dp)
+        DetailRow(
+            icon  = Icons.Rounded.CalendarMonth,
+            label = "Date",
+            value = DateUtils.formatDisplay(event.date),
+        )
+        HorizontalDivider(color = AppColor.outlineVariant, thickness = 0.5.dp)
+        DetailRow(
+            icon  = Icons.Rounded.MonetizationOn,
+            label = "Budget",
+            value = MoneyFormatter.format(event.budgetPaise),
+        )
+        HorizontalDivider(color = AppColor.outlineVariant, thickness = 0.5.dp)
+        DetailRow(
+            icon  = Icons.Rounded.Group,
+            label = "Invite Guests?",
+            value = if (event.inviteesRequired) "Yes" else "No",
+        )
+
+        Spacer(Modifier.height(Spacing.xl))
+
+        // ── Action buttons ──────────────────────────────────────
+        Row(
+            modifier              = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+        ) {
+            Button(
+                onClick  = onEdit,
+                modifier = Modifier.weight(1f).height(52.dp),
+                colors   = ButtonDefaults.buttonColors(
+                    containerColor = AppColor.primaryContainer,
+                    contentColor   = AppColor.onPrimaryContainer,
+                ),
+                shape    = RoundedCornerShape(16.dp),
+            ) {
+                Icon(Icons.Rounded.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text("Edit Event", style = labelL)
+            }
+            Button(
+                onClick  = onDelete,
+                modifier = Modifier.weight(1f).height(52.dp),
+                colors   = ButtonDefaults.buttonColors(
+                    containerColor = AppColor.dangerContainer,
+                    contentColor   = AppColor.danger,
+                ),
+                shape    = RoundedCornerShape(16.dp),
+            ) {
+                Icon(Icons.Rounded.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text("Delete Event", style = labelL)
+            }
+        }
+
+        Spacer(Modifier.height(Spacing.xl))
     }
 }
 
@@ -216,9 +232,19 @@ private fun StatTile(
             Spacer(Modifier.width(Spacing.sm))
             // Labels on right
             Column {
-                Text(text = label, style = labelM, color = AppColor.text2)
-                Text(text = value, style = numberL, color = AppColor.text)
-                Text(text = caption, style = bodyM, color = AppColor.text2)
+                Text(
+                    text       = label,
+                    style      = labelM,
+                    fontWeight = FontWeight.Bold,
+                    color      = AppColor.text2,
+                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
+                ) {
+                    Text(text = value, style = numberL, color = AppColor.text)
+                    Text(text = caption, style = bodyM, color = AppColor.text2)
+                }
             }
         }
     }

@@ -567,7 +567,7 @@ private fun DateCell(
                     color = dayColor,
                 )
                 if (event != null) {
-                    Spacer(Modifier.height(2.dp))
+                    Spacer(Modifier.height(3.6.dp))
                     Icon(
                         imageVector        = event.icon.fallback,
                         contentDescription = event.title,
