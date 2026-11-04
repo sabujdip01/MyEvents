@@ -13,8 +13,9 @@ local.properties
 # Agent recycle bin (rule 12)
 .bin/
 
-# Project docs and design assets (local only)
-*.md
+# Project docs to keep local only
+GEMINI.md
+testcases.md
 securityaudit.md
 Color schemes/
 Sample UI/

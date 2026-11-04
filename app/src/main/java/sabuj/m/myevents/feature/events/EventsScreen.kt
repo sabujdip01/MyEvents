@@ -1,6 +1,5 @@
 package sabuj.m.myevents.feature.events
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -8,7 +7,6 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,10 +15,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -87,19 +85,54 @@ private fun getTotalPageCount(): Int {
  * Shows a monthly calendar with 20% increased cell heights, 50% reduced margins,
  * stronger current day tint, and a monthly events list below.
  */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun EventsScreen(
     onMenuClick: () -> Unit,
     viewModel: EventsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    EventsContent(
+        uiState     = uiState,
+        onMenuClick = onMenuClick,
+        onEvent     = viewModel::onEvent,
+    )
+}
+
+/**
+ * Events calendar content — Items D1–D6.
+ * Shows a monthly calendar with 20% increased cell heights, 50% reduced margins,
+ * stronger current day tint, and a monthly events list below.
+ */
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@Composable
+fun EventsContent(
+    uiState: EventsUiState,
+    onMenuClick: () -> Unit,
+    onEvent: (EventsUiEvent) -> Unit,
+) {
     val coroutineScope = rememberCoroutineScope()
     var showMonthPicker by remember { mutableStateOf(false) }
 
     val pageCount = remember { getTotalPageCount() }
     val initialPage = remember { pageForMonth(uiState.currentMonth).coerceIn(0, pageCount - 1) }
     val pagerState = rememberPagerState(initialPage = initialPage) { pageCount }
+
+    // Derived directly from calendar pager's current page — guaranteed 100% in sync
+    val displayedMonth = remember(pagerState.currentPage) {
+        monthForPage(pagerState.currentPage)
+    }
+
+    // Keep ViewModel/State in sync with displayed month
+    LaunchedEffect(displayedMonth) {
+        onEvent(EventsUiEvent.MonthChanged(displayedMonth))
+    }
+
+    // Filter events directly from uiState.events for the displayed month
+    val currentMonthEvents = remember(displayedMonth, uiState.events) {
+        uiState.events
+            .filter { YearMonth.from(it.date) == displayedMonth }
+            .sortedBy { it.date }
+    }
 
     ScreenScaffold(onMenuClick = onMenuClick) {
         if (uiState.isLoading) {
@@ -109,10 +142,14 @@ fun EventsScreen(
             return@ScreenScaffold
         }
 
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
+        ) {
             // Top bar
             EventsTopBar(
-                currentMonth = uiState.currentMonth,
+                currentMonth = displayedMonth,
                 onMenuClick  = onMenuClick,
                 onReturnToCurrentMonth = {
                     val targetPage = pageForMonth(YearMonth.now()).coerceIn(0, pageCount - 1)
@@ -126,47 +163,42 @@ fun EventsScreen(
             // Calendar pager
             CalendarPager(
                 eventsByDate    = uiState.eventsByDate,
-                onMonthChanged  = { viewModel.onEvent(EventsUiEvent.MonthChanged(it)) },
-                onDateTap       = { viewModel.onEvent(EventsUiEvent.DateTapped(it)) },
-                onDateLongPress = { viewModel.onEvent(EventsUiEvent.DateLongPressed(it)) },
+                onMonthChanged  = { },
+                onDateTap       = { onEvent(EventsUiEvent.DateTapped(it)) },
+                onDateLongPress = { onEvent(EventsUiEvent.DateLongPressed(it)) },
                 pagerState      = pagerState,
-                modifier        = Modifier.fillMaxWidth(),
+                modifier        = Modifier
+                    .fillMaxWidth()
+                    .height(390.dp),
             )
 
-            // Space between calendar and event list = 1/4 of current Calendar height (~340dp / 4 = 85dp)
+            // Space between calendar and event list = 1/4 of current Calendar height (85dp)
             Spacer(Modifier.height(85.dp))
 
             // Item D1: Monthly Events List under the calendar
-            val currentMonthEvents = remember(uiState.currentMonth, uiState.events) {
-                uiState.events
-                    .filter { YearMonth.from(it.date) == uiState.currentMonth }
-                    .sortedBy { it.date }
-            }
-
             Column(
                 modifier = Modifier
-                    .weight(1f)
                     .fillMaxWidth()
-                    .padding(horizontal = Spacing.lg),
+                    .padding(horizontal = Spacing.lg)
+                    .padding(bottom = 32.dp),
             ) {
                 Text(
                     text       = "Event(s) in this month:",
                     style      = titleM,
                     fontWeight = FontWeight.Bold,
                     color      = AppColor.text,
-                    modifier   = Modifier.padding(bottom = Spacing.sm),
+                    modifier   = Modifier.padding(bottom = Spacing.md),
                 )
 
                 if (currentMonthEvents.isNotEmpty()) {
-                    LazyColumn(
-                        modifier       = Modifier.fillMaxWidth(),
-                        contentPadding = PaddingValues(bottom = 32.dp),
+                    Column(
+                        modifier            = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(Spacing.sm),
                     ) {
-                        itemsIndexed(currentMonthEvents, key = { _, ev -> ev.id }) { _, event ->
+                        currentMonthEvents.forEach { event ->
                             MonthlyEventRow(
                                 event   = event,
-                                onClick = { viewModel.onEvent(EventsUiEvent.DateTapped(event.date)) },
+                                onClick = { onEvent(EventsUiEvent.DateTapped(event.date)) },
                             )
                         }
                     }
@@ -184,7 +216,7 @@ fun EventsScreen(
 
     if (showMonthPicker) {
         MonthPickerSheet(
-            currentMonth = uiState.currentMonth,
+            currentMonth = displayedMonth,
             onMonthSelected = { selectedMonth ->
                 val targetPage = pageForMonth(selectedMonth).coerceIn(0, pageCount - 1)
                 coroutineScope.launch { pagerState.animateScrollToPage(targetPage) }
@@ -198,17 +230,17 @@ fun EventsScreen(
         SheetMode.None -> Unit
         is SheetMode.Details -> EventDetailsSheet(
             event     = mode.event,
-            onDismiss = { viewModel.onEvent(EventsUiEvent.SheetDismissed) },
-            onEdit    = { viewModel.onEvent(EventsUiEvent.EditRequested(mode.event)) },
-            onDelete  = { viewModel.onEvent(EventsUiEvent.DeleteRequested(mode.event)) },
+            onDismiss = { onEvent(EventsUiEvent.SheetDismissed) },
+            onEdit    = { onEvent(EventsUiEvent.EditRequested(mode.event)) },
+            onDelete  = { onEvent(EventsUiEvent.DeleteRequested(mode.event)) },
         )
         is SheetMode.Add -> AddEditEventSheet(
             prefilledDate = mode.date,
             existingEvent = null,
             saveError     = uiState.errorMessage,
-            onDismiss     = { viewModel.onEvent(EventsUiEvent.SheetDismissed) },
+            onDismiss     = { onEvent(EventsUiEvent.SheetDismissed) },
             onSave        = { title, name, date, icon, budget, inv ->
-                viewModel.onEvent(
+                onEvent(
                     EventsUiEvent.SaveNew(title, name, date, icon, budget, inv)
                 )
             },
@@ -217,17 +249,17 @@ fun EventsScreen(
             prefilledDate = mode.event.date,
             existingEvent = mode.event,
             saveError     = uiState.errorMessage,
-            onDismiss     = { viewModel.onEvent(EventsUiEvent.SheetDismissed) },
+            onDismiss     = { onEvent(EventsUiEvent.SheetDismissed) },
             onSave        = { title, name, date, icon, budget, inv ->
-                viewModel.onEvent(
+                onEvent(
                     EventsUiEvent.SaveEdit(title, name, date, icon, budget, inv)
                 )
             },
         )
         is SheetMode.ConfirmDelete -> DeleteEventDialog(
             event     = mode.event,
-            onDismiss = { viewModel.onEvent(EventsUiEvent.SheetDismissed) },
-            onConfirm = { viewModel.onEvent(EventsUiEvent.DeleteConfirmed) },
+            onDismiss = { onEvent(EventsUiEvent.SheetDismissed) },
+            onConfirm = { onEvent(EventsUiEvent.DeleteConfirmed) },
         )
     }
 }
@@ -503,7 +535,7 @@ private fun DateCell(
     }
 
     val cellModifier = modifier
-        .height(62.dp) // Item D2: 20% cell height increase
+        .height(54.dp)
         .clip(RoundedCornerShape(12.dp))
         .background(bgColor)
         .then(

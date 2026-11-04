@@ -12,6 +12,37 @@ import java.time.YearMonth
  */
 @LightDarkPreviews
 @Composable
+private fun EventsScreenFilledPreview() {
+    val sampleEvents = listOf(
+        sabuj.m.myevents.domain.model.Event(
+            id               = "evt-preview-1",
+            title            = "Wedding",
+            eventName        = "Wedding",
+            date             = java.time.LocalDate.now().plusDays(22),
+            icon             = sabuj.m.myevents.core.icons.EventIcon.Wedding,
+            budgetPaise      = 500_000_00L,
+            inviteesRequired = true,
+            createdAt        = System.currentTimeMillis(),
+            updatedAt        = System.currentTimeMillis(),
+            syncState        = sabuj.m.myevents.domain.model.SyncState.PENDING,
+        ),
+    )
+    AppTheme {
+        EventsContent(
+            uiState = EventsUiState(
+                currentMonth = YearMonth.now(),
+                events       = sampleEvents,
+                eventsByDate = sampleEvents.associateBy { it.date.toEpochDay() },
+                isLoading    = false,
+            ),
+            onMenuClick = {},
+            onEvent     = {},
+        )
+    }
+}
+
+@LightDarkPreviews
+@Composable
 private fun MonthGridPreview() {
     AppTheme {
         MonthGrid(
