@@ -175,6 +175,7 @@ fun BookingCard(
                     size               = IconChipSize.Sm,
                     containerColor     = chipColor,
                     iconColor          = iconColor,
+                    customRes          = booking.bookingIcon.customRes,
                 )
             }
 

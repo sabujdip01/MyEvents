@@ -1,6 +1,9 @@
 package sabuj.m.myevents.feature.events
 
 import androidx.compose.runtime.Composable
+import sabuj.m.myevents.core.preview.LightDarkPreviews
+import sabuj.m.myevents.core.preview.PreviewData
+import sabuj.m.myevents.core.theme.AppTheme
 import sabuj.m.myevents.core.ui.AppDeleteDialog
 import sabuj.m.myevents.domain.model.Event
 
@@ -15,9 +18,21 @@ fun DeleteEventDialog(
     onConfirm: () -> Unit,
 ) {
     AppDeleteDialog(
-        title     = "Wait a sec!",
-        message   = "Event \"${event.title}\" and its linked Bookings, Expenses, Guests details will be completely removed.\n\nThis action is irreversible.",
+        title     = "Delete event?",
+        message   = "\"${event.title}\" and all its linked bookings, expenses, invitees and tasks will be completely removed.",
         onDismiss = onDismiss,
         onConfirm = onConfirm,
     )
+}
+
+@LightDarkPreviews
+@Composable
+private fun DeleteEventDialogPreview() {
+    AppTheme {
+        DeleteEventDialog(
+            event     = PreviewData.sampleEvents.first(),
+            onDismiss = {},
+            onConfirm = {},
+        )
+    }
 }

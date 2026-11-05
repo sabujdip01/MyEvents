@@ -162,7 +162,7 @@ fun AddEditBookingSheet(
         ) {
             // Sheet title
             Text(
-                text  = if (isEdit) "Edit booking" else "Add booking", // TODO strings.xml
+                text  = if (isEdit) "Edit Booking" else "Add Booking", // TODO strings.xml
                 style = titleL,
                 color = AppColor.text,
             )
@@ -203,6 +203,7 @@ fun AddEditBookingSheet(
                             size               = IconChipSize.Default,
                             containerColor     = if (isSelected) AppColor.primaryContainer else AppColor.surfaceVariant,
                             iconColor          = if (isSelected) AppColor.primary else AppColor.text2,
+                            customRes          = icon.customRes,
                         )
                     }
                 }
@@ -435,7 +436,7 @@ private fun EventDropdown(
         modifier        = modifier.fillMaxWidth(),
     ) {
         OutlinedTextField(
-            value              = selectedEvent?.let { "${it.title} (${it.eventName})" } ?: "",
+            value              = selectedEvent?.let { "${it.title} (${DateUtils.formatDisplay(it.date)})" } ?: "",
             onValueChange      = {},
             readOnly           = true,
             label              = { Text("For event", style = bodyM) }, // TODO strings.xml
@@ -461,7 +462,7 @@ private fun EventDropdown(
         ) {
             events.forEach { event ->
                 DropdownMenuItem(
-                    text    = { Text("${event.title} (${event.eventName})", style = bodyM) },
+                    text    = { Text("${event.title} (${DateUtils.formatDisplay(event.date)})", style = bodyM) },
                     onClick = { onSelect(event.id); expanded = false },
                     leadingIcon = {
                         EventIconDisplay(

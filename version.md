@@ -1,24 +1,25 @@
 # Version History
 
-Current: V0.10.14
+Current: V0.T.11
 
 | Version  | Phase | Build | Commit    | Summary                                                                                             |
 | -------- |-------|-------|-----------|-----------------------------------------------------------------------------------------------------|
-| V0.10.14 | Test  | 10    | 9e30347   | fix(home): filter passed events, remove chevron icon & make view event sheet read-only              |
-| V0.10.13 | Test  | 9     | 62a14bf   | fix(events): trim event name, nav bar booking icon in view event sheet & delete dialog format       |
-| V0.10.12 | Test  | 8     | 1efab92   | fix(ui): propagate event category PNG icons across booking, item list, expenses & invitee screens  |
-| V0.10.11 | Test  | 7     | dcd8798   | fix(events): 10 event icons layout, budget field cursor & backspace, guest count sum                |
-| V0.10.10 | Test  | 6     | 563f11e   | fix(events): view event popup layout, stat cards swap, label rename & calendar cell spacing         |
-| V0.10.9  | Test  | 5     | bc7625f   | fix(events): add monthly events list section & align calendar grid cell height and spacing          |
-| V0.10.8 | Test  | 4     | c35c310   | fix(ui): Budget card title alignment, monthly events list filtering & row styling                    |
-| V0.10.7 | Test  | 3     | eb3e309   | fix(home): layout adjustments for Budget vs Spent, Items Pending position & Guests card title       |
-| V0.10.6 | Test  | 2     | 2bb6584   | fix(home): align title font & spacing on 7 cards, center small card values, 40% font scaling on 'of'/'Invited' |
-| V0.10.5 | Test  | 1     | 2a1e874   | fix(splash): bypass OS preview window & show custom artwork splash screen                           |
-| V0.10.4 | 10    | 5     | 63f3d83   | chore(merge): resolve KSP build errors and merge fix/ksp-processing-error into main                 |
-| V0.10.3 | 10    | 4     | ca79928   | feat(settings/sync): 56dp circular swatches, font size tuning, SYNC AND EXPORT section & 1h sync  |
-| V0.10.2 | 10    | 3     | 6f74e01   | feat(ui): comprehensive UI/UX overhaul across splash, home, nav bar, events, bookings, item lists, invitees |
-| V0.10.1 | 10    | 2     | c9d80e9   | fix(security): resolve all security audit findings (SEC-001 through SEC-010)                        |
-| V0.10.0 | 10    | 1     | 5bc7e02   | chore(phase): complete phase 10 — UI/UX polish, accessibility, performance & release                |
+| V0.T.11  | Test  | 11    | af399e9   | fix(bookings): Add Booking title, 45 PNG icons integration & event dropdown date format              |
+| V0.T.10 | Test  | 10    | 9e30347   | fix(home): filter passed events, remove chevron icon & make view event sheet read-only              |
+| V0.T.9  | Test  | 9     | 62a14bf   | fix(events): trim event name, nav bar booking icon in view event sheet & delete dialog format       |
+| V0.T.8  | Test  | 8     | 1efab92   | fix(ui): propagate event category PNG icons across booking, item list, expenses & invitee screens  |
+| V0.T.7  | Test  | 7     | dcd8798   | fix(events): 10 event icons layout, budget field cursor & backspace, guest count sum                |
+| V0.T.6  | Test  | 6     | 563f11e   | fix(events): view event popup layout, stat cards swap, label rename & calendar cell spacing         |
+| V0.T.5  | Test  | 5     | bc7625f   | fix(events): add monthly events list section & align calendar grid cell height and spacing          |
+| V0.T.4  | Test  | 4     | c35c310   | fix(ui): Budget card title alignment, monthly events list filtering & row styling                    |
+| V0.T.3  | Test  | 3     | eb3e309   | fix(home): layout adjustments for Budget vs Spent, Items Pending position & Guests card title       |
+| V0.T.2  | Test  | 2     | 2bb6584   | fix(home): align title font & spacing on 7 cards, center small card values, 40% font scaling on 'of'/'Invited' |
+| V0.T.1  | Test  | 1     | 2a1e874   | fix(splash): bypass OS preview window & show custom artwork splash screen                           |
+| V0.10.5 | 10    | 5     | 63f3d83   | chore(merge): resolve KSP build errors and merge fix/ksp-processing-error into main                 |
+| V0.10.4 | 10    | 4     | ca79928   | feat(settings/sync): 56dp circular swatches, font size tuning, SYNC AND EXPORT section & 1h sync  |
+| V0.10.3 | 10    | 3     | 6f74e01   | feat(ui): comprehensive UI/UX overhaul across splash, home, nav bar, events, bookings, item lists, invitees |
+| V0.10.2 | 10    | 2     | c9d80e9   | fix(security): resolve all security audit findings (SEC-001 through SEC-010)                        |
+| V0.10.1 | 10    | 1     | 5bc7e02   | chore(phase): complete phase 10 — UI/UX polish, accessibility, performance & release                |
 | V0.9.1  | 9     | 1     | 0731313   | feat(sync): Firebase anonymous auth, Firestore background sync worker, offline-first retry          |
 | V0.8.1  | 8     | 1     | c776125   | feat(settings/export): theme/palette selector, Change PIN, notification toggles, sample data, CSV export |
 | V0.7.1  | 7     | 1     | 53716af   | feat(notifications/widget): notification channels, WorkManager reminder worker, Glance widget       |

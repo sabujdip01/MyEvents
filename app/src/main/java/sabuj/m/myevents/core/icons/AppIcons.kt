@@ -87,20 +87,50 @@ enum class BookingIcon(
     val fallback: ImageVector,
     @DrawableRes val customRes: Int? = null,
 ) {
-    Camera(Icons.Rounded.Favorite),       // bk-camera
-    Makeup(Icons.Rounded.Favorite),       // bk-makeup
-    Flower(Icons.Rounded.LocalFlorist),   // bk-flower
-    Pandal(Icons.Rounded.Favorite),       // bk-pandal
-    Chef(Icons.Rounded.Favorite),         // bk-chef
-    Catering(Icons.Rounded.Favorite),     // bk-catering
-    Decorator(Icons.Rounded.LocalFlorist),// bk-decorator
-    Priest(Icons.Rounded.Favorite),       // bk-priest
-    Venue(Icons.Rounded.Favorite),        // bk-venue
-    Music(Icons.Rounded.MusicNote),       // bk-music
-    Sound(Icons.Rounded.MusicNote),       // bk-sound
-    Transport(Icons.Rounded.Favorite),    // bk-transport
-    Jewellery(Icons.Rounded.Favorite),    // bk-jewellery
-    Clothing(Icons.Rounded.Favorite),     // bk-clothing
-    Cards(Icons.Rounded.CardGiftcard),    // bk-cards
-    Other(Icons.Rounded.Work),            // bk-other
+    Camera(Icons.Rounded.Favorite, R.drawable.icon_01_row1_col1),       // bk-camera
+    Makeup(Icons.Rounded.Favorite, R.drawable.icon_02_row1_col2),       // bk-makeup
+    Flower(Icons.Rounded.LocalFlorist, R.drawable.icon_03_row1_col3),   // bk-flower
+    Pandal(Icons.Rounded.Favorite, R.drawable.icon_04_row1_col4),       // bk-pandal
+    Chef(Icons.Rounded.Favorite, R.drawable.icon_05_row1_col5),         // bk-chef
+    Catering(Icons.Rounded.Favorite, R.drawable.icon_06_row1_col6),     // bk-catering
+    Decorator(Icons.Rounded.LocalFlorist, R.drawable.icon_07_row2_col1),// bk-decorator
+    Priest(Icons.Rounded.Favorite, R.drawable.icon_08_row2_col2),       // bk-priest
+    Venue(Icons.Rounded.Favorite, R.drawable.icon_09_row2_col3),        // bk-venue
+    Music(Icons.Rounded.MusicNote, R.drawable.icon_10_row2_col4),       // bk-music
+    Sound(Icons.Rounded.MusicNote, R.drawable.icon_11_row2_col5),       // bk-sound
+    Transport(Icons.Rounded.Favorite, R.drawable.icon_12_row2_col6),    // bk-transport
+    Jewellery(Icons.Rounded.Favorite, R.drawable.icon_13_row3_col1),    // bk-jewellery
+    Clothing(Icons.Rounded.Favorite, R.drawable.icon_14_row3_col2),     // bk-clothing
+    Cards(Icons.Rounded.CardGiftcard, R.drawable.icon_15_row3_col3),    // bk-cards
+    Other(Icons.Rounded.Work, R.drawable.icon_16_row3_col4),            // bk-other
+
+    Icon17(Icons.Rounded.Favorite, R.drawable.icon_17_row3_col5),
+    Icon18(Icons.Rounded.Favorite, R.drawable.icon_18_row3_col6),
+    Icon19(Icons.Rounded.Favorite, R.drawable.icon_19_row4_col1),
+    Icon20(Icons.Rounded.Favorite, R.drawable.icon_20_row4_col2),
+    Icon21(Icons.Rounded.Favorite, R.drawable.icon_21_row4_col3),
+    Icon22(Icons.Rounded.Favorite, R.drawable.icon_22_row4_col4),
+    Icon23(Icons.Rounded.Favorite, R.drawable.icon_23_row4_col5),
+    Icon24(Icons.Rounded.Favorite, R.drawable.icon_24_row4_col6),
+    Icon25(Icons.Rounded.Favorite, R.drawable.icon_25_row5_col1),
+    Icon26(Icons.Rounded.Favorite, R.drawable.icon_26_row5_col2),
+    Icon27(Icons.Rounded.Favorite, R.drawable.icon_27_row5_col3),
+    Icon28(Icons.Rounded.Favorite, R.drawable.icon_28_row5_col4),
+    Icon29(Icons.Rounded.Favorite, R.drawable.icon_29_row5_col5),
+    Icon30(Icons.Rounded.Favorite, R.drawable.icon_30_row5_col6),
+    Icon31(Icons.Rounded.Favorite, R.drawable.icon_31_row6_col1),
+    Icon32(Icons.Rounded.Favorite, R.drawable.icon_32_row6_col2),
+    Icon33(Icons.Rounded.Favorite, R.drawable.icon_33_row6_col3),
+    Icon34(Icons.Rounded.Favorite, R.drawable.icon_34_row6_col4),
+    Icon35(Icons.Rounded.Favorite, R.drawable.icon_35_row6_col5),
+    Icon36(Icons.Rounded.Favorite, R.drawable.icon_36_row6_col6),
+    Icon37(Icons.Rounded.Favorite, R.drawable.icon_37_row7_col1),
+    Icon38(Icons.Rounded.Favorite, R.drawable.icon_38_row7_col2),
+    Icon39(Icons.Rounded.Favorite, R.drawable.icon_39_row7_col3),
+    Icon40(Icons.Rounded.Favorite, R.drawable.icon_40_row7_col4),
+    Icon41(Icons.Rounded.Favorite, R.drawable.icon_41_row7_col5),
+    Icon42(Icons.Rounded.Favorite, R.drawable.icon_42_row7_col6),
+    Icon43(Icons.Rounded.Favorite, R.drawable.icon_43_row8_col1),
+    Icon44(Icons.Rounded.Favorite, R.drawable.icon_44_row8_col2),
+    Icon45(Icons.Rounded.Favorite, R.drawable.icon_45_row8_col3),
 }

@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import sabuj.m.myevents.core.theme.AppColor
@@ -61,15 +62,17 @@ fun AppDeleteDialog(
                 )
                 Spacer(Modifier.height(Spacing.md))
                 Text(
-                    text  = title,
-                    style = titleM,
-                    color = AppColor.text,
+                    text      = title,
+                    style     = titleM,
+                    color     = AppColor.text,
+                    textAlign = TextAlign.Center,
                 )
                 Spacer(Modifier.height(Spacing.sm))
                 Text(
-                    text  = message,
-                    style = bodyM,
-                    color = AppColor.text2,
+                    text      = message,
+                    style     = bodyM,
+                    color     = AppColor.text2,
+                    textAlign = TextAlign.Center,
                 )
                 Spacer(Modifier.height(Spacing.xl))
 
