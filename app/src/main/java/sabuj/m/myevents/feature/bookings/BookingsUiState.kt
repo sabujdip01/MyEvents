@@ -47,14 +47,14 @@ sealed class BookingSheetState {
     /** Sheet for adding a new booking. */
     data class Add(
         val bookingType: String = "",
-        val bookingIcon: BookingIcon = BookingIcon.Other,
+        val bookingIcon: BookingIcon? = null,
         val eventId: String = "",
         val contactName: String = "",
         val phone: String = "",
         val totalAmountPaise: Long = 0L,
         val bookingAmountPaise: Long = 0L,
         val nextDueDateEpochDay: Long? = null,
-        val bookingMade: Boolean = true,
+        val bookingMade: Boolean = false,
         val eventError: String? = null,
         val totalError: String? = null,
     ) : BookingSheetState()
@@ -63,7 +63,7 @@ sealed class BookingSheetState {
     data class Edit(
         val bookingId: String,
         val bookingType: String,
-        val bookingIcon: BookingIcon,
+        val bookingIcon: BookingIcon?,
         val eventId: String,
         val contactName: String,
         val phone: String,

@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import sabuj.m.myevents.core.icons.BookingIcon
 import sabuj.m.myevents.domain.model.Booking
 import sabuj.m.myevents.domain.repository.BookingRepository
 import sabuj.m.myevents.domain.usecase.AddBookingUseCase
@@ -119,7 +120,7 @@ class BookingsViewModel @Inject constructor(
                     val result = addBooking(
                         title              = sheet.bookingType,
                         bookingType        = sheet.bookingType,
-                        bookingIcon        = sheet.bookingIcon,
+                        bookingIcon        = sheet.bookingIcon ?: BookingIcon.Cake,
                         eventId            = sheet.eventId,
                         contactName        = sheet.contactName,
                         phone              = sheet.phone,
@@ -136,7 +137,7 @@ class BookingsViewModel @Inject constructor(
                         existing         = existing,
                         title            = sheet.bookingType,
                         bookingType      = sheet.bookingType,
-                        bookingIcon      = sheet.bookingIcon,
+                        bookingIcon      = sheet.bookingIcon ?: BookingIcon.Cake,
                         eventId          = sheet.eventId,
                         contactName      = sheet.contactName,
                         phone            = sheet.phone,

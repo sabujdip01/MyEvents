@@ -140,7 +140,7 @@ fun BookingCard(
                         horizontalArrangement = Arrangement.End,
                     ) {
                         Pill(
-                            text    = if (booking.bookingMade) "Booking Made" else "Pending",
+                            text    = if (booking.bookingMade) "Booking Confirmed" else "Pending",
                             variant = if (booking.bookingMade) PillVariant.Success else PillVariant.Warning,
                         )
                     }

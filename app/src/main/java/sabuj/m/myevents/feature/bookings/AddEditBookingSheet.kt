@@ -7,8 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,8 +19,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -42,9 +44,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import sabuj.m.myevents.core.icons.BookingIcon
 import sabuj.m.myevents.core.icons.EventIconDisplay
 import sabuj.m.myevents.core.theme.AppColor
@@ -55,6 +62,7 @@ import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.labelM
 import sabuj.m.myevents.core.theme.labelS
 import sabuj.m.myevents.core.theme.titleL
+import sabuj.m.myevents.core.theme.titleM
 import sabuj.m.myevents.core.ui.AppButtonRow
 import sabuj.m.myevents.core.ui.IconChip
 import sabuj.m.myevents.core.ui.IconChipSize
@@ -83,7 +91,7 @@ import java.util.Calendar
  * @param onAddPayment    Called when the user taps "Add payment" in Edit mode.
  * @param onDeletePayment Called when the user taps the delete icon on a payment row.
  */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditBookingSheet(
     sheetState: BookingSheetState,
@@ -104,7 +112,7 @@ fun AddEditBookingSheet(
 ) {
     val isEdit = sheetState is BookingSheetState.Edit
     val bookingType: String
-    val bookingIcon: BookingIcon
+    val bookingIcon: BookingIcon?
     val eventId: String
     val contactName: String
     val phone: String
@@ -146,12 +154,22 @@ fun AddEditBookingSheet(
     val amountLeftPaise = totalAmountPaise - paidPaise
     val modalSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val context = LocalContext.current
+    var showIconPicker by remember { mutableStateOf(false) }
+
+    if (showIconPicker) {
+        BookingIconPickerDialog(
+            selectedIcon = bookingIcon,
+            onSelect     = onIconChange,
+            onDismiss    = { showIconPicker = false },
+        )
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState       = modalSheetState,
         containerColor   = AppColor.surface,
         shape            = RoundedCornerShape(topStart = Radius.sheet, topEnd = Radius.sheet),
+        dragHandle       = null,
     ) {
         Column(
             modifier = Modifier
@@ -167,7 +185,6 @@ fun AddEditBookingSheet(
                 color = AppColor.text,
             )
 
-
             // Booking type field
             BookingTextField(
                 value         = bookingType,
@@ -176,38 +193,11 @@ fun AddEditBookingSheet(
                 placeholder   = "e.g. Camera, Mandap",
             )
 
-            // Booking icon picker
-            Text(text = "Booking icon", style = labelM, color = AppColor.text2) // TODO strings.xml
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
-                verticalArrangement   = Arrangement.spacedBy(Spacing.sm),
-            ) {
-                BookingIcon.entries.forEach { icon ->
-                    val isSelected = icon == bookingIcon
-                    Box(
-                        modifier = Modifier
-                            .size(52.dp)
-                            .clip(RoundedCornerShape(Radius.field))
-                            .background(if (isSelected) AppColor.primaryContainer else AppColor.surfaceVariant)
-                            .border(
-                                width = if (isSelected) 2.dp else 0.dp,
-                                color = if (isSelected) AppColor.primary else AppColor.surface,
-                                shape = RoundedCornerShape(Radius.field),
-                            )
-                            .clickable { onIconChange(icon) },
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        IconChip(
-                            icon               = icon.fallback,
-                            contentDescription = icon.name,
-                            size               = IconChipSize.Default,
-                            containerColor     = if (isSelected) AppColor.primaryContainer else AppColor.surfaceVariant,
-                            iconColor          = if (isSelected) AppColor.primary else AppColor.text2,
-                            customRes          = icon.customRes,
-                        )
-                    }
-                }
-            }
+            // Booking icon dropdown field (opens 5x9 icon picker popup)
+            BookingIconDropdown(
+                selectedIcon = bookingIcon,
+                onClick      = { showIconPicker = true },
+            )
 
             // For event dropdown
             EventDropdown(
@@ -235,13 +225,38 @@ fun AddEditBookingSheet(
                 keyboardType  = KeyboardType.Phone,
             )
 
-            // Booking Made? Yes/No toggle (Item E2)
+            // Contract Amount
+            BookingMoneyTextField(
+                paiseValue    = totalAmountPaise,
+                onPaiseChange = onTotalChange,
+                label         = "Contract Amount (₹)",
+                placeholder   = "0",
+                isError       = totalError != null,
+                supportingText = totalError,
+            )
+
+            // Booking Amount / Advance (only in Add mode)
+            if (!isEdit) {
+                BookingMoneyTextField(
+                    paiseValue    = bookingAmountPaise,
+                    onPaiseChange = { amount ->
+                        onBookingAmountChange(amount)
+                        if (amount > 0L) {
+                            onBookingMadeChange(true)
+                        }
+                    },
+                    label         = "Booking Amount / Advance (₹)",
+                    placeholder   = "0",
+                )
+            }
+
+            // Booking Confirmed? Yes/No toggle (Moved just after Booking Amount field)
             Row(
                 modifier          = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text     = "Booking Made?",
+                    text     = "Booking Confirmed?",
                     style    = labelL,
                     color    = AppColor.text,
                     modifier = Modifier.weight(1f),
@@ -256,34 +271,6 @@ fun AddEditBookingSheet(
                         uncheckedTrackColor  = AppColor.surfaceVariant,
                         uncheckedBorderColor = AppColor.outline,
                     ),
-                )
-            }
-
-            // Contract Amount
-            val contractRupeesStr = if (totalAmountPaise == 0L) "" else formatIndianDigits((totalAmountPaise / 100L).toString())
-            BookingMoneyTextField(
-                value         = contractRupeesStr,
-                onValueChange = { text ->
-                    val digits = text.filter { it.isDigit() }
-                    onTotalChange(digits.toLongOrNull()?.times(100L) ?: 0L)
-                },
-                label         = "Contract Amount (₹)",
-                placeholder   = "0",
-                isError       = totalError != null,
-                supportingText = totalError,
-            )
-
-            // Booking Amount / Advance (only in Add mode)
-            if (!isEdit) {
-                val bookingRupeesStr = if (bookingAmountPaise == 0L) "" else formatIndianDigits((bookingAmountPaise / 100L).toString())
-                BookingMoneyTextField(
-                    value         = bookingRupeesStr,
-                    onValueChange = { text ->
-                        val digits = text.filter { it.isDigit() }
-                        onBookingAmountChange(digits.toLongOrNull()?.times(100L) ?: 0L)
-                    },
-                    label         = "Booking Amount / Advance (₹)",
-                    placeholder   = "0",
                 )
             }
 
@@ -477,6 +464,151 @@ private fun EventDropdown(
     }
 }
 
+/** Booking icon selector field matching the For Event dropdown style. */
+@Composable
+private fun BookingIconDropdown(
+    selectedIcon: BookingIcon?,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(modifier = modifier.fillMaxWidth()) {
+        OutlinedTextField(
+            value         = selectedIcon?.displayName ?: "",
+            onValueChange = {},
+            readOnly      = true,
+            label         = { Text("Booking icon", style = bodyM) },
+            placeholder   = { Text("Select booking icon", style = bodyM, color = AppColor.text3) },
+            leadingIcon   = selectedIcon?.let { icon ->
+                {
+                    IconChip(
+                        icon               = icon.fallback,
+                        contentDescription = icon.displayName,
+                        size               = IconChipSize.Sm,
+                        customRes          = icon.customRes,
+                    )
+                }
+            },
+            trailingIcon  = {
+                Icon(
+                    imageVector        = Icons.Rounded.KeyboardArrowDown,
+                    contentDescription = "Select icon",
+                    tint               = AppColor.text2,
+                )
+            },
+            modifier       = Modifier.fillMaxWidth(),
+            shape          = RoundedCornerShape(Radius.field),
+            colors         = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor   = AppColor.primary,
+                unfocusedBorderColor = AppColor.outline,
+                focusedLabelColor    = AppColor.primary,
+                unfocusedLabelColor  = AppColor.text2,
+                cursorColor          = AppColor.primary,
+            ),
+        )
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clip(RoundedCornerShape(Radius.field))
+                .clickable { onClick() }
+        )
+    }
+}
+
+/** Popup dialog showing 47 booking icons in a 5 col grid (increased width by 20%). */
+@Composable
+fun BookingIconPickerDialog(
+    selectedIcon: BookingIcon?,
+    onSelect: (BookingIcon) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties       = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+        Card(
+            shape    = RoundedCornerShape(24.dp),
+            colors   = CardDefaults.cardColors(containerColor = AppColor.surface),
+            modifier = Modifier
+                .fillMaxWidth(0.92f)
+                .padding(vertical = Spacing.md),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(Spacing.md),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Row(
+                    modifier          = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text     = "Select Booking Icon",
+                        style    = titleM,
+                        color    = AppColor.text,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Icon(
+                        imageVector        = Icons.Rounded.Close,
+                        contentDescription = "Close",
+                        tint               = AppColor.text2,
+                        modifier           = Modifier
+                            .size(24.dp)
+                            .clickable { onDismiss() },
+                    )
+                }
+                Spacer(Modifier.height(Spacing.md))
+
+                // 47 icons in 5 columns grid
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(Spacing.xs),
+                    modifier            = Modifier.verticalScroll(rememberScrollState()),
+                ) {
+                    BookingIcon.pickerEntries.chunked(5).forEach { rowIcons ->
+                        Row(
+                            modifier              = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
+                        ) {
+                            rowIcons.forEach { icon ->
+                                val isSelected = icon == selectedIcon
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(52.dp)
+                                        .clip(RoundedCornerShape(Radius.field))
+                                        .background(if (isSelected) AppColor.primaryContainer else AppColor.surfaceVariant.copy(alpha = 0.5f))
+                                        .border(
+                                            width = if (isSelected) 2.dp else 0.dp,
+                                            color = if (isSelected) AppColor.primary else Color.Transparent,
+                                            shape = RoundedCornerShape(Radius.field),
+                                        )
+                                        .clickable {
+                                            onSelect(icon)
+                                            onDismiss() // Auto-close on selection
+                                        },
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    IconChip(
+                                        icon               = icon.fallback,
+                                        contentDescription = icon.displayName,
+                                        size               = IconChipSize.Sm,
+                                        containerColor     = Color.Transparent,
+                                        iconColor          = if (isSelected) AppColor.primary else AppColor.text2,
+                                        customRes          = icon.customRes,
+                                    )
+                                }
+                            }
+                            repeat(5 - rowIcons.size) {
+                                Spacer(Modifier.weight(1f))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 /** Reusable styled text field for the booking sheet. */
 @Composable
 private fun BookingTextField(
@@ -524,17 +656,33 @@ private fun formatIndianDigits(rawDigits: String): String {
 
 @Composable
 private fun BookingMoneyTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
+    paiseValue: Long,
+    onPaiseChange: (Long) -> Unit,
     label: String,
     modifier: Modifier = Modifier,
     placeholder: String = "0",
     isError: Boolean = false,
     supportingText: String? = null,
 ) {
+    val rawDigits = if (paiseValue == 0L) "" else (paiseValue / 100L).toString()
+    val formattedText = if (rawDigits.isNotEmpty()) formatIndianDigits(rawDigits) else ""
+
+    var textFieldValue by remember(paiseValue) {
+        mutableStateOf(TextFieldValue(text = formattedText, selection = TextRange(formattedText.length)))
+    }
+
     OutlinedTextField(
-        value          = value,
-        onValueChange  = onValueChange,
+        value         = textFieldValue,
+        onValueChange = { input ->
+            val digits = input.text.filter { it.isDigit() }.take(10)
+            val newPaise = digits.toLongOrNull()?.times(100L) ?: 0L
+            val formatted = if (digits.isNotEmpty()) formatIndianDigits(digits) else ""
+            textFieldValue = TextFieldValue(
+                text      = formatted,
+                selection = TextRange(formatted.length),
+            )
+            onPaiseChange(newPaise)
+        },
         label          = { Text(label, style = bodyM) },
         placeholder    = { Text(placeholder, style = bodyM, color = AppColor.text3) },
         prefix         = { Text("₹ ", style = bodyM, color = AppColor.text) },

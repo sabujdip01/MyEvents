@@ -187,7 +187,14 @@ fun BookingsScreen(
             onContactChange = { viewModel.updateAddSheetField { s -> s.copy(contactName = it) } },
             onPhoneChange = { viewModel.updateAddSheetField { s -> s.copy(phone = it) } },
             onTotalChange = { viewModel.updateAddSheetField { s -> s.copy(totalAmountPaise = it) } },
-            onBookingAmountChange = { viewModel.updateAddSheetField { s -> s.copy(bookingAmountPaise = it) } },
+            onBookingAmountChange = { amount ->
+                viewModel.updateAddSheetField { s ->
+                    s.copy(
+                        bookingAmountPaise = amount,
+                        bookingMade        = if (amount > 0L) true else s.bookingMade,
+                    )
+                }
+            },
             onBookingMadeChange = { viewModel.updateAddSheetField { s -> s.copy(bookingMade = it) } },
             onDueDateChange = { viewModel.updateAddSheetField { s -> s.copy(nextDueDateEpochDay = it) } },
             onSave        = { viewModel.saveBooking() },
