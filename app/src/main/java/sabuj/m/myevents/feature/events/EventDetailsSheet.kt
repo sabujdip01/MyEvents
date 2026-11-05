@@ -69,6 +69,28 @@ fun EventDetailsSheet(
     onEdit: () -> Unit,
     onDelete: () -> Unit,
 ) {
+    EventDetailsSheet(
+        event        = event,
+        bookingCount = bookingCount,
+        inviteeCount = inviteeCount,
+        showActions  = true,
+        onDismiss    = onDismiss,
+        onEdit       = onEdit,
+        onDelete     = onDelete,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EventDetailsSheet(
+    event: Event,
+    bookingCount: Int = 0,
+    inviteeCount: Int = 0,
+    showActions: Boolean = true,
+    onDismiss: () -> Unit,
+    onEdit: () -> Unit = {},
+    onDelete: () -> Unit = {},
+) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     ModalBottomSheet(
@@ -81,6 +103,7 @@ fun EventDetailsSheet(
             event        = event,
             bookingCount = bookingCount,
             inviteeCount = inviteeCount,
+            showActions  = showActions,
             onEdit       = onEdit,
             onDelete     = onDelete,
         )
@@ -92,8 +115,27 @@ fun EventDetailsContent(
     event: Event,
     bookingCount: Int = 0,
     inviteeCount: Int = 0,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit,
+    onEdit: () -> Unit = {},
+    onDelete: () -> Unit = {},
+) {
+    EventDetailsContent(
+        event        = event,
+        bookingCount = bookingCount,
+        inviteeCount = inviteeCount,
+        showActions  = true,
+        onEdit       = onEdit,
+        onDelete     = onDelete,
+    )
+}
+
+@Composable
+fun EventDetailsContent(
+    event: Event,
+    bookingCount: Int = 0,
+    inviteeCount: Int = 0,
+    showActions: Boolean = true,
+    onEdit: () -> Unit = {},
+    onDelete: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -176,38 +218,40 @@ fun EventDetailsContent(
             value = if (event.inviteesRequired) "Yes" else "No",
         )
 
-        Spacer(Modifier.height(Spacing.xl))
+        if (showActions) {
+            Spacer(Modifier.height(Spacing.xl))
 
-        // ── Action buttons ──────────────────────────────────────
-        Row(
-            modifier              = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.md),
-        ) {
-            Button(
-                onClick  = onEdit,
-                modifier = Modifier.weight(1f).height(52.dp),
-                colors   = ButtonDefaults.buttonColors(
-                    containerColor = AppColor.primaryContainer,
-                    contentColor   = AppColor.onPrimaryContainer,
-                ),
-                shape    = RoundedCornerShape(16.dp),
+            // ── Action buttons ──────────────────────────────────────
+            Row(
+                modifier              = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.md),
             ) {
-                Icon(Icons.Rounded.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text("Edit Event", style = labelL)
-            }
-            Button(
-                onClick  = onDelete,
-                modifier = Modifier.weight(1f).height(52.dp),
-                colors   = ButtonDefaults.buttonColors(
-                    containerColor = AppColor.dangerContainer,
-                    contentColor   = AppColor.danger,
-                ),
-                shape    = RoundedCornerShape(16.dp),
-            ) {
-                Icon(Icons.Rounded.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text("Delete Event", style = labelL)
+                Button(
+                    onClick  = onEdit,
+                    modifier = Modifier.weight(1f).height(52.dp),
+                    colors   = ButtonDefaults.buttonColors(
+                        containerColor = AppColor.primaryContainer,
+                        contentColor   = AppColor.onPrimaryContainer,
+                    ),
+                    shape    = RoundedCornerShape(16.dp),
+                ) {
+                    Icon(Icons.Rounded.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("Edit Event", style = labelL)
+                }
+                Button(
+                    onClick  = onDelete,
+                    modifier = Modifier.weight(1f).height(52.dp),
+                    colors   = ButtonDefaults.buttonColors(
+                        containerColor = AppColor.dangerContainer,
+                        contentColor   = AppColor.danger,
+                    ),
+                    shape    = RoundedCornerShape(16.dp),
+                ) {
+                    Icon(Icons.Rounded.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("Delete Event", style = labelL)
+                }
             }
         }
 

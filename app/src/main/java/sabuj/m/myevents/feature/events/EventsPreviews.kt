@@ -59,11 +59,20 @@ private fun MonthGridPreview() {
 @Composable
 private fun EventDetailsSheetPreview() {
     AppTheme {
-        EventDetailsSheet(
-            event     = PreviewData.sampleEvents.first(),
-            onDismiss = {},
-            onEdit    = {},
-            onDelete  = {},
+        EventDetailsContent(
+            event       = PreviewData.sampleEvents.first(),
+            showActions = true,
+        )
+    }
+}
+
+@LightDarkPreviews
+@Composable
+private fun EventDetailsSheetReadOnlyPreview() {
+    AppTheme {
+        EventDetailsContent(
+            event       = PreviewData.sampleEvents.first(),
+            showActions = false,
         )
     }
 }

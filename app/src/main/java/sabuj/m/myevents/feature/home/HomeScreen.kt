@@ -21,7 +21,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -93,7 +92,7 @@ fun HomeScreen(
             modifier            = modifier,
         )
 
-        // Item B3: View Event Popup on chevron click
+        // View Event Popup on event row click (Read-Only: no Edit/Delete actions)
         selectedEventSummary?.let { summary ->
             EventDetailsSheet(
                 event = Event(
@@ -109,9 +108,8 @@ fun HomeScreen(
                     syncState        = sabuj.m.myevents.domain.model.SyncState.PENDING,
                     deleted          = false,
                 ),
-                onDismiss = { selectedEventSummary = null },
-                onEdit    = { selectedEventSummary = null; onNavigateToEvents() },
-                onDelete  = { selectedEventSummary = null; onNavigateToEvents() },
+                showActions = false,
+                onDismiss   = { selectedEventSummary = null },
             )
         }
     }
@@ -260,17 +258,20 @@ private fun UpcomingEventsCard(
     onAddEvent: () -> Unit,
     onEventClick: (EventSummary) -> Unit,
 ) {
+    val activeEvents = remember(events) {
+        events.filter { DateUtils.daysUntil(it.date) >= 0L }.sortedBy { it.date }
+    }
     HomeCard {
         Column(modifier = Modifier.padding(Spacing.md)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 CardIcon(icon = AppIcon.Events.fallback, contentDescription = "")
                 Spacer(Modifier.width(Spacing.md))
                 Text("Upcoming Events", style = titleM, color = AppColor.text, modifier = Modifier.weight(1f))
-                Pill(text = "${events.size} events")
+                Pill(text = "${activeEvents.size} events")
             }
             HorizontalDivider(modifier = Modifier.padding(vertical = Spacing.sm), color = AppColor.outlineVariant)
 
-            if (events.isEmpty()) {
+            if (activeEvents.isEmpty()) {
                 Column(
                     modifier                = Modifier.fillMaxWidth().padding(vertical = Spacing.md),
                     horizontalAlignment     = Alignment.CenterHorizontally,
@@ -280,7 +281,7 @@ private fun UpcomingEventsCard(
                     AppButtonTonal("Add event", onClick = onAddEvent, leadingIcon = Icons.Rounded.Add)
                 }
             } else {
-                events.forEach { event ->
+                activeEvents.forEach { event ->
                     EventRow(event = event, onClick = { onEventClick(event) })
                     Spacer(Modifier.height(Spacing.xs))
                 }
@@ -326,8 +327,6 @@ private fun EventRow(event: EventSummary, onClick: () -> Unit) {
                 Text(DateUtils.formatDisplay(event.date), style = bodyM, color = AppColor.text2)
             }
             Pill(text = pillText, icon = AppIcon.Clock.fallback, variant = pillVariant)
-            Spacer(Modifier.width(Spacing.sm))
-            Icon(Icons.AutoMirrored.Rounded.ArrowForwardIos, "View Event Details", tint = AppColor.primary, modifier = Modifier.size(16.dp))
         }
     }
 }
