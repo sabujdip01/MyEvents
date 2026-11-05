@@ -1,9 +1,10 @@
 # Version History
 
-Current: V0.T.12
+Current: V0.T.13
 
 | Version  | Phase | Build | Commit    | Summary                                                                                             |
 | -------- |-------|-------|-----------|-----------------------------------------------------------------------------------------------------|
+| V0.T.13  | Test  | 13    | 96e85c6   | fix(bookings): card layout 50% enlarged icons & 4-column relative positioning                        |
 | V0.T.12  | Test  | 12    | 44d071f   | fix(bookings): icon dropdown popup, 47 icons grid & reorder confirmed toggle                        |
 | V0.T.11  | Test  | 11    | af399e9   | fix(bookings): Add Booking title, 45 PNG icons integration & event dropdown date format              |
 | V0.T.10 | Test  | 10    | 9e30347   | fix(home): filter passed events, remove chevron icon & make view event sheet read-only              |

@@ -178,6 +178,8 @@ fun AddEditBookingSheet(
                 .padding(horizontal = Spacing.lg, vertical = Spacing.md),
             verticalArrangement = Arrangement.spacedBy(Spacing.lg),
         ) {
+            Spacer(Modifier.height(Spacing.xs))
+
             // Sheet title
             Text(
                 text  = if (isEdit) "Edit Booking" else "Add Booking", // TODO strings.xml
