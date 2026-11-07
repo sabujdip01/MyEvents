@@ -1,10 +1,11 @@
 # Version History
 
-Current: V0.T.21
+Current: V0.T.22
 
 | Version  | Phase | Build | Commit    | Summary                                                                                             |
 | -------- |-------|-------|-----------|-----------------------------------------------------------------------------------------------------|
-| V0.T.21  | Test  | 21    | -         | fix(bookings): event category icons on pill filters & swipable add/edit booking sheet                |
+| V0.T.22  | Test  | 22    | -         | fix(bookings): add Delete mode toggle, disabled FAB in delete mode & single-card delete dialog     |
+| V0.T.21  | Test  | 21    | ec6fa2b   | fix(bookings): event category icons on pill filters & swipable add/edit booking sheet                |
 | V0.T.20  | Test  | 20    | 3a26903   | fix(events): match event card bg with calendar cell & circular 25% smaller view event icon           |
 | V0.T.19  | Test  | 19    | -         | fix(sync): correct Firestore field names for Booking, Task, Invitee, Gift, Expense                  |
 | V0.T.18  | Test  | 18    | -         | fix(cards): expense & invitee card -25% height, +40% gap, Total row above nav bar                   |

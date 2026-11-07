@@ -135,14 +135,25 @@ fun BookingCard(
                     maxLines = 1,
                 )
                 Spacer(Modifier.width(Spacing.xs))
-                Icon(
-                    imageVector        = Icons.Rounded.Edit,
-                    contentDescription = "Edit booking",
-                    tint               = AppColor.primary,
-                    modifier           = Modifier
-                        .size(20.dp)
-                        .clickable { onEditClick() },
-                )
+                if (editMode) {
+                    Icon(
+                        imageVector        = Icons.Rounded.Delete,
+                        contentDescription = "Delete booking",
+                        tint               = AppColor.danger,
+                        modifier           = Modifier
+                            .size(20.dp)
+                            .clickable { onDeleteClick() },
+                    )
+                } else {
+                    Icon(
+                        imageVector        = Icons.Rounded.Edit,
+                        contentDescription = "Edit booking",
+                        tint               = AppColor.primary,
+                        modifier           = Modifier
+                            .size(20.dp)
+                            .clickable { onEditClick() },
+                    )
+                }
             }
 
             Spacer(Modifier.height(2.dp))
@@ -234,19 +245,6 @@ fun BookingCard(
                     )
                 }
             }
-        }
-
-        // Delete badge in edit mode
-        if (editMode) {
-            IconChipDanger(
-                icon               = Icons.Rounded.Delete,
-                contentDescription = "Delete booking",
-                size               = IconChipSize.Sm,
-                modifier           = Modifier
-                    .align(Alignment.TopEnd)
-                    .offset(x = (-Spacing.xs), y = Spacing.xs)
-                    .clickable { onDeleteClick() },
-            )
         }
     }
 }

@@ -28,26 +28,29 @@ fun AppFab(
     icon: ImageVector,
     contentDescription: String,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     Surface(
-        onClick         = onClick,
+        onClick         = { if (enabled) onClick() },
         modifier        = modifier
             .navigationBarsPadding()
             .padding(bottom = Spacing.lg, end = Spacing.lg)
             .size(56.dp),
         shape           = CircleShape,
-        color           = AppColor.surface,
-        shadowElevation = 2.dp,
+        color           = if (enabled) AppColor.surface else AppColor.surfaceVariant.copy(alpha = 0.5f),
+        shadowElevation = if (enabled) 2.dp else 0.dp,
         border          = BorderStroke(
             0.8.dp,
-            if (AppColor.isDark) AppColor.outlineVariant else AppColor.primary.copy(alpha = 0.25f),
+            if (enabled) {
+                if (AppColor.isDark) AppColor.outlineVariant else AppColor.primary.copy(alpha = 0.25f)
+            } else AppColor.outlineVariant.copy(alpha = 0.3f),
         ),
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
                 imageVector        = icon,
                 contentDescription = contentDescription,
-                tint               = AppColor.primary,
+                tint               = if (enabled) AppColor.primary else AppColor.text3,
                 modifier           = Modifier.size(24.dp),
             )
         }

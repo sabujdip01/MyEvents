@@ -159,14 +159,12 @@ fun BookingsScreen(
             }
         }
 
-        // ── FAB (Items F1 & F2 — Round shape, matching nav icon border & nav bar padding) ──
+        // ── FAB ──
         sabuj.m.myevents.core.ui.AppFab(
-            onClick = {
-                if (uiState.mode == BookingsMode.Edit) viewModel.toggleEditMode()
-                else viewModel.openAddSheet()
-            },
-            icon = if (uiState.mode == BookingsMode.Edit) Icons.Rounded.Check else Icons.Rounded.Add,
-            contentDescription = if (uiState.mode == BookingsMode.Edit) "Done" else "Add booking",
+            onClick = { viewModel.openAddSheet() },
+            icon    = Icons.Rounded.Add,
+            contentDescription = "Add booking",
+            enabled = uiState.mode != BookingsMode.Edit,
             modifier = Modifier.align(Alignment.BottomEnd),
         )
 
@@ -263,14 +261,12 @@ private fun BookingsTopBar(
         onMenuClick = onMenuClick,
         modifier    = modifier,
         actions     = {
-            if (isEditMode) {
-                Text(
-                    text     = "Done",
-                    style    = labelL,
-                    color    = AppColor.primary,
-                    modifier = Modifier.clickable { onToggleEdit() }.padding(Spacing.sm),
-                )
-            }
+            Text(
+                text     = if (isEditMode) "Done" else "Delete",
+                style    = labelL,
+                color    = AppColor.primary,
+                modifier = Modifier.clickable { onToggleEdit() }.padding(Spacing.sm),
+            )
         },
     )
 }
