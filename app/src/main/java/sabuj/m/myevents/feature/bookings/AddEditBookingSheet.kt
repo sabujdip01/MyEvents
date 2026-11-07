@@ -37,7 +37,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -173,25 +172,11 @@ fun AddEditBookingSheet(
     val amountLeftPaise = totalAmountPaise - paidPaise
     val modalSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
-        confirmValueChange    = { target -> target != SheetValue.Hidden },
     )
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    val coroutineScope = rememberCoroutineScope()
     var showIconPicker by remember { mutableStateOf(false) }
-
-    fun dismissSheet() {
-        keyboardController?.hide()
-        focusManager.clearFocus()
-        coroutineScope.launch {
-            if (modalSheetState.isVisible) {
-                modalSheetState.hide()
-            }
-        }.invokeOnCompletion {
-            onDismiss()
-        }
-    }
 
     if (showIconPicker) {
         BookingIconPickerDialog(
@@ -201,21 +186,8 @@ fun AddEditBookingSheet(
         )
     }
 
-    val noBounceNestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset = Offset.Zero
-            override fun onPostScroll(
-                consumed: Offset,
-                available: Offset,
-                source: NestedScrollSource,
-            ): Offset = available
-            override suspend fun onPreFling(available: Velocity): Velocity = Velocity.Zero
-            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity = available
-        }
-    }
-
     ModalBottomSheet(
-        onDismissRequest    = { dismissSheet() },
+        onDismissRequest    = onDismiss,
         sheetState          = modalSheetState,
         containerColor      = AppColor.surface,
         shape               = RoundedCornerShape(topStart = Radius.sheet, topEnd = Radius.sheet),
@@ -227,7 +199,6 @@ fun AddEditBookingSheet(
                 .fillMaxWidth()
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .nestedScroll(noBounceNestedScrollConnection)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 12.dp),
         ) {
@@ -465,7 +436,7 @@ fun AddEditBookingSheet(
                 positiveText    = if (isEdit) "Save" else "Add", // TODO strings.xml
                 onPositive      = { keyboardController?.hide(); focusManager.clearFocus(); onSave() },
                 negativeText    = "Cancel", // TODO strings.xml
-                onNegative      = { dismissSheet() },
+                onNegative      = { keyboardController?.hide(); focusManager.clearFocus(); onDismiss() },
                 positiveEnabled = isSaveEnabled,
             )
 

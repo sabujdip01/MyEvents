@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -39,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import sabuj.m.myevents.core.icons.EventIconDisplay
 import sabuj.m.myevents.core.theme.AppColor
 import sabuj.m.myevents.core.theme.Radius
 import sabuj.m.myevents.core.theme.Spacing
@@ -278,7 +280,7 @@ private fun BookingsTopBar(
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @Composable
-private fun EventFilterChips(
+internal fun EventFilterChips(
     events: List<Event>,
     bookings: List<Booking>,
     selectedEventId: String?,
@@ -304,6 +306,7 @@ private fun EventFilterChips(
                 label      = "${event.title} (${sabuj.m.myevents.core.util.MoneyFormatter.format(totalForEvent)})",
                 isSelected = selectedEventId == event.id,
                 onClick    = { onSelect(event.id) },
+                event      = event,
             )
         }
     }
@@ -314,6 +317,7 @@ private fun FilterChipItem(
     label: String,
     isSelected: Boolean,
     onClick: () -> Unit,
+    event: Event? = null,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -322,10 +326,18 @@ private fun FilterChipItem(
         shape      = RoundedCornerShape(Radius.pill),
         color      = if (isSelected) AppColor.primaryContainer else AppColor.surfaceVariant,
     ) {
-        Box(
-            contentAlignment = Alignment.Center,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier         = Modifier.padding(horizontal = Spacing.md),
         ) {
+            if (event != null) {
+                EventIconDisplay(
+                    icon               = event.icon,
+                    contentDescription = event.title,
+                    modifier           = Modifier.size(18.dp),
+                )
+                Spacer(Modifier.width(Spacing.xs))
+            }
             Text(
                 text     = label,
                 style    = labelM,
