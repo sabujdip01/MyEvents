@@ -106,4 +106,22 @@ object PreviewData {
         syncState        = SyncState.PENDING,
         deleted          = false,
     )
+
+    val sampleTask: sabuj.m.myevents.domain.model.Task = sabuj.m.myevents.domain.model.Task(
+        id               = "task-preview-1",
+        eventId          = "evt-preview-1",
+        title            = "Finalize Mandap Decorator",
+        dueDate          = LocalDate.now().plusDays(10),
+        totalAmountPaise = 45_000_00L,
+        items            = listOf(
+            sabuj.m.myevents.domain.model.TaskItem("Flowers", 15_000_00L, true),
+            sabuj.m.myevents.domain.model.TaskItem("Lighting", 15_000_00L, true),
+            sabuj.m.myevents.domain.model.TaskItem("Stage backdrop", 15_000_00L, false),
+        ),
+        completed        = false,
+        createdAt        = System.currentTimeMillis(),
+        updatedAt        = System.currentTimeMillis(),
+        syncState        = SyncState.PENDING,
+        deleted          = false,
+    )
 }

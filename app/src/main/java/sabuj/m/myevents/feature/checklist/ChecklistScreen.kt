@@ -1,5 +1,6 @@
 package sabuj.m.myevents.feature.checklist
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,12 +21,15 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,6 +41,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import sabuj.m.myevents.core.icons.EventIconDisplay
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -49,6 +56,7 @@ import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.gradientChipColor
 import sabuj.m.myevents.core.theme.gradientFor
 import sabuj.m.myevents.core.theme.gradientIconColor
+import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.labelM
 import sabuj.m.myevents.core.theme.numberL
 import sabuj.m.myevents.core.theme.titleL
@@ -76,7 +84,14 @@ fun ChecklistScreen(
 
     LaunchedEffect(uiState.snackbarMessage) {
         val msg = uiState.snackbarMessage ?: return@LaunchedEffect
-        snackbarHostState.showSnackbar(msg)
+        val result = snackbarHostState.showSnackbar(
+            message     = msg,
+            actionLabel = "UNDO",
+            duration    = SnackbarDuration.Long,
+        )
+        if (result == SnackbarResult.ActionPerformed) {
+            viewModel.undoDelete()
+        }
         viewModel.snackbarDismissed()
     }
 
@@ -90,10 +105,11 @@ fun ChecklistScreen(
             }
 
             Column(modifier = Modifier.fillMaxSize()) {
-                // Top bar (Item G2 — Edit option removed)
-                AppTopBar(
-                    titleText   = "Item Lists",
-                    onMenuClick = onMenuClick,
+                // Top bar with Delete/Done action toggle
+                ChecklistTopBar(
+                    isDeleteMode   = uiState.isDeleteMode,
+                    onToggleDelete = { viewModel.toggleDeleteMode() },
+                    onMenuClick    = onMenuClick,
                 )
 
                 Spacer(Modifier.height(Spacing.sm))
@@ -123,20 +139,23 @@ fun ChecklistScreen(
                     }
                 } else {
                     ItemListContent(
-                        tasks      = list,
-                        events     = uiState.events,
-                        onEditTask = { viewModel.showEditSheet(it) },
-                        modifier   = Modifier.weight(1f),
+                        tasks        = list,
+                        events       = uiState.events,
+                        isDeleteMode = uiState.isDeleteMode,
+                        onEditTask   = { viewModel.showEditSheet(it) },
+                        onDeleteTask = { viewModel.requestDeleteTask(it) },
+                        modifier     = Modifier.weight(1f),
                     )
                 }
             }
         }
 
-        // FAB (Items G1 & F2 — Round AppFab with navigationBarsPadding)
+        // FAB (Disabled in Delete mode)
         AppFab(
             onClick            = { viewModel.showAddSheet() },
             icon               = Icons.Rounded.Add,
             contentDescription = "Add Item List",
+            enabled            = !uiState.isDeleteMode,
             modifier           = Modifier.align(Alignment.BottomEnd),
         )
 
@@ -261,10 +280,34 @@ private fun TaskEventTabsRow(
 }
 
 @Composable
+private fun ChecklistTopBar(
+    isDeleteMode: Boolean,
+    onToggleDelete: () -> Unit,
+    onMenuClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    AppTopBar(
+        titleText   = "Item Lists",
+        onMenuClick = onMenuClick,
+        modifier    = modifier,
+        actions     = {
+            Text(
+                text     = if (isDeleteMode) "Done" else "Delete",
+                style    = labelL,
+                color    = AppColor.primary,
+                modifier = Modifier.clickable { onToggleDelete() }.padding(Spacing.sm),
+            )
+        },
+    )
+}
+
+@Composable
 private fun ItemListContent(
     tasks: List<Task>,
     events: List<Event>,
+    isDeleteMode: Boolean,
     onEditTask: (String) -> Unit,
+    onDeleteTask: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -275,32 +318,36 @@ private fun ItemListContent(
         itemsIndexed(tasks, key = { _, task -> task.id }) { index, task ->
             val event = events.find { it.id == task.eventId }
             ItemListCard(
-                task        = task,
-                event       = event,
-                slot        = index % 6,
-                onEditClick = { onEditTask(task.id) },
+                task          = task,
+                event         = event,
+                slot          = index % 6,
+                isDeleteMode  = isDeleteMode,
+                onEditClick   = { onEditTask(task.id) },
+                onDeleteClick = { onDeleteTask(task.id) },
             )
         }
     }
 }
 
 /**
- * Item List Card matching Item F3 layout specifications:
- * - Row 1: [Title] (left) | [total Amount] (middle) | <edit> pencil icon (right)
- * - Row 2,3,4: Logo left | Total Items X . Rem X & Progress Bar middle
- * - Row 5: <Event Name> (left) | <Complete by Chip> (right)
+ * Item List Card matching specs:
+ * Row 1: <Title> | <Total Amount> (same font as BookingCard AmountPaid) | <Edit/Delete Icon> (right)
+ * Row 2: <Event Icon (32dp, flush left)> | Total items X • Remaining items Y
+ *                                        | Progress Bar (10dp height, accent/success)
+ * Row 3: <All items collected / Pending items Pill> (left) | <Complete by Pill> (right)
  */
 @Composable
-private fun ItemListCard(
+internal fun ItemListCard(
     task: Task,
     event: Event?,
     slot: Int,
+    isDeleteMode: Boolean,
     onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit,
 ) {
     val isDark = AppColor.isDark
     val palette = PaletteId.A
     val gradient: Brush = remember(slot, isDark) { gradientFor(slot, palette, isDark) }
-    val chipColor = remember(slot, isDark) { gradientChipColor(slot, palette, isDark) }
     val iconColor = remember(slot, isDark) { gradientIconColor(slot, palette, isDark) }
 
     val totalItems = task.totalItems
@@ -312,89 +359,119 @@ private fun ItemListCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(Radius.card))
             .background(gradient)
+            .clickable { onEditClick() }
             .padding(Spacing.md),
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            // Row 1: [Title] (left) | [total Amount] (middle) | <edit> pencil icon (right)
+            // Row 1: [Title] (left) | [Total Amount] (middle) | <Edit/Delete Icon> (right)
             Row(
                 modifier          = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text     = task.title,
+                    text      = task.title,
+                    style     = titleS,
+                    color     = AppColor.text,
+                    maxLines  = 1,
+                    overflow  = TextOverflow.Ellipsis,
+                    modifier  = Modifier.weight(1f),
+                )
+                Spacer(Modifier.width(Spacing.xs))
+                Text(
+                    text     = MoneyFormatter.format(task.totalAmountPaise),
                     style    = titleS,
                     color    = AppColor.text,
-                    modifier = Modifier.weight(1f),
+                    maxLines = 1,
                 )
-                Text(
-                    text  = "${MoneyFormatter.format(task.totalAmountPaise)} total",
-                    style = numberL,
-                    color = AppColor.primary,
-                )
-                Spacer(Modifier.width(Spacing.md))
-                Icon(
-                    imageVector        = Icons.Rounded.Edit,
-                    contentDescription = "Edit Item List",
-                    tint               = AppColor.primary,
-                    modifier           = Modifier.size(20.dp).clickable { onEditClick() },
-                )
+                Spacer(Modifier.width(Spacing.xs))
+                if (isDeleteMode) {
+                    Icon(
+                        imageVector        = Icons.Rounded.Delete,
+                        contentDescription = "Delete Item List",
+                        tint               = AppColor.danger,
+                        modifier           = Modifier
+                            .size(20.dp)
+                            .clickable { onDeleteClick() },
+                    )
+                } else {
+                    Icon(
+                        imageVector        = Icons.Rounded.Edit,
+                        contentDescription = "Edit Item List",
+                        tint               = AppColor.primary,
+                        modifier           = Modifier
+                            .size(20.dp)
+                            .clickable { onEditClick() },
+                    )
+                }
             }
 
-            Spacer(Modifier.height(Spacing.xs))
+            Spacer(Modifier.height(2.dp))
 
-            // Body: Logo Left + Progress Bar Middle
+            // Row 2: [Event Icon 32dp flush left] | Total X items • Remaining Y items
+            //                                       Progress Bar (10dp)
             Row(
                 modifier          = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                IconChip(
-                    icon               = event?.icon?.fallback ?: AppIcon.Checklist.fallback,
-                    contentDescription = event?.title ?: "",
-                    size               = IconChipSize.Default,
-                    containerColor     = chipColor,
-                    iconColor          = iconColor,
-                    customRes          = event?.icon?.customRes,
-                )
+                val eventCustomRes = event?.icon?.customRes
+                val eventFallback = event?.icon?.fallback ?: Icons.Rounded.Delete
+                if (eventCustomRes != null) {
+                    Image(
+                        painter            = painterResource(eventCustomRes),
+                        contentDescription = event?.title ?: "",
+                        modifier           = Modifier.size(32.dp),
+                        contentScale       = ContentScale.Fit,
+                    )
+                } else {
+                    Icon(
+                        imageVector        = eventFallback,
+                        contentDescription = event?.title ?: "",
+                        tint               = iconColor,
+                        modifier           = Modifier.size(32.dp),
+                    )
+                }
 
-                Spacer(Modifier.width(Spacing.md))
+                Spacer(Modifier.width(10.dp))
 
                 Column(modifier = Modifier.weight(1f)) {
+                    val totalText = if (totalItems == 1) "1 item" else "$totalItems items"
+                    val remText = if (remItems == 1) "1 item" else "$remItems items"
                     Text(
-                        text  = "Total Items $totalItems • Rem $remItems",
-                        style = bodyM,
-                        color = AppColor.text2,
+                        text     = "Total $totalText   •   Remaining $remText",
+                        style    = bodyM,
+                        color    = AppColor.text2,
+                        maxLines = 1,
                     )
-                    Spacer(Modifier.height(Spacing.xs))
+                    Spacer(Modifier.height(7.dp))
                     LinearProgressIndicator(
                         progress   = { progress },
-                        modifier   = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
+                        modifier   = Modifier.fillMaxWidth().height(10.dp).clip(RoundedCornerShape(4.dp)),
                         color      = if (progress >= 1f) AppColor.success else AppColor.accent,
                         trackColor = AppColor.surface.copy(alpha = 0.4f),
                     )
                 }
             }
 
-            Spacer(Modifier.height(Spacing.sm))
+            Spacer(Modifier.height(8.dp))
 
-            // Footer: Event Name Left + Complete By Chip Right
+            // Row 3 (Bottom Row): [All items collected? Pill] (left) | [Complete by Pill] (right)
             Row(
-                modifier          = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
+                modifier              = Modifier.fillMaxWidth(),
+                verticalAlignment     = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Text(
-                    text     = event?.title ?: "General",
-                    style    = bodyM,
-                    color    = AppColor.text2,
-                    modifier = Modifier.weight(1f),
-                )
+                val isAllCollected = remItems == 0 || task.completed || progress >= 1f
+                val collectedText = if (isAllCollected) {
+                    if (totalItems == 1) "All item collected" else "All items collected"
+                } else {
+                    if (remItems == 1) "1 item pending" else "$remItems items pending"
+                }
+                val collectedVariant = if (isAllCollected) PillVariant.Success else PillVariant.Warning
+                Pill(text = collectedText, variant = collectedVariant)
 
                 if (task.dueDate != null) {
                     val daysLeft = DateUtils.daysUntil(task.dueDate)
-                    val variant = when {
-                        daysLeft < 0L  -> PillVariant.Danger
-                        daysLeft <= 3L -> PillVariant.Warning
-                        else           -> PillVariant.Default
-                    }
+                    val variant = if (daysLeft < 0L) PillVariant.Danger else PillVariant.Warning
                     Pill(
                         text    = "Complete by ${DateUtils.formatShort(task.dueDate)}",
                         variant = variant,

@@ -16,6 +16,7 @@ import sabuj.m.myevents.domain.usecase.EditTaskUseCase
 import sabuj.m.myevents.domain.usecase.ObserveEventsUseCase
 import sabuj.m.myevents.domain.usecase.ObserveTasksUseCase
 import sabuj.m.myevents.domain.usecase.TaskSaveResult
+import sabuj.m.myevents.domain.repository.TaskRepository
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -26,10 +27,13 @@ class ChecklistViewModel @Inject constructor(
     private val addTask: AddTaskUseCase,
     private val editTask: EditTaskUseCase,
     private val deleteTasks: DeleteTasksUseCase,
+    private val taskRepo: TaskRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ChecklistUiState())
     val uiState: StateFlow<ChecklistUiState> = _uiState.asStateFlow()
+
+    private var pendingDeleteId: String? = null
 
     init {
         viewModelScope.launch {
@@ -184,9 +188,20 @@ class ChecklistViewModel @Inject constructor(
 
     fun confirmDeleteTask() {
         val id = uiState.value.deleteTaskId ?: return
+        val title = uiState.value.tasks.find { it.id == id }?.title ?: "Item list"
+        _uiState.update { it.copy(deleteTaskId = null, isDeleteMode = false) }
         viewModelScope.launch {
-            deleteTasks(listOf(id))
-            _uiState.update { it.copy(deleteTaskId = null, snackbarMessage = "Item list deleted") }
+            deleteTasks(id)
+            pendingDeleteId = id
+            _uiState.update { it.copy(snackbarMessage = "\"$title\" deleted") }
+        }
+    }
+
+    fun undoDelete() {
+        val id = pendingDeleteId ?: return
+        pendingDeleteId = null
+        viewModelScope.launch {
+            taskRepo.restoreTask(id)
         }
     }
 

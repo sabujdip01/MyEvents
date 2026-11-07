@@ -9,5 +9,6 @@ interface TaskRepository {
     fun observeTasksForEvent(eventId: String): Flow<List<Task>>
     suspend fun upsertTask(task: Task)
     suspend fun deleteTask(id: String)
+    suspend fun restoreTask(id: String)
     suspend fun deleteTasks(ids: List<String>)
 }

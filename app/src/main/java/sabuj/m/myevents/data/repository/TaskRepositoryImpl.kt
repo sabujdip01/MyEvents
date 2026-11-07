@@ -31,6 +31,10 @@ class TaskRepositoryImpl @Inject constructor(
         dao.softDeleteTask(id, System.currentTimeMillis())
     }
 
+    override suspend fun restoreTask(id: String) {
+        dao.restoreTask(id, System.currentTimeMillis())
+    }
+
     override suspend fun deleteTasks(ids: List<String>) {
         dao.softDeleteTasks(ids, System.currentTimeMillis())
     }
