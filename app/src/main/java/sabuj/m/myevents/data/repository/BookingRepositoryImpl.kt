@@ -41,6 +41,12 @@ class BookingRepositoryImpl @Inject constructor(
     override suspend fun upsertBooking(booking: Booking) =
         dao.upsertBooking(booking.toEntity())
 
+    override suspend fun updateBookingAndPayments(booking: Booking, payments: List<BookingPayment>) =
+        dao.updateBookingAndPayments(
+            booking  = booking.toEntity(),
+            payments = payments.map { it.toEntity() },
+        )
+
     override suspend fun softDelete(id: String) =
         dao.softDeleteBooking(id, System.currentTimeMillis())
 

@@ -1,6 +1,7 @@
 ﻿package sabuj.m.myevents.feature.bookings
 
 import android.app.DatePickerDialog
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -42,6 +43,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,7 +53,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
+import kotlinx.coroutines.launch
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -61,7 +68,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import sabuj.m.myevents.core.icons.BookingIcon
 import sabuj.m.myevents.core.icons.EventIconDisplay
+import sabuj.m.myevents.core.preview.LightDarkPreviews
 import sabuj.m.myevents.core.theme.AppColor
+import sabuj.m.myevents.core.theme.AppTheme
 import sabuj.m.myevents.core.theme.Radius
 import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
@@ -73,6 +82,8 @@ import sabuj.m.myevents.core.theme.titleM
 import sabuj.m.myevents.core.ui.AppButtonRow
 import sabuj.m.myevents.core.ui.IconChip
 import sabuj.m.myevents.core.ui.IconChipSize
+import sabuj.m.myevents.core.ui.Pill
+import sabuj.m.myevents.core.ui.PillVariant
 import sabuj.m.myevents.core.util.DateUtils
 import sabuj.m.myevents.core.util.MoneyFormatter
 import sabuj.m.myevents.domain.model.BookingPayment
@@ -161,7 +172,22 @@ fun AddEditBookingSheet(
     val amountLeftPaise = totalAmountPaise - paidPaise
     val modalSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val coroutineScope = rememberCoroutineScope()
     var showIconPicker by remember { mutableStateOf(false) }
+
+    fun dismissSheet() {
+        keyboardController?.hide()
+        focusManager.clearFocus()
+        coroutineScope.launch {
+            if (modalSheetState.isVisible) {
+                modalSheetState.hide()
+            }
+        }.invokeOnCompletion {
+            onDismiss()
+        }
+    }
 
     if (showIconPicker) {
         BookingIconPickerDialog(
@@ -185,7 +211,7 @@ fun AddEditBookingSheet(
     }
 
     ModalBottomSheet(
-        onDismissRequest    = onDismiss,
+        onDismissRequest    = { dismissSheet() },
         sheetState          = modalSheetState,
         containerColor      = AppColor.surface,
         shape               = RoundedCornerShape(topStart = Radius.sheet, topEnd = Radius.sheet),
@@ -210,19 +236,46 @@ fun AddEditBookingSheet(
                 color = AppColor.text,
             )
 
-            // Booking type field
-            BookingTextField(
-                value         = bookingType,
-                onValueChange = onTypeChange,
-                label         = "Booking name / type", // TODO strings.xml
-                placeholder   = "e.g. Camera, Mandap",
-            )
+            // Booking name field (reduced width by 15%, left aligned) + Booking icon picker (icon only, right aligned)
+            Row(
+                modifier              = Modifier.fillMaxWidth(),
+                verticalAlignment     = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+            ) {
+                BookingTextField(
+                    value         = bookingType,
+                    onValueChange = onTypeChange,
+                    label         = "Booking name", // TODO strings.xml
+                    placeholder   = "e.g. Camera, Mandap",
+                    modifier      = Modifier.weight(1f),
+                )
 
-            // Booking icon dropdown field (opens 5x9 icon picker popup)
-            BookingIconDropdown(
-                selectedIcon = bookingIcon,
-                onClick      = { showIconPicker = true },
-            )
+                Box(
+                    modifier = Modifier
+                        .size(52.dp)
+                        .clip(RoundedCornerShape(Radius.field))
+                        .background(AppColor.surfaceVariant.copy(alpha = 0.5f))
+                        .clickable { showIconPicker = true },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    val selIcon = bookingIcon ?: BookingIcon.Cake
+                    if (selIcon.customRes != null) {
+                        Image(
+                            painter            = painterResource(selIcon.customRes!!),
+                            contentDescription = "Select icon",
+                            modifier           = Modifier.size(38.dp),
+                            contentScale       = ContentScale.Fit,
+                        )
+                    } else {
+                        Icon(
+                            imageVector        = selIcon.fallback,
+                            contentDescription = "Select icon",
+                            tint               = AppColor.primary,
+                            modifier           = Modifier.size(38.dp),
+                        )
+                    }
+                }
+            }
 
             // For event dropdown
             EventDropdown(
@@ -254,7 +307,7 @@ fun AddEditBookingSheet(
             BookingMoneyTextField(
                 paiseValue    = totalAmountPaise,
                 onPaiseChange = onTotalChange,
-                label         = "Contract Amount (₹)",
+                label         = "Contract amount",
                 placeholder   = "0",
                 isError       = totalError != null,
                 supportingText = totalError,
@@ -270,7 +323,7 @@ fun AddEditBookingSheet(
                             onBookingMadeChange(true)
                         }
                     },
-                    label         = "Booking Amount / Advance (₹)",
+                    label         = "Booking amount / Advance",
                     placeholder   = "0",
                 )
             }
@@ -339,20 +392,21 @@ fun AddEditBookingSheet(
                     style = labelS,
                     color = AppColor.text2,
                 )
-                // Read-only paid total
-                BookingTextField(
-                    value         = MoneyFormatter.format(paidPaise),
-                    onValueChange = {},
-                    label         = "Paid so far", // TODO strings.xml
-                    readOnly      = true,
-                )
-                // Read-only amount left
-                BookingTextField(
-                    value         = MoneyFormatter.format(amountLeftPaise),
-                    onValueChange = {},
-                    label         = "Remaining Amount", // TODO strings.xml
-                    readOnly      = true,
-                )
+                // Read-only paid and remaining pills
+                Row(
+                    modifier              = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+                    verticalAlignment     = Alignment.CenterVertically,
+                ) {
+                    Pill(
+                        text    = "Paid so far  ${MoneyFormatter.format(paidPaise)}",
+                        variant = PillVariant.Default,
+                    )
+                    Pill(
+                        text    = "Remaining  ${MoneyFormatter.format(amountLeftPaise)}",
+                        variant = PillVariant.Warning,
+                    )
+                }
                 // Payment rows
                 payments.forEach { payment ->
                     PaymentRow(
@@ -370,12 +424,26 @@ fun AddEditBookingSheet(
             }
 
             // â”€â”€ Action buttons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-            val isSaveEnabled = bookingType.isNotBlank() && eventId.isNotBlank() && totalAmountPaise > 0
+            // Action buttons
+            val hasChanges = if (sheetState is BookingSheetState.Edit) {
+                val orig = sheetState.initialBooking
+                bookingType.trim() != orig.bookingType.trim() ||
+                bookingIcon != orig.bookingIcon ||
+                eventId != orig.eventId ||
+                contactName.trim() != orig.contactName.trim() ||
+                phone.trim() != orig.phone.trim() ||
+                totalAmountPaise != orig.totalAmountPaise ||
+                nextDueDateEpochDay != orig.nextDueDate?.toEpochDay() ||
+                bookingMade != orig.bookingMade ||
+                payments != orig.payments
+            } else true
+
+            val isSaveEnabled = bookingType.isNotBlank() && eventId.isNotBlank() && totalAmountPaise > 0 && hasChanges
             AppButtonRow(
                 positiveText    = if (isEdit) "Save" else "Add", // TODO strings.xml
-                onPositive      = onSave,
+                onPositive      = { keyboardController?.hide(); focusManager.clearFocus(); onSave() },
                 negativeText    = "Cancel", // TODO strings.xml
-                onNegative      = onDismiss,
+                onNegative      = { dismissSheet() },
                 positiveEnabled = isSaveEnabled,
             )
 
@@ -613,14 +681,21 @@ fun BookingIconPickerDialog(
                                         },
                                     contentAlignment = Alignment.Center,
                                 ) {
-                                    IconChip(
-                                        icon               = icon.fallback,
-                                        contentDescription = icon.displayName,
-                                        size               = IconChipSize.Sm,
-                                        containerColor     = Color.Transparent,
-                                        iconColor          = if (isSelected) AppColor.primary else AppColor.text2,
-                                        customRes          = icon.customRes,
-                                    )
+                                    if (icon.customRes != null) {
+                                        Image(
+                                            painter            = painterResource(icon.customRes),
+                                            contentDescription = icon.displayName,
+                                            modifier           = Modifier.size(38.dp),
+                                            contentScale       = ContentScale.Fit,
+                                        )
+                                    } else {
+                                        Icon(
+                                            imageVector        = icon.fallback,
+                                            contentDescription = icon.displayName,
+                                            tint               = if (isSelected) AppColor.primary else AppColor.text2,
+                                            modifier           = Modifier.size(38.dp),
+                                        )
+                                    }
                                 }
                             }
                             repeat(5 - rowIcons.size) {
@@ -726,4 +801,111 @@ private fun BookingMoneyTextField(
             errorBorderColor     = AppColor.danger,
         ),
     )
+}
+
+// ---------------------------------------------------------------------------
+// Previews
+// ---------------------------------------------------------------------------
+
+@LightDarkPreviews
+@Composable
+private fun AddBookingSheetPreview() {
+    AppTheme {
+        AddEditBookingSheet(
+            sheetState      = BookingSheetState.Add(
+                bookingType = "Photography",
+                bookingIcon = BookingIcon.Camera,
+                eventId     = "event_1",
+            ),
+            events          = listOf(
+                sabuj.m.myevents.domain.model.Event(
+                    id               = "event_1",
+                    title            = "Wedding",
+                    eventName        = "Wedding",
+                    date             = LocalDate.now(),
+                    icon             = sabuj.m.myevents.core.icons.EventIcon.Wedding,
+                    budgetPaise      = 50000000L,
+                    inviteesRequired = true,
+                    createdAt        = 0L,
+                    updatedAt        = 0L,
+                    syncState        = sabuj.m.myevents.domain.model.SyncState.PENDING,
+                    deleted          = false,
+                )
+            ),
+            onDismiss       = {},
+            onTypeChange    = {},
+            onIconChange    = {},
+            onEventChange   = {},
+            onContactChange = {},
+            onPhoneChange   = {},
+            onTotalChange   = {},
+            onDueDateChange = {},
+            onSave          = {},
+            onAddPayment    = {},
+            onDeletePayment = {},
+        )
+    }
+}
+
+@LightDarkPreviews
+@Composable
+private fun EditBookingSheetPreview() {
+    val sampleBooking = sabuj.m.myevents.domain.model.Booking(
+        id               = "b1",
+        eventId          = "event_1",
+        title            = "Photography",
+        bookingType      = "Photography",
+        bookingIcon      = BookingIcon.Camera,
+        contactName      = "Rahul Sharma",
+        phone            = "9876543210",
+        totalAmountPaise = 8000000L,
+        nextDueDate      = LocalDate.now().plusDays(10),
+        bookingMade      = true,
+        payments         = listOf(
+            BookingPayment(
+                id          = "p1",
+                bookingId   = "b1",
+                date        = LocalDate.now(),
+                amountPaise = 4000000L,
+                note        = "Advance payment",
+                createdAt   = 0L,
+                updatedAt   = 0L,
+            )
+        ),
+        createdAt        = 0L,
+        updatedAt        = 0L,
+        syncState        = sabuj.m.myevents.domain.model.SyncState.PENDING,
+        deleted          = false,
+    )
+    AppTheme {
+        AddEditBookingSheet(
+            sheetState      = BookingSheetState.Edit.from(sampleBooking),
+            events          = listOf(
+                sabuj.m.myevents.domain.model.Event(
+                    id               = "event_1",
+                    title            = "Wedding",
+                    eventName        = "Wedding",
+                    date             = LocalDate.now(),
+                    icon             = sabuj.m.myevents.core.icons.EventIcon.Wedding,
+                    budgetPaise      = 50000000L,
+                    inviteesRequired = true,
+                    createdAt        = 0L,
+                    updatedAt        = 0L,
+                    syncState        = sabuj.m.myevents.domain.model.SyncState.PENDING,
+                    deleted          = false,
+                )
+            ),
+            onDismiss       = {},
+            onTypeChange    = {},
+            onIconChange    = {},
+            onEventChange   = {},
+            onContactChange = {},
+            onPhoneChange   = {},
+            onTotalChange   = {},
+            onDueDateChange = {},
+            onSave          = {},
+            onAddPayment    = {},
+            onDeletePayment = {},
+        )
+    }
 }

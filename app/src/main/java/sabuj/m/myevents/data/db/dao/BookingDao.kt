@@ -49,6 +49,18 @@ interface BookingDao {
     @Query("DELETE FROM booking_payments WHERE id = :id")
     suspend fun deletePayment(id: String)
 
+    /** Hard-delete all payments for a given booking id. */
+    @Query("DELETE FROM booking_payments WHERE bookingId = :bookingId")
+    suspend fun deletePaymentsForBooking(bookingId: String)
+
+    /** Replace booking and all its payments in a single transaction. */
+    @Transaction
+    suspend fun updateBookingAndPayments(booking: BookingEntity, payments: List<BookingPaymentEntity>) {
+        upsertBooking(booking)
+        deletePaymentsForBooking(booking.id)
+        payments.forEach { upsertPayment(it) }
+    }
+
     /**
      * Count non-deleted bookings for a given event.
      * Used by the Events details popup bookings count badge.

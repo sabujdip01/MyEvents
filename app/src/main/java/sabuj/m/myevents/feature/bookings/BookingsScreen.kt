@@ -215,7 +215,7 @@ fun BookingsScreen(
             onDueDateChange = { viewModel.updateEditSheetField { s -> s.copy(nextDueDateEpochDay = it) } },
             onSave        = { viewModel.saveBooking() },
             onAddPayment  = { viewModel.openPaymentDialog(sheet.bookingId) },
-            onDeletePayment = { viewModel.deletePayment(it) },
+            onDeletePayment = { viewModel.deletePaymentLocal(it) },
         )
         else -> Unit
     }

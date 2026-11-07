@@ -1,9 +1,10 @@
 # Version History
 
-Current: V0.T.15
+Current: V0.T.16
 
 | Version  | Phase | Build | Commit    | Summary                                                                                             |
 | -------- |-------|-------|-----------|-----------------------------------------------------------------------------------------------------|
+| V0.T.16  | Test  | 16    | 3053858   | fix(bookings): single-tap cancel, edit pills, renamed labels & 38dp zoomed icons                    |
 | V0.T.15  | Test  | 15    | a0bc929   | fix(bookings): card 3rd row layout, green fully paid chip & blank vendor name                        |
 | V0.T.14  | Test  | 14    | f966c13   | fix(bookings): eliminate sheet bounce with no-bounce nested scroll connection                       |
 | V0.T.13  | Test  | 13    | 96e85c6   | fix(bookings): card layout 50% enlarged icons & 4-column relative positioning                        |

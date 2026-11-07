@@ -62,6 +62,7 @@ sealed class BookingSheetState {
     /** Sheet for editing an existing booking. */
     data class Edit(
         val bookingId: String,
+        val initialBooking: Booking,
         val bookingType: String,
         val bookingIcon: BookingIcon?,
         val eventId: String,
@@ -79,6 +80,7 @@ sealed class BookingSheetState {
             /** Construct an Edit state pre-filled from an existing [Booking]. */
             fun from(booking: Booking) = Edit(
                 bookingId          = booking.id,
+                initialBooking     = booking,
                 bookingType        = booking.bookingType,
                 bookingIcon        = booking.bookingIcon,
                 eventId            = booking.eventId,

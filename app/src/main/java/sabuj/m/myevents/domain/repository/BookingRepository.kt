@@ -26,6 +26,9 @@ interface BookingRepository {
     /** Insert or update a booking. */
     suspend fun upsertBooking(booking: Booking)
 
+    /** Replace booking and all its payments in a single transaction. */
+    suspend fun updateBookingAndPayments(booking: Booking, payments: List<BookingPayment>)
+
     /** Soft-delete a booking (can be undone within the undo window). */
     suspend fun softDelete(id: String)
 

@@ -65,7 +65,7 @@ fun Pill(
 }
 
 enum class PillVariant {
-    Default, Success, Warning, Danger;
+    Default, Success, Warning, Danger, Muted;
 
     @Composable
     fun colors(): PillColors = when (this) {
@@ -73,6 +73,7 @@ enum class PillVariant {
         Success -> PillColors(AppColor.successContainer, AppColor.onSuccessContainer)
         Warning -> PillColors(AppColor.warningContainer, AppColor.onWarningContainer)
         Danger  -> PillColors(AppColor.dangerContainer,  AppColor.onDangerContainer)
+        Muted   -> PillColors(AppColor.surfaceVariant,    AppColor.text2)
     }
 }
 

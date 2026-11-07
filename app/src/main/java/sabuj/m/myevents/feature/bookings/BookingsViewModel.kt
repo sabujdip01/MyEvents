@@ -144,6 +144,7 @@ class BookingsViewModel @Inject constructor(
                         totalAmountPaise = sheet.totalAmountPaise,
                         nextDueDate      = sheet.nextDueDateEpochDay?.let { LocalDate.ofEpochDay(it) },
                         bookingMade      = sheet.bookingMade,
+                        payments         = sheet.payments,
                     )
                     handleSaveResult(result, sheet)
                 }
@@ -244,21 +245,32 @@ class BookingsViewModel @Inject constructor(
         _paymentDialogState.value = update(current)
     }
 
-    /** Validate and save the payment from the dialog. */
+    /** Validate and append a payment to the local edit sheet state (commits to DB on Save). */
     fun savePayment() {
         val dialog = _paymentDialogState.value as? PaymentDialogState.Add ?: return
-        viewModelScope.launch {
-            val result = addPayment(
-                bookingId   = dialog.bookingId,
-                date        = LocalDate.ofEpochDay(dialog.dateEpochDay),
-                amountPaise = dialog.amountPaise,
-                note        = dialog.note,
-            )
-            when (result) {
-                is PaymentSaveResult.Success -> _paymentDialogState.value = PaymentDialogState.Hidden
-                is PaymentSaveResult.AmountInvalid ->
-                    _paymentDialogState.value = dialog.copy(amountError = "Enter a valid amount")
-            }
+        if (dialog.amountPaise <= 0L) {
+            _paymentDialogState.value = dialog.copy(amountError = "Enter a valid amount")
+            return
+        }
+        val newPayment = sabuj.m.myevents.domain.model.BookingPayment(
+            id          = java.util.UUID.randomUUID().toString(),
+            bookingId   = dialog.bookingId,
+            date        = LocalDate.ofEpochDay(dialog.dateEpochDay),
+            amountPaise = dialog.amountPaise,
+            note        = dialog.note,
+            createdAt   = System.currentTimeMillis(),
+            updatedAt   = System.currentTimeMillis(),
+        )
+        _paymentDialogState.value = PaymentDialogState.Hidden
+        updateEditSheetField { edit ->
+            edit.copy(payments = edit.payments + newPayment)
+        }
+    }
+
+    /** Remove a payment row locally from the edit sheet state (commits to DB on Save). */
+    fun deletePaymentLocal(paymentId: String) {
+        updateEditSheetField { edit ->
+            edit.copy(payments = edit.payments.filterNot { it.id == paymentId })
         }
     }
 
