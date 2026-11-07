@@ -1,13 +1,15 @@
 package sabuj.m.myevents.feature.invitees
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -20,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -30,9 +33,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import sabuj.m.myevents.core.preview.LightDarkPreviews
+import sabuj.m.myevents.core.preview.PreviewData
 import sabuj.m.myevents.core.theme.AppColor
+import sabuj.m.myevents.core.theme.AppTheme
 import sabuj.m.myevents.core.theme.Radius
-import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.titleL
 import sabuj.m.myevents.core.ui.AppButtonRow
@@ -53,26 +58,36 @@ fun AddGiftSheet(
     onInviteeChange: (String?) -> Unit,
     onSave: () -> Unit,
 ) {
-    val modalState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val modalState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange    = { target -> target != SheetValue.Hidden },
+    )
 
     ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState       = modalState,
-        containerColor   = AppColor.surface,
-        shape            = RoundedCornerShape(topStart = Radius.sheet, topEnd = Radius.sheet),
+        onDismissRequest    = onDismiss,
+        sheetState          = modalState,
+        containerColor      = AppColor.surface,
+        shape               = RoundedCornerShape(topStart = Radius.sheet, topEnd = Radius.sheet),
+        dragHandle          = null,
+        contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .statusBarsPadding()
+                .navigationBarsPadding()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = Spacing.lg, vertical = Spacing.md),
-            verticalArrangement = Arrangement.spacedBy(Spacing.lg),
+                .padding(horizontal = 16.dp, vertical = 12.dp),
         ) {
+            Spacer(Modifier.height(4.dp))
+
             Text(
                 text  = "Record Gift",
                 style = titleL,
                 color = AppColor.text,
             )
+
+            Spacer(Modifier.height(8.dp))
 
             // Giver Name
             GiftTextField(
@@ -84,6 +99,8 @@ fun AddGiftSheet(
                 supportingText = sheetState.giverError,
             )
 
+            Spacer(Modifier.height(8.dp))
+
             // Event Selection Dropdown
             EventDropdownSelector(
                 events     = events,
@@ -92,6 +109,8 @@ fun AddGiftSheet(
                 isError    = sheetState.eventError != null,
                 errorText  = sheetState.eventError,
             )
+
+            Spacer(Modifier.height(8.dp))
 
             // Amount (₹)
             val amountStr = if (sheetState.amountPaise == 0L) "" else formatIndianDigits((sheetState.amountPaise / 100L).toString())
@@ -105,6 +124,8 @@ fun AddGiftSheet(
                 placeholder   = "0",
             )
 
+            Spacer(Modifier.height(8.dp))
+
             // Gift Description
             GiftTextField(
                 value         = sheetState.description,
@@ -113,12 +134,16 @@ fun AddGiftSheet(
                 placeholder   = "e.g. Silver Lamp, Watch",
             )
 
+            Spacer(Modifier.height(8.dp))
+
             // Optional Invitee Link
             InviteeDropdownSelector(
                 invitees   = invitees.filter { it.eventId == sheetState.eventId },
                 selectedId = sheetState.inviteeId,
                 onSelect   = onInviteeChange,
             )
+
+            Spacer(Modifier.height(16.dp))
 
             val isSaveEnabled = sheetState.giverName.isNotBlank() && sheetState.eventId.isNotBlank()
             AppButtonRow(
@@ -129,7 +154,7 @@ fun AddGiftSheet(
                 positiveEnabled = isSaveEnabled,
             )
 
-            Spacer(Modifier.height(Spacing.xl))
+            Spacer(Modifier.height(10.dp))
         }
     }
 }
@@ -296,4 +321,27 @@ private fun GiftMoneyTextField(
             cursorColor          = AppColor.primary,
         ),
     )
+}
+
+// ---------------------------------------------------------------------------
+// Previews
+// ---------------------------------------------------------------------------
+
+@LightDarkPreviews
+@Composable
+private fun AddGiftSheetPreview() {
+    AppTheme {
+        AddGiftSheet(
+            sheetState          = InviteeSheetState.AddGift(eventId = PreviewData.sampleEvents.first().id),
+            events              = PreviewData.sampleEvents,
+            invitees            = emptyList(),
+            onDismiss           = {},
+            onGiverNameChange   = {},
+            onEventChange       = {},
+            onAmountChange      = {},
+            onDescriptionChange = {},
+            onInviteeChange     = {},
+            onSave              = {},
+        )
+    }
 }

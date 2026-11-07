@@ -6,10 +6,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,6 +32,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -43,9 +47,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import sabuj.m.myevents.core.preview.LightDarkPreviews
+import sabuj.m.myevents.core.preview.PreviewData
 import sabuj.m.myevents.core.theme.AppColor
+import sabuj.m.myevents.core.theme.AppTheme
 import sabuj.m.myevents.core.theme.Radius
-import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.labelM
@@ -108,26 +114,36 @@ fun AddEditTaskSheet(
     }
 
     val context = LocalContext.current
-    val modalState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val modalState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange    = { target -> target != SheetValue.Hidden },
+    )
 
     ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState       = modalState,
-        containerColor   = AppColor.surface,
-        shape            = RoundedCornerShape(topStart = Radius.sheet, topEnd = Radius.sheet),
+        onDismissRequest    = onDismiss,
+        sheetState          = modalState,
+        containerColor      = AppColor.surface,
+        shape               = RoundedCornerShape(topStart = Radius.sheet, topEnd = Radius.sheet),
+        dragHandle          = null,
+        contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .statusBarsPadding()
+                .navigationBarsPadding()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = Spacing.lg, vertical = Spacing.md),
-            verticalArrangement = Arrangement.spacedBy(Spacing.lg),
+                .padding(horizontal = 16.dp, vertical = 12.dp),
         ) {
+            Spacer(Modifier.height(4.dp))
+
             Text(
                 text  = if (isEdit) "Edit Item List" else "Add Item List",
                 style = titleL,
                 color = AppColor.text,
             )
+
+            Spacer(Modifier.height(8.dp))
 
             // Item List Title
             TaskTextField(
@@ -139,6 +155,8 @@ fun AddEditTaskSheet(
                 supportingText = titleError,
             )
 
+            Spacer(Modifier.height(8.dp))
+
             // For Event Dropdown (Item F1 — Not auto-selected)
             TaskEventDropdownSelector(
                 events     = events,
@@ -147,6 +165,8 @@ fun AddEditTaskSheet(
                 isError    = eventError != null,
                 errorText  = eventError,
             )
+
+            Spacer(Modifier.height(8.dp))
 
             // Complete by Date Picker
             val dueDateLabel = dueDateEpochDay?.let { DateUtils.formatDisplay(LocalDate.ofEpochDay(it)) } ?: "Not set"
@@ -180,15 +200,17 @@ fun AddEditTaskSheet(
                 },
             )
 
+            Spacer(Modifier.height(10.dp))
+
             // Dynamic List of items with price + checkbox (Item F2)
-            Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(text = "List of Items & Prices", style = labelM, color = AppColor.text2)
 
                 items.forEachIndexed { index, item ->
                     Row(
                         modifier          = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         Checkbox(
                             checked         = item.checked,
@@ -246,6 +268,8 @@ fun AddEditTaskSheet(
                 }
             }
 
+            Spacer(Modifier.height(10.dp))
+
             // Total Amount (Auto-calculated sum)
             val calculatedTotalPaise = items.sumOf { it.pricePaise }
             TaskTextField(
@@ -254,6 +278,8 @@ fun AddEditTaskSheet(
                 label         = "Total Amount (Auto-calculated)",
                 readOnly      = true,
             )
+
+            Spacer(Modifier.height(10.dp))
 
             // "All Items collected / completed?" toggle
             Row(
@@ -279,6 +305,8 @@ fun AddEditTaskSheet(
                 )
             }
 
+            Spacer(Modifier.height(16.dp))
+
             val isSaveEnabled = title.isNotBlank() && eventId.isNotBlank()
             AppButtonRow(
                 positiveText    = if (isEdit) "Save" else "Add",
@@ -288,7 +316,7 @@ fun AddEditTaskSheet(
                 positiveEnabled = isSaveEnabled,
             )
 
-            Spacer(Modifier.height(Spacing.xl))
+            Spacer(Modifier.height(10.dp))
         }
     }
 }
@@ -375,4 +403,50 @@ private fun TaskTextField(
             errorBorderColor     = AppColor.danger,
         ),
     )
+}
+
+// ---------------------------------------------------------------------------
+// Previews
+// ---------------------------------------------------------------------------
+
+@LightDarkPreviews
+@Composable
+private fun AddTaskSheetPreview() {
+    AppTheme {
+        AddEditTaskSheet(
+            sheetState      = TaskSheetState.Add(eventId = PreviewData.sampleEvents.first().id),
+            events          = PreviewData.sampleEvents,
+            onDismiss       = {},
+            onTitleChange   = {},
+            onEventChange   = {},
+            onDueDateChange = {},
+            onSave          = {},
+        )
+    }
+}
+
+@LightDarkPreviews
+@Composable
+private fun EditTaskSheetPreview() {
+    AppTheme {
+        AddEditTaskSheet(
+            sheetState      = TaskSheetState.Edit(
+                taskId          = "task-1",
+                eventId         = PreviewData.sampleEvents.first().id,
+                title           = "Mandap decoration items",
+                items           = listOf(
+                    TaskItem("Flowers", 5000_00L, true),
+                    TaskItem("Lights", 3000_00L, false),
+                ),
+                dueDateEpochDay = LocalDate.now().plusDays(5).toEpochDay(),
+                completed       = false,
+            ),
+            events          = PreviewData.sampleEvents,
+            onDismiss       = {},
+            onTitleChange   = {},
+            onEventChange   = {},
+            onDueDateChange = {},
+            onSave          = {},
+        )
+    }
 }

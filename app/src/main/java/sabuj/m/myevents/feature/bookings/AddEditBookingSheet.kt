@@ -1,4 +1,4 @@
-﻿package sabuj.m.myevents.feature.bookings
+package sabuj.m.myevents.feature.bookings
 
 import android.app.DatePickerDialog
 import androidx.compose.foundation.Image
@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -36,6 +37,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -72,7 +74,6 @@ import sabuj.m.myevents.core.preview.LightDarkPreviews
 import sabuj.m.myevents.core.theme.AppColor
 import sabuj.m.myevents.core.theme.AppTheme
 import sabuj.m.myevents.core.theme.Radius
-import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.labelM
@@ -170,7 +171,10 @@ fun AddEditBookingSheet(
 
     val paidPaise = payments.sumOf { it.amountPaise }
     val amountLeftPaise = totalAmountPaise - paidPaise
-    val modalSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val modalSheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange    = { target -> target != SheetValue.Hidden },
+    )
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -222,12 +226,12 @@ fun AddEditBookingSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .statusBarsPadding()
+                .navigationBarsPadding()
                 .nestedScroll(noBounceNestedScrollConnection)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = Spacing.lg, vertical = Spacing.md),
-            verticalArrangement = Arrangement.spacedBy(Spacing.lg),
+                .padding(horizontal = 16.dp, vertical = 12.dp),
         ) {
-            Spacer(Modifier.height(Spacing.xs))
+            Spacer(Modifier.height(4.dp))
 
             // Sheet title
             Text(
@@ -236,11 +240,13 @@ fun AddEditBookingSheet(
                 color = AppColor.text,
             )
 
+            Spacer(Modifier.height(8.dp))
+
             // Booking name field (reduced width by 15%, left aligned) + Booking icon picker (icon only, right aligned)
             Row(
                 modifier              = Modifier.fillMaxWidth(),
                 verticalAlignment     = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 BookingTextField(
                     value         = bookingType,
@@ -277,6 +283,8 @@ fun AddEditBookingSheet(
                 }
             }
 
+            Spacer(Modifier.height(8.dp))
+
             // For event dropdown
             EventDropdown(
                 events    = events,
@@ -286,6 +294,8 @@ fun AddEditBookingSheet(
                 errorText = eventError,
             )
 
+            Spacer(Modifier.height(8.dp))
+
             // Contact person
             BookingTextField(
                 value         = contactName,
@@ -293,6 +303,8 @@ fun AddEditBookingSheet(
                 label         = "Contact person", // TODO strings.xml
                 placeholder   = "Vendor name",
             )
+
+            Spacer(Modifier.height(8.dp))
 
             // Phone
             BookingTextField(
@@ -302,6 +314,8 @@ fun AddEditBookingSheet(
                 placeholder   = "10-digit number",
                 keyboardType  = KeyboardType.Phone,
             )
+
+            Spacer(Modifier.height(8.dp))
 
             // Contract Amount
             BookingMoneyTextField(
@@ -315,6 +329,7 @@ fun AddEditBookingSheet(
 
             // Booking Amount / Advance (only in Add mode)
             if (!isEdit) {
+                Spacer(Modifier.height(8.dp))
                 BookingMoneyTextField(
                     paiseValue    = bookingAmountPaise,
                     onPaiseChange = { amount ->
@@ -327,6 +342,8 @@ fun AddEditBookingSheet(
                     placeholder   = "0",
                 )
             }
+
+            Spacer(Modifier.height(10.dp))
 
             // Booking Confirmed? Yes/No toggle (Moved just after Booking Amount field)
             Row(
@@ -351,6 +368,8 @@ fun AddEditBookingSheet(
                     ),
                 )
             }
+
+            Spacer(Modifier.height(10.dp))
 
             // Next due date (optional)
             val dueDateLabel = nextDueDateEpochDay?.let { DateUtils.formatDisplay(LocalDate.ofEpochDay(it)) } ?: "Not set"
@@ -386,16 +405,17 @@ fun AddEditBookingSheet(
 
             // ── Payment log (Edit mode only) ──────────────────────────
             if (isEdit) {
-                Spacer(Modifier.height(Spacing.xs))
+                Spacer(Modifier.height(10.dp))
                 Text(
                     text  = "PAYMENTS", // TODO strings.xml
                     style = labelS,
                     color = AppColor.text2,
                 )
+                Spacer(Modifier.height(8.dp))
                 // Read-only paid and remaining pills
                 Row(
                     modifier              = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment     = Alignment.CenterVertically,
                 ) {
                     Pill(
@@ -407,6 +427,7 @@ fun AddEditBookingSheet(
                         variant = PillVariant.Warning,
                     )
                 }
+                Spacer(Modifier.height(8.dp))
                 // Payment rows
                 payments.forEach { payment ->
                     PaymentRow(
@@ -423,7 +444,8 @@ fun AddEditBookingSheet(
                 }
             }
 
-            // â”€â”€ Action buttons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            Spacer(Modifier.height(16.dp))
+
             // Action buttons
             val hasChanges = if (sheetState is BookingSheetState.Edit) {
                 val orig = sheetState.initialBooking
@@ -447,7 +469,7 @@ fun AddEditBookingSheet(
                 positiveEnabled = isSaveEnabled,
             )
 
-            Spacer(Modifier.height(Spacing.xl))
+            Spacer(Modifier.height(10.dp))
         }
     }
 }
@@ -462,7 +484,7 @@ private fun PaymentRow(
     Row(
         modifier          = modifier
             .fillMaxWidth()
-            .padding(vertical = Spacing.xs),
+            .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(modifier = Modifier.weight(1f)) {
@@ -484,7 +506,7 @@ private fun PaymentRow(
             style = labelL,
             color = AppColor.text,
         )
-        Spacer(Modifier.width(Spacing.sm))
+        Spacer(Modifier.width(8.dp))
         Icon(
             imageVector        = Icons.Rounded.Delete,
             contentDescription = "Delete payment",
@@ -623,12 +645,12 @@ fun BookingIconPickerDialog(
             colors   = CardDefaults.cardColors(containerColor = AppColor.surface),
             modifier = Modifier
                 .fillMaxWidth(0.92f)
-                .padding(vertical = Spacing.md),
+                .padding(vertical = 12.dp),
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(Spacing.md),
+                    .padding(12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Row(
@@ -650,17 +672,17 @@ fun BookingIconPickerDialog(
                             .clickable { onDismiss() },
                     )
                 }
-                Spacer(Modifier.height(Spacing.md))
+                Spacer(Modifier.height(12.dp))
 
                 // 47 icons in 5 columns grid
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(Spacing.xs),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                     modifier            = Modifier.verticalScroll(rememberScrollState()),
                 ) {
                     BookingIcon.pickerEntries.chunked(5).forEach { rowIcons ->
                         Row(
                             modifier              = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
                             rowIcons.forEach { icon ->
                                 val isSelected = icon == selectedIcon

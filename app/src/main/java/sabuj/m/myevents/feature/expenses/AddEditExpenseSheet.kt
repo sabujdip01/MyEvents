@@ -1,11 +1,13 @@
 package sabuj.m.myevents.feature.expenses
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -17,6 +19,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -27,9 +30,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import sabuj.m.myevents.core.preview.LightDarkPreviews
+import sabuj.m.myevents.core.preview.PreviewData
 import sabuj.m.myevents.core.theme.AppColor
+import sabuj.m.myevents.core.theme.AppTheme
 import sabuj.m.myevents.core.theme.Radius
-import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.titleL
 import sabuj.m.myevents.core.ui.AppButtonRow
@@ -79,26 +84,36 @@ fun AddEditExpenseSheet(
         else -> return
     }
 
-    val modalState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val modalState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange    = { target -> target != SheetValue.Hidden },
+    )
 
     ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState       = modalState,
-        containerColor   = AppColor.surface,
-        shape            = RoundedCornerShape(topStart = Radius.sheet, topEnd = Radius.sheet),
+        onDismissRequest    = onDismiss,
+        sheetState          = modalState,
+        containerColor      = AppColor.surface,
+        shape               = RoundedCornerShape(topStart = Radius.sheet, topEnd = Radius.sheet),
+        dragHandle          = null,
+        contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .statusBarsPadding()
+                .navigationBarsPadding()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = Spacing.lg, vertical = Spacing.md),
-            verticalArrangement = Arrangement.spacedBy(Spacing.lg),
+                .padding(horizontal = 16.dp, vertical = 12.dp),
         ) {
+            Spacer(Modifier.height(4.dp))
+
             Text(
                 text  = if (isEdit) "Edit Expense" else "Add Expense",
                 style = titleL,
                 color = AppColor.text,
             )
+
+            Spacer(Modifier.height(8.dp))
 
             // Purpose field
             ExpenseTextField(
@@ -110,6 +125,8 @@ fun AddEditExpenseSheet(
                 supportingText = purposeError,
             )
 
+            Spacer(Modifier.height(8.dp))
+
             // Single Select Event Dropdown (Item G7 — No auto-select)
             ExpenseEventDropdownSelector(
                 events     = events,
@@ -118,6 +135,8 @@ fun AddEditExpenseSheet(
                 isError    = eventError != null,
                 errorText  = eventError,
             )
+
+            Spacer(Modifier.height(8.dp))
 
             // Total Amount (₹)
             val totalStr = if (totalAmountPaise == 0L) "" else formatIndianDigits((totalAmountPaise / 100L).toString())
@@ -133,6 +152,8 @@ fun AddEditExpenseSheet(
                 supportingText = amountError,
             )
 
+            Spacer(Modifier.height(16.dp))
+
             // Action buttons
             val isSaveEnabled = purpose.isNotBlank() && eventId.isNotBlank() && totalAmountPaise > 0
             AppButtonRow(
@@ -143,7 +164,7 @@ fun AddEditExpenseSheet(
                 positiveEnabled = isSaveEnabled,
             )
 
-            Spacer(Modifier.height(Spacing.xl))
+            Spacer(Modifier.height(10.dp))
         }
     }
 }
@@ -266,4 +287,45 @@ private fun ExpenseMoneyTextField(
             errorBorderColor     = AppColor.danger,
         ),
     )
+}
+
+// ---------------------------------------------------------------------------
+// Previews
+// ---------------------------------------------------------------------------
+
+@LightDarkPreviews
+@Composable
+private fun AddExpenseSheetPreview() {
+    AppTheme {
+        AddEditExpenseSheet(
+            sheetState          = ExpenseSheetState.Add(eventId = PreviewData.sampleEvents.first().id),
+            events              = PreviewData.sampleEvents,
+            onDismiss           = {},
+            onPurposeChange     = {},
+            onEventChange       = {},
+            onTotalAmountChange = {},
+            onSave              = {},
+        )
+    }
+}
+
+@LightDarkPreviews
+@Composable
+private fun EditExpenseSheetPreview() {
+    AppTheme {
+        AddEditExpenseSheet(
+            sheetState          = ExpenseSheetState.Edit(
+                expenseId        = "exp-1",
+                eventId          = PreviewData.sampleEvents.first().id,
+                purpose          = "Flower decoration",
+                totalAmountPaise = 25000_00L,
+            ),
+            events              = PreviewData.sampleEvents,
+            onDismiss           = {},
+            onPurposeChange     = {},
+            onEventChange       = {},
+            onTotalAmountChange = {},
+            onSave              = {},
+        )
+    }
 }

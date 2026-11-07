@@ -1,9 +1,12 @@
 # Version History
 
-Current: V0.T.16
+Current: V0.T.19
 
 | Version  | Phase | Build | Commit    | Summary                                                                                             |
 | -------- |-------|-------|-----------|-----------------------------------------------------------------------------------------------------|
+| V0.T.19  | Test  | 19    | -         | fix(sync): correct Firestore field names for Booking, Task, Invitee, Gift, Expense                  |
+| V0.T.18  | Test  | 18    | -         | fix(cards): expense & invitee card -25% height, +40% gap, Total row above nav bar                   |
+| V0.T.17  | Test  | 17    | -         | style(popups): standardize spacing, disable drag, add previews, fix nav bar overflow                 |
 | V0.T.16  | Test  | 16    | 3053858   | fix(bookings): single-tap cancel, edit pills, renamed labels & 38dp zoomed icons                    |
 | V0.T.15  | Test  | 15    | a0bc929   | fix(bookings): card 3rd row layout, green fully paid chip & blank vendor name                        |
 | V0.T.14  | Test  | 14    | f966c13   | fix(bookings): eliminate sheet bounce with no-bounce nested scroll connection                       |

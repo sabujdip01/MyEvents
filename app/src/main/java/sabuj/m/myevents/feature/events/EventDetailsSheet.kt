@@ -7,10 +7,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,6 +30,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -39,8 +43,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import sabuj.m.myevents.core.icons.AppIcon
+import sabuj.m.myevents.core.preview.LightDarkPreviews
+import sabuj.m.myevents.core.preview.PreviewData
 import sabuj.m.myevents.core.theme.AppColor
-import sabuj.m.myevents.core.theme.Spacing
+import sabuj.m.myevents.core.theme.AppTheme
 import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.labelM
@@ -91,13 +97,18 @@ fun EventDetailsSheet(
     onEdit: () -> Unit = {},
     onDelete: () -> Unit = {},
 ) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange    = { target -> target != SheetValue.Hidden },
+    )
 
     ModalBottomSheet(
         onDismissRequest    = onDismiss,
         sheetState          = sheetState,
         containerColor      = AppColor.surface,
         shape               = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+        dragHandle          = null,
+        contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
     ) {
         EventDetailsContent(
             event        = event,
@@ -106,6 +117,7 @@ fun EventDetailsSheet(
             showActions  = showActions,
             onEdit       = onEdit,
             onDelete     = onDelete,
+            modifier     = Modifier.statusBarsPadding().navigationBarsPadding(),
         )
     }
 }
@@ -136,13 +148,16 @@ fun EventDetailsContent(
     showActions: Boolean = true,
     onEdit: () -> Unit = {},
     onDelete: () -> Unit = {},
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .background(AppColor.surface)
-            .padding(horizontal = Spacing.lg, vertical = Spacing.md),
+            .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
+        Spacer(Modifier.height(4.dp))
+
         // ── Header: icon + title + date ─────────────────────────
         Row(verticalAlignment = Alignment.Top) {
             IconChip(
@@ -150,16 +165,16 @@ fun EventDetailsContent(
                 contentDescription = event.title,
                 size               = IconChipSize.Lg,
                 customRes          = event.icon.customRes,
+                modifier           = Modifier.size(52.dp),
             )
-            Spacer(Modifier.width(18.dp))
+            Spacer(Modifier.width(11.dp))
             Column {
-                Spacer(Modifier.height(2.dp))
                 Text(
                     text  = event.title,
                     style = titleL,
                     color = AppColor.text,
                 )
-                Spacer(Modifier.height(Spacing.xs))
+                Spacer(Modifier.height(4.dp))
                 Text(
                     text  = DateUtils.formatDisplay(event.date),
                     style = bodyM,
@@ -168,12 +183,12 @@ fun EventDetailsContent(
             }
         }
 
-        Spacer(Modifier.height(Spacing.lg))
+        Spacer(Modifier.height(10.dp))
 
         // ── Stat tiles (E4 — Icon on left, label/value on right) ──
         Row(
             modifier              = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             StatTile(
                 icon      = AppIcon.Bookings.fallback,
@@ -191,7 +206,7 @@ fun EventDetailsContent(
             )
         }
 
-        Spacer(Modifier.height(Spacing.lg))
+        Spacer(Modifier.height(10.dp))
 
         // ── Detail list ─────────────────────────────────────────
         DetailRow(
@@ -219,12 +234,12 @@ fun EventDetailsContent(
         )
 
         if (showActions) {
-            Spacer(Modifier.height(Spacing.xl))
+            Spacer(Modifier.height(16.dp))
 
             // ── Action buttons ──────────────────────────────────────
             Row(
                 modifier              = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Button(
                     onClick  = onEdit,
@@ -255,7 +270,7 @@ fun EventDetailsContent(
             }
         }
 
-        Spacer(Modifier.height(Spacing.xl))
+        Spacer(Modifier.height(10.dp))
     }
 }
 
@@ -273,7 +288,7 @@ private fun StatTile(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
             .background(AppColor.surfaceVariant.copy(alpha = 0.5f))
-            .padding(Spacing.md),
+            .padding(12.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             // Icon chip on left
@@ -295,7 +310,7 @@ private fun StatTile(
                     Icon(icon, contentDescription = null, tint = AppColor.primary, modifier = Modifier.size(22.dp))
                 }
             }
-            Spacer(Modifier.width(Spacing.sm))
+            Spacer(Modifier.width(8.dp))
             // Labels on right
             Column {
                 Text(
@@ -306,7 +321,7 @@ private fun StatTile(
                 )
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     Text(text = value, style = numberL, color = AppColor.text)
                     Text(text = caption, style = bodyM, color = AppColor.text2)
@@ -323,11 +338,11 @@ private fun DetailRow(icon: ImageVector, label: String, value: String) {
         modifier          = Modifier
             .fillMaxWidth()
             .height(52.dp)
-            .padding(horizontal = Spacing.sm),
+            .padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(icon, contentDescription = null, tint = AppColor.primary, modifier = Modifier.size(20.dp))
-        Spacer(Modifier.width(Spacing.sm))
+        Spacer(Modifier.width(8.dp))
         Text(
             text     = label,
             style    = bodyM,
@@ -338,6 +353,36 @@ private fun DetailRow(icon: ImageVector, label: String, value: String) {
             text  = value,
             style = titleS,
             color = AppColor.text,
+        )
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Previews
+// ---------------------------------------------------------------------------
+
+@LightDarkPreviews
+@Composable
+private fun EventDetailsSheetReadOnlyPreview() {
+    AppTheme {
+        EventDetailsContent(
+            event        = PreviewData.sampleEvents.first(),
+            bookingCount = 3,
+            inviteeCount = 85,
+            showActions  = false,
+        )
+    }
+}
+
+@LightDarkPreviews
+@Composable
+private fun EventDetailsSheetWithActionsPreview() {
+    AppTheme {
+        EventDetailsContent(
+            event        = PreviewData.sampleEvents.first(),
+            bookingCount = 3,
+            inviteeCount = 85,
+            showActions  = true,
         )
     }
 }

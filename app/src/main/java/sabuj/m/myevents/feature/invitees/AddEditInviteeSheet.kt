@@ -10,10 +10,13 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -28,6 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -38,9 +42,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import sabuj.m.myevents.core.preview.LightDarkPreviews
+import sabuj.m.myevents.core.preview.PreviewData
 import sabuj.m.myevents.core.theme.AppColor
+import sabuj.m.myevents.core.theme.AppTheme
 import sabuj.m.myevents.core.theme.Radius
-import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.labelM
@@ -98,26 +104,36 @@ fun AddEditInviteeSheet(
         else -> return
     }
 
-    val modalState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val modalState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange    = { target -> target != SheetValue.Hidden },
+    )
 
     ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState       = modalState,
-        containerColor   = AppColor.surface,
-        shape            = RoundedCornerShape(topStart = Radius.sheet, topEnd = Radius.sheet),
+        onDismissRequest    = onDismiss,
+        sheetState          = modalState,
+        containerColor      = AppColor.surface,
+        shape               = RoundedCornerShape(topStart = Radius.sheet, topEnd = Radius.sheet),
+        dragHandle          = null,
+        contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .statusBarsPadding()
+                .navigationBarsPadding()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = Spacing.lg, vertical = Spacing.md),
-            verticalArrangement = Arrangement.spacedBy(Spacing.lg),
+                .padding(horizontal = 16.dp, vertical = 12.dp),
         ) {
+            Spacer(Modifier.height(4.dp))
+
             Text(
                 text  = if (isEdit) "Edit Guest" else "Add Guest",
                 style = titleL,
                 color = AppColor.text,
             )
+
+            Spacer(Modifier.height(8.dp))
 
             // Name
             InviteeTextField(
@@ -129,15 +145,17 @@ fun AddEditInviteeSheet(
                 supportingText = nameError,
             )
 
+            Spacer(Modifier.height(10.dp)) // field → multi-select section
+
             // For events multi-select
-            Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(text = "For Events (Invitees Required)", style = labelM, color = AppColor.text2)
                 if (eventsError != null) {
                     Text(text = eventsError, style = bodyM, color = AppColor.danger)
                 }
                 FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
-                    verticalArrangement   = Arrangement.spacedBy(Spacing.sm),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement   = Arrangement.spacedBy(8.dp),
                 ) {
                     inviteeEvents.forEach { event ->
                         val isSelected = selectedEventIds.contains(event.id)
@@ -169,12 +187,14 @@ fun AddEditInviteeSheet(
                 }
             }
 
+            Spacer(Modifier.height(10.dp)) // multi-select → stepper section
+
             // Expected guests count stepper (Item H3)
-            Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(text = "Expected Guests Count", style = labelM, color = AppColor.text2)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Surface(
                         onClick  = { if (expectedCount > 1) onExpectedCountChange(expectedCount - 1) },
@@ -206,6 +226,8 @@ fun AddEditInviteeSheet(
                 }
             }
 
+            Spacer(Modifier.height(10.dp)) // stepper → text field
+
             // Address
             InviteeTextField(
                 value         = address,
@@ -214,6 +236,8 @@ fun AddEditInviteeSheet(
                 placeholder   = "e.g. 123, MG Road, Bengaluru",
             )
 
+            Spacer(Modifier.height(8.dp)) // similar text fields
+
             // Note
             InviteeTextField(
                 value         = note,
@@ -221,6 +245,8 @@ fun AddEditInviteeSheet(
                 label         = "Note / Comments (Optional)",
                 placeholder   = "e.g. Needs accommodation",
             )
+
+            Spacer(Modifier.height(10.dp)) // field → toggle
 
             // Invited status switch
             Row(
@@ -246,6 +272,8 @@ fun AddEditInviteeSheet(
                 )
             }
 
+            Spacer(Modifier.height(16.dp)) // before buttons
+
             val isSaveEnabled = name.isNotBlank() && (isEdit || selectedEventIds.isNotEmpty())
             AppButtonRow(
                 positiveText    = if (isEdit) "Save" else "Add",
@@ -255,7 +283,7 @@ fun AddEditInviteeSheet(
                 positiveEnabled = isSaveEnabled,
             )
 
-            Spacer(Modifier.height(Spacing.xl))
+            Spacer(Modifier.height(10.dp))
         }
     }
 }
@@ -291,4 +319,54 @@ private fun InviteeTextField(
             errorBorderColor     = AppColor.danger,
         ),
     )
+}
+
+// ---------------------------------------------------------------------------
+// Previews
+// ---------------------------------------------------------------------------
+
+@LightDarkPreviews
+@Composable
+private fun AddInviteeSheetPreview() {
+    AppTheme {
+        AddEditInviteeSheet(
+            sheetState             = InviteeSheetState.AddInvitee(),
+            events                 = PreviewData.sampleEvents,
+            onDismiss              = {},
+            onNameChange           = {},
+            onToggleEventSelection = {},
+            onExpectedCountChange  = {},
+            onAddressChange        = {},
+            onInvitedChange        = {},
+            onNoteChange           = {},
+            onSave                 = {},
+        )
+    }
+}
+
+@LightDarkPreviews
+@Composable
+private fun EditInviteeSheetPreview() {
+    AppTheme {
+        AddEditInviteeSheet(
+            sheetState             = InviteeSheetState.EditInvitee(
+                inviteeId     = "inv-1",
+                eventId       = PreviewData.sampleEvents.first().id,
+                name          = "Sharma Family",
+                expectedCount = 4,
+                address       = "123, MG Road",
+                invited       = true,
+                note          = "VIP guests",
+            ),
+            events                 = PreviewData.sampleEvents,
+            onDismiss              = {},
+            onNameChange           = {},
+            onToggleEventSelection = {},
+            onExpectedCountChange  = {},
+            onAddressChange        = {},
+            onInvitedChange        = {},
+            onNoteChange           = {},
+            onSave                 = {},
+        )
+    }
 }

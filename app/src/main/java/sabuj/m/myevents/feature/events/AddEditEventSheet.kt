@@ -10,10 +10,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,6 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -50,8 +54,10 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import sabuj.m.myevents.core.icons.EventCategoryIcon
 import sabuj.m.myevents.core.icons.EventIcon
+import sabuj.m.myevents.core.preview.LightDarkPreviews
+import sabuj.m.myevents.core.preview.PreviewData
 import sabuj.m.myevents.core.theme.AppColor
-import sabuj.m.myevents.core.theme.Spacing
+import sabuj.m.myevents.core.theme.AppTheme
 import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.labelM
@@ -83,7 +89,10 @@ fun AddEditEventSheet(
     onSave: (title: String, eventName: String, date: LocalDate, icon: EventIcon, budgetPaise: Long, inviteesRequired: Boolean) -> Unit,
 ) {
     val isEdit = existingEvent != null
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange    = { target -> target != SheetValue.Hidden },
+    )
     val context = LocalContext.current
 
     // In Edit mode the date can be changed; in Add mode it is fixed from the long-press
@@ -132,24 +141,31 @@ fun AddEditEventSheet(
     }
 
     ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState       = sheetState,
-        containerColor   = AppColor.surface,
-        shape            = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+        onDismissRequest    = onDismiss,
+        sheetState          = sheetState,
+        containerColor      = AppColor.surface,
+        shape               = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+        dragHandle          = null,
+        contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .statusBarsPadding()
+                .navigationBarsPadding()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = Spacing.lg, vertical = Spacing.md),
-            verticalArrangement = Arrangement.spacedBy(Spacing.lg),
+                .padding(horizontal = 16.dp, vertical = 12.dp),
         ) {
+            Spacer(Modifier.height(4.dp))
+
             // Sheet title
             Text(
                 text  = if (isEdit) "Edit Event" else "Add Event",
                 style = titleL,
                 color = AppColor.text,
             )
+
+            Spacer(Modifier.height(8.dp))
 
             // Event name — single field, used as both title and eventName on save
             AppTextField(
@@ -159,12 +175,14 @@ fun AddEditEventSheet(
                 placeholder   = "e.g. Wedding, Engagement",
             )
 
+            Spacer(Modifier.height(8.dp))
+
             // Date — read-only in Add mode; editable (via DatePicker) in Edit mode
             if (isEdit) {
                 Row(
-                    modifier          = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                    modifier              = Modifier.fillMaxWidth(),
+                    verticalAlignment     = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     AppTextField(
                         value         = DateUtils.formatDisplay(selectedDate),
@@ -200,6 +218,8 @@ fun AddEditEventSheet(
                 )
             }
 
+            Spacer(Modifier.height(10.dp))
+
             // Event category icon picker — 10 two-tone XML category icons in 2 rows of 5
             val categoryIconPairs = remember {
                 listOf(
@@ -216,12 +236,12 @@ fun AddEditEventSheet(
                 )
             }
 
-            Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(text = "Event icon", style = labelM, color = AppColor.text2)
                 categoryIconPairs.chunked(5).forEach { rowPairs ->
                     Row(
                         modifier              = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         rowPairs.forEach { (category, icon) ->
                             val isSelected = icon == selectedIcon
@@ -253,6 +273,8 @@ fun AddEditEventSheet(
                 }
             }
 
+            Spacer(Modifier.height(10.dp))
+
             // Budget field — shows Indian-formatted number; keeps cursor at end
             OutlinedTextField(
                 value         = budgetTextFieldValue,
@@ -281,6 +303,8 @@ fun AddEditEventSheet(
                 ),
             )
 
+            Spacer(Modifier.height(10.dp))
+
             // Invitees required toggle
             Row(
                 modifier          = Modifier.fillMaxWidth(),
@@ -307,21 +331,24 @@ fun AddEditEventSheet(
 
             // Inline error (e.g. date already taken)
             if (saveError != null) {
+                Spacer(Modifier.height(8.dp))
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
                         .background(AppColor.dangerContainer)
-                        .padding(horizontal = Spacing.md, vertical = Spacing.sm),
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
                 ) {
                     Text(text = saveError, style = bodyM, color = AppColor.danger)
                 }
             }
 
+            Spacer(Modifier.height(16.dp))
+
             // Action buttons
             Row(
                 modifier              = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Button(
                     onClick  = onDismiss,
@@ -350,7 +377,7 @@ fun AddEditEventSheet(
                 ) { Text(if (isEdit) "Save" else "Add", style = labelL) }
             }
 
-            Spacer(Modifier.height(Spacing.xl))
+            Spacer(Modifier.height(10.dp))
         }
     }
 }
@@ -384,4 +411,34 @@ private fun AppTextField(
             disabledLabelColor   = AppColor.text3,
         ),
     )
+}
+
+// ---------------------------------------------------------------------------
+// Previews
+// ---------------------------------------------------------------------------
+
+@LightDarkPreviews
+@Composable
+private fun AddEventSheetPreview() {
+    AppTheme {
+        AddEditEventSheet(
+            prefilledDate = LocalDate.now(),
+            existingEvent = null,
+            onDismiss     = {},
+            onSave        = { _, _, _, _, _, _ -> },
+        )
+    }
+}
+
+@LightDarkPreviews
+@Composable
+private fun EditEventSheetPreview() {
+    AppTheme {
+        AddEditEventSheet(
+            prefilledDate = LocalDate.now(),
+            existingEvent = PreviewData.sampleEvents.first(),
+            onDismiss     = {},
+            onSave        = { _, _, _, _, _, _ -> },
+        )
+    }
 }
