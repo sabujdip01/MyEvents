@@ -33,9 +33,13 @@ data class HomeSummary(
 
 /** Per-event mini-summary for the Home upcoming-events card. */
 data class EventSummary(
-    val id: String,
-    val title: String,
-    val date: LocalDate,
-    val icon: sabuj.m.myevents.core.icons.EventIcon,
-)
+    val event: Event,
+    val bookingCount: Int = 0,
+    val inviteeCount: Int = 0,
+) {
+    val id: String get() = event.id
+    val title: String get() = event.title
+    val date: LocalDate get() = event.date
+    val icon: sabuj.m.myevents.core.icons.EventIcon get() = event.icon
+}
 

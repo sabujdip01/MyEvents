@@ -95,21 +95,11 @@ fun HomeScreen(
         // View Event Popup on event row click (Read-Only: no Edit/Delete actions)
         selectedEventSummary?.let { summary ->
             EventDetailsSheet(
-                event = Event(
-                    id               = summary.id,
-                    title            = summary.title,
-                    eventName        = summary.title,
-                    date             = summary.date,
-                    icon             = summary.icon,
-                    budgetPaise      = 0L,
-                    inviteesRequired = true,
-                    createdAt        = 0L,
-                    updatedAt        = 0L,
-                    syncState        = sabuj.m.myevents.domain.model.SyncState.PENDING,
-                    deleted          = false,
-                ),
-                showActions = false,
-                onDismiss   = { selectedEventSummary = null },
+                event        = summary.event,
+                bookingCount = summary.bookingCount,
+                inviteeCount = summary.inviteeCount,
+                showActions  = false,
+                onDismiss    = { selectedEventSummary = null },
             )
         }
     }
@@ -307,7 +297,7 @@ private fun EventRow(event: EventSummary, onClick: () -> Unit) {
         onClick  = onClick,
         modifier = Modifier.fillMaxWidth().height(64.dp),
         shape    = RoundedCornerShape(14.dp),
-        color    = AppColor.surfaceVariant.copy(alpha = if (AppColor.isDark) 0.5f else 0.35f),
+        color    = AppColor.surfaceVariant.copy(alpha = if (AppColor.isDark) 0.45f else 0.65f),
     ) {
         Row(modifier = Modifier.padding(horizontal = Spacing.md), verticalAlignment = Alignment.CenterVertically) {
             Box(
@@ -665,7 +655,7 @@ private fun HomeScreenFilledPreview() {
         HomeContent(
             state = HomeUiState(
                 upcomingEvents     = sabuj.m.myevents.core.preview.PreviewData.sampleEvents.map {
-                    EventSummary(id = it.id, title = it.title, date = it.date, icon = it.icon)
+                    EventSummary(event = it, bookingCount = 3, inviteeCount = 85)
                 },
                 bookingsDone       = 4,
                 bookingsTotal      = 7,

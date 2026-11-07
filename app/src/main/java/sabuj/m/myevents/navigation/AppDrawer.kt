@@ -96,7 +96,7 @@ private data class DrawerItem(
 private val drawerItems = listOf(
     DrawerItem(Routes.HOME,      "Home",               AppIcon.Home.fallback),
     DrawerItem(Routes.EVENTS,    "Events",             AppIcon.Events.fallback),
-    DrawerItem(Routes.BOOKINGS,  "Booking / Contracts",AppIcon.Bookings.fallback),
+    DrawerItem(Routes.BOOKINGS,  "Booking",            AppIcon.Bookings.fallback),
     DrawerItem(Routes.CHECKLIST, "Item Lists",         AppIcon.Checklist.fallback),
     DrawerItem(Routes.EXPENSES,  "Expenses",           AppIcon.Expenses.fallback),
     DrawerItem(Routes.INVITEES,  "Invitees",           AppIcon.Invitees.fallback),

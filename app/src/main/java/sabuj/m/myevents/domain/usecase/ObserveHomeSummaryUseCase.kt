@@ -73,7 +73,15 @@ class ObserveHomeSummaryUseCase @Inject constructor(
             val totalBookingsCount = bookings.size
 
             HomeSummary(
-                events             = events.map { e -> EventSummary(id = e.id, title = e.title, date = e.date, icon = e.icon) },
+                events             = events.map { e ->
+                    val bCount = bookings.count { it.eventId == e.id }
+                    val iCount = invitees.filter { it.eventId == e.id }.sumOf { maxOf(1, it.expectedCount) }
+                    EventSummary(
+                        event        = e,
+                        bookingCount = bCount,
+                        inviteeCount = iCount,
+                    )
+                },
                 totalBudgetPaise   = totalBudget,
                 totalSpentPaise    = totalSpent,
                 totalDuesPaise     = totalDues,
