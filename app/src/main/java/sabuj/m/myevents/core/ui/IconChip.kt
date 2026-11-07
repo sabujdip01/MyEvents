@@ -97,6 +97,7 @@ enum class IconChipSize(val boxSize: Dp, val cornerRadius: Dp, val iconSize: Dp)
     Sm      (36.dp, 12.dp, 20.dp),
     Default (44.dp, Radius.icon, 24.dp),
     Lg      (64.dp, 20.dp, 32.dp),
+    XLg     (70.dp, 22.dp, 48.dp),  // 50% larger than Lg icon (32dp → 48dp) for booking cards
 }
 
 // ---------------------------------------------------------------------------

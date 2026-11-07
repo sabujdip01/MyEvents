@@ -1,5 +1,6 @@
 package sabuj.m.myevents.feature.bookings
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -27,10 +28,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import sabuj.m.myevents.core.preview.LightDarkPreviews
+import sabuj.m.myevents.core.preview.PreviewData
 import sabuj.m.myevents.core.theme.AppColor
+import sabuj.m.myevents.core.theme.AppTheme
 import sabuj.m.myevents.core.theme.PaletteId
 import sabuj.m.myevents.core.theme.Radius
 import sabuj.m.myevents.core.theme.Spacing
@@ -86,64 +93,85 @@ fun BookingCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(Radius.card))
             .background(gradient)
-            .padding(start = Spacing.md, end = Spacing.md, top = Spacing.xs, bottom = Spacing.md),
+            .padding(start = Spacing.md, end = Spacing.md, top = 4.dp, bottom = Spacing.md),
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            // Row 1: [Booking Icon 50% enlarged] | <Event Name> (left) | ₹<Amount Paid> paid (middle) | [Edit Icon] (right)
+            // Row 1: [Booking Icon 30% reduced, flush left] | <Booking Title> | ₹<Amount Paid> paid | [Edit Icon] (right)
             Row(
                 modifier          = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // Booking Icon (50% enlarged, transparent background)
-                IconChip(
-                    icon               = booking.bookingIcon.fallback,
-                    contentDescription = booking.bookingType,
-                    size               = IconChipSize.Lg,
-                    containerColor     = Color.Transparent,
-                    iconColor          = iconColor,
-                    customRes          = booking.bookingIcon.customRes,
-                )
+                // Booking Icon (32dp icon, transparent background, flush left)
+                if (booking.bookingIcon.customRes != null) {
+                    Image(
+                        painter            = painterResource(booking.bookingIcon.customRes!!),
+                        contentDescription = booking.bookingType,
+                        modifier           = Modifier.size(32.dp),
+                        contentScale       = ContentScale.Fit,
+                    )
+                } else {
+                    Icon(
+                        imageVector        = booking.bookingIcon.fallback,
+                        contentDescription = booking.bookingType,
+                        tint               = iconColor,
+                        modifier           = Modifier.size(32.dp),
+                    )
+                }
                 Spacer(Modifier.width(Spacing.xs))
                 Text(
-                    text     = event?.title ?: booking.title,
-                    style    = titleS,
-                    color    = AppColor.text,
-                    modifier = Modifier.weight(1f),
-                )
-                Text(
-                    text      = "${MoneyFormatter.format(booking.paidPaise)} paid",
+                    text      = booking.title,
                     style     = titleS,
                     color     = AppColor.text,
+                    maxLines  = 1,
+                    overflow  = TextOverflow.Ellipsis,
                     textAlign = TextAlign.Center,
                     modifier  = Modifier.weight(1f),
                 )
+                Spacer(Modifier.width(Spacing.xs))
+                Text(
+                    text     = "${MoneyFormatter.format(booking.paidPaise)} paid",
+                    style    = titleS,
+                    color    = AppColor.text,
+                    maxLines = 1,
+                )
+                Spacer(Modifier.width(Spacing.xs))
                 Icon(
                     imageVector        = Icons.Rounded.Edit,
                     contentDescription = "Edit booking",
                     tint               = AppColor.primary,
-                    modifier           = Modifier.size(22.dp).clickable { onEditClick() },
+                    modifier           = Modifier
+                        .size(20.dp)
+                        .clickable { onEditClick() },
                 )
             }
 
-            Spacer(Modifier.height(Spacing.xs))
+            Spacer(Modifier.height(2.dp))
 
-            // Row 2: [Event Icon 50% enlarged] | Contract ₹X . Remaining ₹Y
-            //                                   Progress Bar
+            // Row 2: [Event Icon 30% reduced, flush left] | Contract ₹X . Remaining ₹Y
+            //                                               Progress Bar
             Row(
                 modifier          = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // Event Icon (50% enlarged, transparent background)
-                IconChip(
-                    icon               = event?.icon?.fallback ?: Icons.Rounded.Delete,
-                    contentDescription = event?.title ?: "",
-                    size               = IconChipSize.Lg,
-                    containerColor     = Color.Transparent,
-                    iconColor          = iconColor,
-                    customRes          = event?.icon?.customRes,
-                )
+                val eventCustomRes = event?.icon?.customRes
+                val eventFallback = event?.icon?.fallback ?: Icons.Rounded.Delete
+                if (eventCustomRes != null) {
+                    Image(
+                        painter            = painterResource(eventCustomRes),
+                        contentDescription = event?.title ?: "",
+                        modifier           = Modifier.size(30.dp),
+                        contentScale       = ContentScale.Fit,
+                    )
+                } else {
+                    Icon(
+                        imageVector        = eventFallback,
+                        contentDescription = event?.title ?: "",
+                        tint               = iconColor,
+                        modifier           = Modifier.size(32.dp),
+                    )
+                }
 
-                Spacer(Modifier.width(Spacing.xs))
+                Spacer(Modifier.width(10.dp))
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
@@ -152,45 +180,49 @@ fun BookingCard(
                         color    = AppColor.text2,
                         maxLines = 1,
                     )
-                    Spacer(Modifier.height(Spacing.xs))
+                    Spacer(Modifier.height(7.dp))
                     LinearProgressIndicator(
                         progress   = { progress },
-                        modifier   = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
+                        modifier   = Modifier.fillMaxWidth().height(10.dp).clip(RoundedCornerShape(4.dp)),
                         color      = AppColor.accent,
                         trackColor = AppColor.surface.copy(alpha = 0.4f),
                     )
                 }
             }
 
-            Spacer(Modifier.height(Spacing.sm))
+            Spacer(Modifier.height(6.dp))
 
-            // Row 3: Vendor Name (col 1: 0%) | Amount Left (col 2: 26%) | Due Date (col 3: 52%) | Booking Confirmed (col 4: Right)
+            // Row 3: Vendor Name (col 1: 0%) | Amount Left (col 2: 26%) | Due Date (col 3: 54%) | Booking Confirmed (col 4: Right)
             BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
                 val totalWidth = maxWidth
 
-                // Col 1: Vendor Name (0% - fully left aligned)
+                // Col 1: Vendor Name (0% - fully left aligned, show blank if empty)
                 Text(
-                    text     = booking.contactName.ifBlank { "Vendor" },
+                    text     = booking.contactName,
                     style    = bodyM,
                     color    = AppColor.text2,
                     maxLines = 1,
                     modifier = Modifier.align(Alignment.CenterStart),
                 )
 
-                // Col 2: Amount left chip at 26% relative position (defined red color PillVariant.Danger)
+                // Col 2: Amount left chip at 26% relative position (Fully Paid in green Success, else red Danger)
+                val amountLeftVariant = if (booking.isFullyPaid) PillVariant.Success else PillVariant.Danger
                 val amountLeftText = if (booking.isFullyPaid) "Fully Paid" else "${MoneyFormatter.format(booking.amountLeftPaise)} left"
                 Box(modifier = Modifier.padding(start = totalWidth * 0.26f).align(Alignment.CenterStart)) {
-                    Pill(text = amountLeftText, variant = PillVariant.Danger)
+                    Pill(text = amountLeftText, variant = amountLeftVariant)
                 }
 
-                // Col 3: Due date chip at 52% relative position (if available)
-                if (booking.nextDueDate != null) {
-                    val isOverdue = booking.nextDueDate.isBefore(today)
-                    Box(modifier = Modifier.padding(start = totalWidth * 0.52f).align(Alignment.CenterStart)) {
+                // Col 3: Due date chip — positioned at 54% between Amount Left (26%) and Booking Confirmed (right)
+                Box(modifier = Modifier.padding(start = totalWidth * 0.48f).align(Alignment.CenterStart)) {
+                    if (booking.nextDueDate != null) {
+                        val isOverdue = booking.nextDueDate.isBefore(today)
                         Pill(
                             text    = "Due ${DateUtils.formatShort(booking.nextDueDate)}",
                             variant = if (isOverdue) PillVariant.Danger else PillVariant.Warning,
                         )
+                    } else {
+                        // Placeholder — holds exact space when no due date is set
+                        Spacer(Modifier.width(72.dp).height(24.dp))
                     }
                 }
 
@@ -214,6 +246,52 @@ fun BookingCard(
                     .align(Alignment.TopEnd)
                     .offset(x = (-Spacing.xs), y = Spacing.xs)
                     .clickable { onDeleteClick() },
+            )
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Previews
+// ---------------------------------------------------------------------------
+
+@LightDarkPreviews
+@Composable
+private fun BookingCardPreview() {
+    AppTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(Spacing.md),
+        ) {
+            BookingCard(
+                booking      = PreviewData.sampleBooking,
+                slot         = 0,
+                editMode     = false,
+                onEditClick  = {},
+                onDeleteClick = {},
+                event        = PreviewData.sampleEvents[1],
+            )
+        }
+    }
+}
+
+@LightDarkPreviews
+@Composable
+private fun BookingCardEditModePreview() {
+    AppTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(Spacing.md),
+        ) {
+            BookingCard(
+                booking      = PreviewData.sampleBooking,
+                slot         = 1,
+                editMode     = true,
+                onEditClick  = {},
+                onDeleteClick = {},
+                event        = PreviewData.sampleEvents[1],
             )
         }
     }
