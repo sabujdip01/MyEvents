@@ -448,10 +448,11 @@ internal fun ItemListCard(
                 Spacer(Modifier.width(10.dp))
 
                 Column(modifier = Modifier.weight(1f)) {
+                    val collectedItems = task.items.count { it.name.isNotBlank() && it.checked }
                     val totalUnit = if (totalItems <= 1) "item" else "items"
-                    val remUnit = if (remItems <= 1) "item" else "items"
+                    val collectedUnit = if (collectedItems <= 1) "item" else "items"
                     Text(
-                        text     = "Total $totalItems $totalUnit   •   Remaining $remItems $remUnit",
+                        text     = "Total $totalItems $totalUnit   •   Collected $collectedItems $collectedUnit",
                         style    = bodyM,
                         color    = AppColor.text2,
                         maxLines = 1,
@@ -476,14 +477,14 @@ internal fun ItemListCard(
             ) {
                 val isAllCollected = remItems == 0 || task.completed || progress >= 1f
                 val collectedText = if (isAllCollected) {
-                    if (totalItems == 1) "All item collected" else "All items collected"
+                    if (totalItems <= 1) "All item collected" else "All items collected"
                 } else {
                     if (remItems == 1) "1 item pending" else "$remItems items pending"
                 }
                 val collectedVariant = if (isAllCollected) PillVariant.Success else PillVariant.Warning
                 Pill(text = collectedText, variant = collectedVariant)
 
-                if (task.dueDate != null) {
+                if (!isAllCollected && task.dueDate != null) {
                     val daysLeft = DateUtils.daysUntil(task.dueDate)
                     val variant = if (daysLeft < 0L) PillVariant.Danger else PillVariant.Warning
                     Pill(

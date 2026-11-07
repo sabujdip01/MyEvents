@@ -55,6 +55,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import sabuj.m.myevents.core.icons.BookingIcon
+import sabuj.m.myevents.core.icons.EventIconDisplay
 import sabuj.m.myevents.feature.bookings.BookingIconPickerDialog
 import sabuj.m.myevents.core.preview.LightDarkPreviews
 import sabuj.m.myevents.core.preview.PreviewData
@@ -262,17 +263,24 @@ fun AddEditTaskSheet(
                 Text(text = "List of Items & Prices", style = labelM, color = AppColor.text2)
 
                 items.forEachIndexed { index, item ->
+                    val isItemBlank = item.name.isBlank() && item.pricePaise == 0L
                     Row(
                         modifier          = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         Checkbox(
-                            checked         = item.checked,
+                            checked         = item.checked && !isItemBlank,
                             onCheckedChange = { checked ->
-                                onItemChange(index, item.name, item.pricePaise, checked)
+                                if (!isItemBlank) {
+                                    onItemChange(index, item.name, item.pricePaise, checked)
+                                }
                             },
-                            colors          = CheckboxDefaults.colors(checkedColor = AppColor.primary),
+                            enabled         = !isItemBlank,
+                            colors          = CheckboxDefaults.colors(
+                                checkedColor = AppColor.primary,
+                                disabledUncheckedColor = AppColor.outline.copy(alpha = 0.3f),
+                            ),
                         )
 
                         OutlinedTextField(
@@ -362,23 +370,26 @@ fun AddEditTaskSheet(
             val initialEditState = remember(editTaskId) {
                 if (sheetState is TaskSheetState.Edit) sheetState else null
             }
+            val cleanCurrentItems = items.filterNot { it.name.isBlank() && it.pricePaise == 0L }
+            val cleanInitialItems = initialEditState?.items?.filterNot { it.name.isBlank() && it.pricePaise == 0L } ?: emptyList()
+
             val hasChanges = if (initialEditState != null) {
                 title.trim() != initialEditState.title.trim() ||
                 icon != initialEditState.icon ||
                 eventId != initialEditState.eventId ||
                 dueDateEpochDay != initialEditState.dueDateEpochDay ||
                 completed != initialEditState.completed ||
-                items != initialEditState.items
+                cleanCurrentItems != cleanInitialItems
             } else true
 
-            val filledItems = items.filter { it.name.isNotBlank() }
-            val hasAtLeastOneFilledWithPrice = filledItems.isNotEmpty() && filledItems.any { it.pricePaise > 0L }
-            val allFilledHavePrices = filledItems.isNotEmpty() && filledItems.all { it.pricePaise > 0L }
+            val nonBlankItems = items.filter { it.name.isNotBlank() || it.pricePaise > 0L }
+            val hasAtLeastOneValidItem = nonBlankItems.isNotEmpty()
+            val allNonBlankAreValid = nonBlankItems.isNotEmpty() && nonBlankItems.all { it.name.isNotBlank() && it.pricePaise > 0L }
 
             val isSaveEnabled = title.isNotBlank() &&
                                 eventId.isNotBlank() &&
-                                hasAtLeastOneFilledWithPrice &&
-                                allFilledHavePrices &&
+                                hasAtLeastOneValidItem &&
+                                allNonBlankAreValid &&
                                 hasChanges
 
             AppButtonRow(
@@ -405,9 +416,6 @@ private fun TaskEventDropdownSelector(
 ) {
     var expanded by remember { mutableStateOf(false) }
     val selectedEvent = events.find { it.id == selectedId }
-    val displayValue = if (selectedEvent != null)
-        "${selectedEvent.title} (${DateUtils.formatShort(selectedEvent.date)})"
-    else "Select Event"
 
     ExposedDropdownMenuBox(
         expanded         = expanded,
@@ -415,12 +423,14 @@ private fun TaskEventDropdownSelector(
         modifier         = Modifier.fillMaxWidth(),
     ) {
         OutlinedTextField(
-            value              = displayValue,
+            value              = selectedEvent?.let { "${it.title} (${DateUtils.formatDisplay(it.date)})" } ?: "",
             onValueChange      = {},
             readOnly           = true,
             label              = { Text("For event", style = bodyM) },
             trailingIcon       = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier           = Modifier.fillMaxWidth().menuAnchor(),
+            modifier           = Modifier
+                .fillMaxWidth()
+                .menuAnchor(),
             isError            = isError,
             supportingText     = if (errorText != null) { { Text(errorText, style = bodyM) } } else null,
             shape              = RoundedCornerShape(Radius.field),
@@ -430,6 +440,7 @@ private fun TaskEventDropdownSelector(
                 focusedLabelColor    = AppColor.primary,
                 unfocusedLabelColor  = AppColor.text2,
                 cursorColor          = AppColor.primary,
+                errorBorderColor     = AppColor.danger,
             ),
         )
         ExposedDropdownMenu(
@@ -438,8 +449,15 @@ private fun TaskEventDropdownSelector(
         ) {
             events.forEach { event ->
                 DropdownMenuItem(
-                    text    = { Text("${event.title} (${DateUtils.formatShort(event.date)})", style = bodyM) },
+                    text    = { Text("${event.title} (${DateUtils.formatDisplay(event.date)})", style = bodyM) },
                     onClick = { onSelect(event.id); expanded = false },
+                    leadingIcon = {
+                        EventIconDisplay(
+                            icon               = event.icon,
+                            contentDescription = event.title,
+                            modifier           = Modifier.size(20.dp),
+                        )
+                    },
                 )
             }
         }

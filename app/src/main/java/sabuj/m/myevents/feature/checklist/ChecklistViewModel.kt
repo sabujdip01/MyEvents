@@ -57,10 +57,12 @@ class ChecklistViewModel @Inject constructor(
     }
 
     fun showAddSheet() {
+        val events = uiState.value.events
+        val preselected = if (events.size == 1) events.first().id else ""
         _uiState.update {
             it.copy(
                 sheetState = TaskSheetState.Add(
-                    eventId = "", // Item F1: Do not auto-select event name, let user select it
+                    eventId = preselected,
                 )
             )
         }

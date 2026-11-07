@@ -1,10 +1,11 @@
 # Version History
 
-Current: V0.T.24
+Current: V0.T.25
 
 | Version  | Phase | Build | Commit    | Summary                                                                                             |
 | -------- |-------|-------|-----------|-----------------------------------------------------------------------------------------------------|
-| V0.T.24  | Test  | 24    | -         | fix(checklist): initial edit save state, exclude blank items from count & Room v7 migration          |
+| V0.T.25  | Test  | 25    | -         | fix(checklist): hide complete-by pill when all collected & ignore blank row deletions in save check |
+| V0.T.24  | Test  | 24    | f465f93   | fix(checklist): initial edit save state, exclude blank items from count & Room v7 migration          |
 | V0.T.23  | Test  | 23    | 5d0d764   | fix(checklist): item card styling, delete mode toggle & undoable task deletion                      |
 | V0.T.22  | Test  | 22    | d769e07   | fix(bookings): add Delete mode toggle, disabled FAB in delete mode & single-card delete dialog     |
 | V0.T.21  | Test  | 21    | ec6fa2b   | fix(bookings): event category icons on pill filters & swipable add/edit booking sheet                |
