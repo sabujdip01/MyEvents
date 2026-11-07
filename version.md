@@ -1,9 +1,10 @@
 # Version History
 
-Current: V0.T.19
+Current: V0.T.20
 
 | Version  | Phase | Build | Commit    | Summary                                                                                             |
 | -------- |-------|-------|-----------|-----------------------------------------------------------------------------------------------------|
+| V0.T.20  | Test  | 20    | -         | fix(events): match event card bg with calendar cell & circular 25% smaller view event icon           |
 | V0.T.19  | Test  | 19    | -         | fix(sync): correct Firestore field names for Booking, Task, Invitee, Gift, Expense                  |
 | V0.T.18  | Test  | 18    | -         | fix(cards): expense & invitee card -25% height, +40% gap, Total row above nav bar                   |
 | V0.T.17  | Test  | 17    | -         | style(popups): standardize spacing, disable drag, add previews, fix nav bar overflow                 |

@@ -600,7 +600,7 @@ private fun MonthlyEventRow(event: Event, onClick: () -> Unit) {
         onClick  = onClick,
         modifier = Modifier.fillMaxWidth().height(64.dp),
         shape    = RoundedCornerShape(14.dp),
-        color    = AppColor.surfaceVariant.copy(alpha = if (AppColor.isDark) 0.5f else 0.35f),
+        color    = AppColor.primaryContainer.copy(alpha = 0.5f),
     ) {
         Row(
             modifier          = Modifier.padding(horizontal = Spacing.md),

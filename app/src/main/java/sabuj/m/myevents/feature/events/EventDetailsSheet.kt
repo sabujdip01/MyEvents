@@ -43,6 +43,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import sabuj.m.myevents.core.icons.AppIcon
+import sabuj.m.myevents.core.icons.EventIconDisplay
 import sabuj.m.myevents.core.preview.LightDarkPreviews
 import sabuj.m.myevents.core.preview.PreviewData
 import sabuj.m.myevents.core.theme.AppColor
@@ -53,8 +54,6 @@ import sabuj.m.myevents.core.theme.labelM
 import sabuj.m.myevents.core.theme.numberL
 import sabuj.m.myevents.core.theme.titleL
 import sabuj.m.myevents.core.theme.titleS
-import sabuj.m.myevents.core.ui.IconChip
-import sabuj.m.myevents.core.ui.IconChipSize
 import sabuj.m.myevents.core.util.DateUtils
 import sabuj.m.myevents.core.util.MoneyFormatter
 import sabuj.m.myevents.domain.model.Event
@@ -160,13 +159,19 @@ fun EventDetailsContent(
 
         // ── Header: icon + title + date ─────────────────────────
         Row(verticalAlignment = Alignment.Top) {
-            IconChip(
-                icon               = event.icon.fallback,
-                contentDescription = event.title,
-                size               = IconChipSize.Lg,
-                customRes          = event.icon.customRes,
-                modifier           = Modifier.size(52.dp),
-            )
+            Box(
+                modifier = Modifier
+                    .size(52.dp)
+                    .clip(CircleShape)
+                    .background(AppColor.primaryContainer),
+                contentAlignment = Alignment.Center,
+            ) {
+                EventIconDisplay(
+                    icon               = event.icon,
+                    contentDescription = event.title,
+                    modifier           = Modifier.size(24.dp),
+                )
+            }
             Spacer(Modifier.width(11.dp))
             Column {
                 Text(
