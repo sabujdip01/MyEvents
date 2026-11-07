@@ -175,6 +175,10 @@ fun ChecklistScreen(
                 if (sheet is TaskSheetState.Add) viewModel.updateAddSheetField { it.copy(title = title) }
                 else if (sheet is TaskSheetState.Edit) viewModel.updateEditSheetField { it.copy(title = title) }
             },
+            onIconChange    = { icon ->
+                if (sheet is TaskSheetState.Add) viewModel.updateAddSheetField { it.copy(icon = icon) }
+                else if (sheet is TaskSheetState.Edit) viewModel.updateEditSheetField { it.copy(icon = icon) }
+            },
             onEventChange   = { eventId ->
                 if (sheet is TaskSheetState.Add) viewModel.updateAddSheetField { it.copy(eventId = eventId) }
                 else if (sheet is TaskSheetState.Edit) viewModel.updateEditSheetField { it.copy(eventId = eventId) }
@@ -188,9 +192,14 @@ fun ChecklistScreen(
                 val updatedList = currentItems.toMutableList()
                 if (index in updatedList.indices) {
                     updatedList[index] = sabuj.m.myevents.domain.model.TaskItem(name, pricePaise, checked)
+                    if (index == updatedList.lastIndex && name.isNotBlank()) {
+                        updatedList.add(sabuj.m.myevents.domain.model.TaskItem(""))
+                    }
                     val sumPaise = updatedList.sumOf { it.pricePaise }
-                    if (sheet is TaskSheetState.Add) viewModel.updateAddSheetField { it.copy(items = updatedList, totalAmountPaise = sumPaise) }
-                    else if (sheet is TaskSheetState.Edit) viewModel.updateEditSheetField { it.copy(items = updatedList, totalAmountPaise = sumPaise) }
+                    val filled = updatedList.filter { it.name.isNotBlank() }
+                    val autoCompleted = filled.isNotEmpty() && filled.all { it.checked }
+                    if (sheet is TaskSheetState.Add) viewModel.updateAddSheetField { it.copy(items = updatedList, totalAmountPaise = sumPaise, completed = autoCompleted) }
+                    else if (sheet is TaskSheetState.Edit) viewModel.updateEditSheetField { it.copy(items = updatedList, totalAmountPaise = sumPaise, completed = autoCompleted) }
                 }
             },
             onAddItem       = {
@@ -204,13 +213,19 @@ fun ChecklistScreen(
                 if (currentItems.size > 1) {
                     val updatedList = currentItems.toMutableList().also { it.removeAt(index) }
                     val sumPaise = updatedList.sumOf { it.pricePaise }
-                    if (sheet is TaskSheetState.Add) viewModel.updateAddSheetField { it.copy(items = updatedList, totalAmountPaise = sumPaise) }
-                    else if (sheet is TaskSheetState.Edit) viewModel.updateEditSheetField { it.copy(items = updatedList, totalAmountPaise = sumPaise) }
+                    val filled = updatedList.filter { it.name.isNotBlank() }
+                    val autoCompleted = filled.isNotEmpty() && filled.all { it.checked }
+                    if (sheet is TaskSheetState.Add) viewModel.updateAddSheetField { it.copy(items = updatedList, totalAmountPaise = sumPaise, completed = autoCompleted) }
+                    else if (sheet is TaskSheetState.Edit) viewModel.updateEditSheetField { it.copy(items = updatedList, totalAmountPaise = sumPaise, completed = autoCompleted) }
                 }
             },
             onCompletedChange = { completed ->
-                if (sheet is TaskSheetState.Add) viewModel.updateAddSheetField { it.copy(completed = completed) }
-                else if (sheet is TaskSheetState.Edit) viewModel.updateEditSheetField { it.copy(completed = completed) }
+                val currentItems = (sheet as? TaskSheetState.Add)?.items ?: (sheet as? TaskSheetState.Edit)?.items ?: emptyList()
+                val updatedList = currentItems.map {
+                    if (it.name.isNotBlank()) it.copy(checked = completed) else it
+                }
+                if (sheet is TaskSheetState.Add) viewModel.updateAddSheetField { it.copy(completed = completed, items = updatedList) }
+                else if (sheet is TaskSheetState.Edit) viewModel.updateEditSheetField { it.copy(completed = completed, items = updatedList) }
             },
             onSave          = { viewModel.saveTask() },
         )
@@ -359,7 +374,6 @@ internal fun ItemListCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(Radius.card))
             .background(gradient)
-            .clickable { onEditClick() }
             .padding(Spacing.md),
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -378,7 +392,7 @@ internal fun ItemListCard(
                 )
                 Spacer(Modifier.width(Spacing.xs))
                 Text(
-                    text     = MoneyFormatter.format(task.totalAmountPaise),
+                    text     = "${MoneyFormatter.format(task.totalAmountPaise)} Paid",
                     style    = titleS,
                     color    = AppColor.text,
                     maxLines = 1,
@@ -407,25 +421,25 @@ internal fun ItemListCard(
 
             Spacer(Modifier.height(2.dp))
 
-            // Row 2: [Event Icon 32dp flush left] | Total X items • Remaining Y items
-            //                                       Progress Bar (10dp)
+            // Row 2: [Task Icon 32dp flush left] | Total X item(s) • Remaining Y item(s)
+            //                                      Progress Bar (10dp)
             Row(
                 modifier          = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                val eventCustomRes = event?.icon?.customRes
-                val eventFallback = event?.icon?.fallback ?: Icons.Rounded.Delete
-                if (eventCustomRes != null) {
+                val taskCustomRes = task.icon.customRes
+                val taskFallback = task.icon.fallback
+                if (taskCustomRes != null) {
                     Image(
-                        painter            = painterResource(eventCustomRes),
-                        contentDescription = event?.title ?: "",
+                        painter            = painterResource(taskCustomRes),
+                        contentDescription = task.title,
                         modifier           = Modifier.size(32.dp),
                         contentScale       = ContentScale.Fit,
                     )
                 } else {
                     Icon(
-                        imageVector        = eventFallback,
-                        contentDescription = event?.title ?: "",
+                        imageVector        = taskFallback,
+                        contentDescription = task.title,
                         tint               = iconColor,
                         modifier           = Modifier.size(32.dp),
                     )
@@ -434,10 +448,10 @@ internal fun ItemListCard(
                 Spacer(Modifier.width(10.dp))
 
                 Column(modifier = Modifier.weight(1f)) {
-                    val totalText = if (totalItems == 1) "1 item" else "$totalItems items"
-                    val remText = if (remItems == 1) "1 item" else "$remItems items"
+                    val totalUnit = if (totalItems <= 1) "item" else "items"
+                    val remUnit = if (remItems <= 1) "item" else "items"
                     Text(
-                        text     = "Total $totalText   •   Remaining $remText",
+                        text     = "Total $totalItems $totalUnit   •   Remaining $remItems $remUnit",
                         style    = bodyM,
                         color    = AppColor.text2,
                         maxLines = 1,

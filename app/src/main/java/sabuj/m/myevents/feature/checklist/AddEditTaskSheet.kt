@@ -1,17 +1,21 @@
 package sabuj.m.myevents.feature.checklist
 
 import android.app.DatePickerDialog
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -44,9 +48,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import sabuj.m.myevents.core.icons.BookingIcon
+import sabuj.m.myevents.feature.bookings.BookingIconPickerDialog
 import sabuj.m.myevents.core.preview.LightDarkPreviews
 import sabuj.m.myevents.core.preview.PreviewData
 import sabuj.m.myevents.core.theme.AppColor
@@ -71,6 +80,7 @@ fun AddEditTaskSheet(
     events: List<Event>,
     onDismiss: () -> Unit,
     onTitleChange: (String) -> Unit,
+    onIconChange: (BookingIcon) -> Unit = {},
     onEventChange: (String) -> Unit,
     onDueDateChange: (Long?) -> Unit,
     onItemChange: (index: Int, name: String, pricePaise: Long, checked: Boolean) -> Unit = { _, _, _, _ -> },
@@ -81,6 +91,7 @@ fun AddEditTaskSheet(
 ) {
     val isEdit = sheetState is TaskSheetState.Edit
     val title: String
+    val icon: BookingIcon
     val eventId: String
     val dueDateEpochDay: Long?
     val totalAmountPaise: Long
@@ -92,6 +103,7 @@ fun AddEditTaskSheet(
     when (sheetState) {
         is TaskSheetState.Add -> {
             title = sheetState.title
+            icon = sheetState.icon
             eventId = sheetState.eventId
             dueDateEpochDay = sheetState.dueDateEpochDay
             totalAmountPaise = sheetState.totalAmountPaise
@@ -102,6 +114,7 @@ fun AddEditTaskSheet(
         }
         is TaskSheetState.Edit -> {
             title = sheetState.title
+            icon = sheetState.icon
             eventId = sheetState.eventId
             dueDateEpochDay = sheetState.dueDateEpochDay
             totalAmountPaise = sheetState.totalAmountPaise
@@ -114,9 +127,18 @@ fun AddEditTaskSheet(
     }
 
     val context = LocalContext.current
+    var showIconPicker by remember { mutableStateOf(false) }
+
+    if (showIconPicker) {
+        BookingIconPickerDialog(
+            selectedIcon = icon,
+            onSelect     = onIconChange,
+            onDismiss    = { showIconPicker = false },
+        )
+    }
+
     val modalState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
-        confirmValueChange    = { target -> target != SheetValue.Hidden },
     )
 
     ModalBottomSheet(
@@ -145,15 +167,48 @@ fun AddEditTaskSheet(
 
             Spacer(Modifier.height(8.dp))
 
-            // Item List Title
-            TaskTextField(
-                value          = title,
-                onValueChange  = onTitleChange,
-                label          = "Item List Title",
-                placeholder    = "e.g. Mandap decoration items",
-                isError        = titleError != null,
-                supportingText = titleError,
-            )
+            // Item List Title (left) + Icon Picker (right 20%)
+            Row(
+                modifier              = Modifier.fillMaxWidth(),
+                verticalAlignment     = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                TaskTextField(
+                    value          = title,
+                    onValueChange  = onTitleChange,
+                    label          = "Item list title",
+                    placeholder    = "e.g. Mandap decoration items",
+                    isError        = titleError != null,
+                    supportingText = titleError,
+                    modifier       = Modifier.weight(1f),
+                )
+
+                Box(
+                    modifier = Modifier
+                        .size(52.dp)
+                        .clip(RoundedCornerShape(Radius.field))
+                        .background(AppColor.surfaceVariant.copy(alpha = 0.5f))
+                        .clickable { showIconPicker = true },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    val selIcon = icon ?: BookingIcon.Cake
+                    if (selIcon.customRes != null) {
+                        Image(
+                            painter            = painterResource(selIcon.customRes!!),
+                            contentDescription = "Select icon",
+                            modifier           = Modifier.size(38.dp),
+                            contentScale       = ContentScale.Fit,
+                        )
+                    } else {
+                        Icon(
+                            imageVector        = selIcon.fallback,
+                            contentDescription = "Select icon",
+                            tint               = AppColor.primary,
+                            modifier           = Modifier.size(38.dp),
+                        )
+                    }
+                }
+            }
 
             Spacer(Modifier.height(8.dp))
 
@@ -224,12 +279,10 @@ fun AddEditTaskSheet(
                             value         = item.name,
                             onValueChange = { newName ->
                                 onItemChange(index, newName, item.pricePaise, item.checked)
-                                if (index == items.lastIndex && newName.isNotBlank()) {
-                                    onAddItem()
-                                }
                             },
-                            placeholder   = { Text("Item name", style = bodyM, color = AppColor.text3) },
-                            modifier      = Modifier.weight(1f),
+                            placeholder   = { Text("Item name", style = labelM, color = AppColor.text3) },
+                            textStyle     = labelM.copy(color = AppColor.text),
+                            modifier      = Modifier.weight(1f).height(48.dp),
                             singleLine    = true,
                             shape         = RoundedCornerShape(Radius.field),
                             colors        = OutlinedTextFieldDefaults.colors(
@@ -244,12 +297,10 @@ fun AddEditTaskSheet(
                             onValueChange = { priceText ->
                                 val pricePaise = (priceText.filter { it.isDigit() }.toLongOrNull() ?: 0L) * 100L
                                 onItemChange(index, item.name, pricePaise, item.checked)
-                                if (index == items.lastIndex && (item.name.isNotBlank() || priceText.isNotBlank())) {
-                                    onAddItem()
-                                }
                             },
-                            placeholder   = { Text("₹ Price", style = bodyM, color = AppColor.text3) },
-                            modifier      = Modifier.width(100.dp),
+                            placeholder   = { Text("₹ Price", style = labelM, color = AppColor.text3) },
+                            textStyle     = labelM.copy(color = AppColor.text),
+                            modifier      = Modifier.width(100.dp).height(48.dp),
                             singleLine    = true,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             shape         = RoundedCornerShape(Radius.field),
@@ -275,19 +326,19 @@ fun AddEditTaskSheet(
             TaskTextField(
                 value         = MoneyFormatter.format(calculatedTotalPaise),
                 onValueChange = {},
-                label         = "Total Amount (Auto-calculated)",
+                label         = "Total amount",
                 readOnly      = true,
             )
 
             Spacer(Modifier.height(10.dp))
 
-            // "All Items collected / completed?" toggle
+            // "All item(s) collected?" toggle
             Row(
                 modifier          = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text     = "All Items collected / completed?",
+                    text     = "All item(s) collected?",
                     style    = labelL,
                     color    = AppColor.text,
                     modifier = Modifier.weight(1f),
@@ -307,7 +358,29 @@ fun AddEditTaskSheet(
 
             Spacer(Modifier.height(16.dp))
 
-            val isSaveEnabled = title.isNotBlank() && eventId.isNotBlank()
+            val editTaskId = (sheetState as? TaskSheetState.Edit)?.taskId
+            val initialEditState = remember(editTaskId) {
+                if (sheetState is TaskSheetState.Edit) sheetState else null
+            }
+            val hasChanges = if (initialEditState != null) {
+                title.trim() != initialEditState.title.trim() ||
+                icon != initialEditState.icon ||
+                eventId != initialEditState.eventId ||
+                dueDateEpochDay != initialEditState.dueDateEpochDay ||
+                completed != initialEditState.completed ||
+                items != initialEditState.items
+            } else true
+
+            val filledItems = items.filter { it.name.isNotBlank() }
+            val hasAtLeastOneFilledWithPrice = filledItems.isNotEmpty() && filledItems.any { it.pricePaise > 0L }
+            val allFilledHavePrices = filledItems.isNotEmpty() && filledItems.all { it.pricePaise > 0L }
+
+            val isSaveEnabled = title.isNotBlank() &&
+                                eventId.isNotBlank() &&
+                                hasAtLeastOneFilledWithPrice &&
+                                allFilledHavePrices &&
+                                hasChanges
+
             AppButtonRow(
                 positiveText    = if (isEdit) "Save" else "Add",
                 onPositive      = onSave,
@@ -332,6 +405,9 @@ private fun TaskEventDropdownSelector(
 ) {
     var expanded by remember { mutableStateOf(false) }
     val selectedEvent = events.find { it.id == selectedId }
+    val displayValue = if (selectedEvent != null)
+        "${selectedEvent.title} (${DateUtils.formatShort(selectedEvent.date)})"
+    else "Select Event"
 
     ExposedDropdownMenuBox(
         expanded         = expanded,
@@ -339,10 +415,10 @@ private fun TaskEventDropdownSelector(
         modifier         = Modifier.fillMaxWidth(),
     ) {
         OutlinedTextField(
-            value              = selectedEvent?.title ?: "Select Event",
+            value              = displayValue,
             onValueChange      = {},
             readOnly           = true,
-            label              = { Text("For Event", style = bodyM) },
+            label              = { Text("For event", style = bodyM) },
             trailingIcon       = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier           = Modifier.fillMaxWidth().menuAnchor(),
             isError            = isError,
@@ -362,7 +438,7 @@ private fun TaskEventDropdownSelector(
         ) {
             events.forEach { event ->
                 DropdownMenuItem(
-                    text    = { Text(event.title, style = bodyM) },
+                    text    = { Text("${event.title} (${DateUtils.formatShort(event.date)})", style = bodyM) },
                     onClick = { onSelect(event.id); expanded = false },
                 )
             }

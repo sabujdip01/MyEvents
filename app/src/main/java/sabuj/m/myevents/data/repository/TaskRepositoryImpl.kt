@@ -8,6 +8,7 @@ import sabuj.m.myevents.data.db.entity.TaskEntity
 import sabuj.m.myevents.domain.model.SyncState
 import sabuj.m.myevents.domain.model.Task
 import sabuj.m.myevents.domain.repository.TaskRepository
+import sabuj.m.myevents.core.icons.BookingIcon
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -43,6 +44,7 @@ class TaskRepositoryImpl @Inject constructor(
         id               = id,
         eventId          = eventId,
         title            = title,
+        icon             = try { BookingIcon.valueOf(icon) } catch (e: Exception) { BookingIcon.Cake },
         dueDate          = dueDateEpochDay?.let { converters.fromEpochDay(it) },
         totalAmountPaise = totalAmountPaise,
         items            = converters.fromTaskItemList(itemsEncoded),
@@ -57,6 +59,7 @@ class TaskRepositoryImpl @Inject constructor(
         id              = id,
         eventId         = eventId,
         title           = title,
+        icon            = icon.name,
         dueDateEpochDay = dueDate?.let { converters.toEpochDay(it) },
         totalAmountPaise = totalAmountPaise,
         itemsEncoded    = converters.toTaskItemList(items),

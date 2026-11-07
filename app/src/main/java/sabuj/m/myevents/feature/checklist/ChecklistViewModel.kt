@@ -72,6 +72,7 @@ class ChecklistViewModel @Inject constructor(
             it.copy(
                 sheetState = TaskSheetState.Edit(
                     taskId           = t.id,
+                    icon             = t.icon,
                     eventId          = t.eventId,
                     title            = t.title,
                     dueDateEpochDay  = t.dueDate?.toEpochDay(),
@@ -103,6 +104,7 @@ class ChecklistViewModel @Inject constructor(
                 is TaskSheetState.Add -> {
                     val result = addTask(
                         title            = sheet.title,
+                        icon             = sheet.icon,
                         eventId          = sheet.eventId,
                         dueDate          = sheet.dueDateEpochDay?.let { LocalDate.ofEpochDay(it) },
                         totalAmountPaise = sheet.totalAmountPaise,
@@ -120,6 +122,7 @@ class ChecklistViewModel @Inject constructor(
                     val result = editTask(
                         existing         = existing,
                         title            = sheet.title,
+                        icon             = sheet.icon,
                         dueDate          = sheet.dueDateEpochDay?.let { LocalDate.ofEpochDay(it) },
                         totalAmountPaise = sheet.totalAmountPaise,
                         items            = sheet.items,

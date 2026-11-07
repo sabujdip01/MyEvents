@@ -1,5 +1,6 @@
 package sabuj.m.myevents.domain.usecase
 
+import sabuj.m.myevents.core.icons.BookingIcon
 import sabuj.m.myevents.domain.model.Task
 import sabuj.m.myevents.domain.repository.TaskRepository
 import java.time.LocalDate
@@ -12,6 +13,7 @@ class EditTaskUseCase @Inject constructor(
     suspend operator fun invoke(
         existing: Task,
         title: String = existing.title,
+        icon: BookingIcon = existing.icon,
         dueDate: LocalDate? = existing.dueDate,
         totalAmountPaise: Long = existing.totalAmountPaise,
         items: List<sabuj.m.myevents.domain.model.TaskItem> = existing.items,
@@ -21,6 +23,7 @@ class EditTaskUseCase @Inject constructor(
 
         val updated = existing.copy(
             title            = title.trim(),
+            icon             = icon,
             dueDate          = dueDate,
             totalAmountPaise = totalAmountPaise,
             items            = items,

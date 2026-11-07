@@ -28,6 +28,7 @@ data class TaskEntity(
     @PrimaryKey val id: String,
     val eventId: String,
     val title: String,
+    @ColumnInfo(defaultValue = "Cake") val icon: String = "Cake",
     val dueDateEpochDay: Long?,
     @ColumnInfo(defaultValue = "0") val totalAmountPaise: Long = 0L,
     @ColumnInfo(defaultValue = "") val itemsEncoded: String = "",

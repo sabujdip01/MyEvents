@@ -1,5 +1,6 @@
 package sabuj.m.myevents.feature.checklist
 
+import sabuj.m.myevents.core.icons.BookingIcon
 import sabuj.m.myevents.domain.model.Event
 import sabuj.m.myevents.domain.model.Task
 
@@ -8,6 +9,7 @@ sealed class TaskSheetState {
 
     data class Add(
         val title: String = "",
+        val icon: BookingIcon = BookingIcon.Cake,
         val eventId: String = "",
         val dueDateEpochDay: Long? = null,
         val totalAmountPaise: Long = 0L,
@@ -19,6 +21,7 @@ sealed class TaskSheetState {
 
     data class Edit(
         val taskId: String,
+        val icon: BookingIcon = BookingIcon.Cake,
         val eventId: String,
         val title: String,
         val dueDateEpochDay: Long?,

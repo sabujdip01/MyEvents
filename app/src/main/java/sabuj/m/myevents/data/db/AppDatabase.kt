@@ -21,7 +21,7 @@ import sabuj.m.myevents.data.db.entity.TaskEntity
 
 /**
  * Single Room database for the app.
- * Version 6 — adds bookingMade column to bookings, totalAmountPaise and itemsEncoded to tasks.
+ * Version 7 — adds icon column to tasks.
  */
 @Database(
     entities = [
@@ -33,7 +33,7 @@ import sabuj.m.myevents.data.db.entity.TaskEntity
         GiftEntity::class,
         TaskEntity::class,
     ],
-    version = 6,
+    version = 7,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -192,6 +192,12 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE `bookings` ADD COLUMN `bookingMade` INTEGER NOT NULL DEFAULT 1")
                 db.execSQL("ALTER TABLE `tasks` ADD COLUMN `totalAmountPaise` INTEGER NOT NULL DEFAULT 0")
                 db.execSQL("ALTER TABLE `tasks` ADD COLUMN `itemsEncoded` TEXT NOT NULL DEFAULT ''")
+            }
+        }
+
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `tasks` ADD COLUMN `icon` TEXT NOT NULL DEFAULT 'Cake'")
             }
         }
     }

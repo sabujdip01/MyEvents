@@ -112,6 +112,7 @@ private fun EditTaskSheetPreview() {
         AddEditTaskSheet(
             sheetState      = TaskSheetState.Edit(
                 taskId          = "task-1",
+                icon            = sabuj.m.myevents.core.icons.BookingIcon.Cake,
                 eventId         = PreviewData.sampleEvents.first().id,
                 title           = "Finalize Mandap Decorator",
                 dueDateEpochDay = null,

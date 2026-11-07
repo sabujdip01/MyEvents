@@ -1,5 +1,6 @@
 package sabuj.m.myevents.domain.usecase
 
+import sabuj.m.myevents.core.icons.BookingIcon
 import sabuj.m.myevents.domain.model.SyncState
 import sabuj.m.myevents.domain.model.Task
 import sabuj.m.myevents.domain.repository.TaskRepository
@@ -19,6 +20,7 @@ class AddTaskUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         title: String,
+        icon: BookingIcon = BookingIcon.Cake,
         eventId: String,
         dueDate: LocalDate?,
         totalAmountPaise: Long = 0L,
@@ -33,6 +35,7 @@ class AddTaskUseCase @Inject constructor(
             id               = UUID.randomUUID().toString(),
             eventId          = eventId,
             title            = title.trim(),
+            icon             = icon,
             dueDate          = dueDate,
             totalAmountPaise = totalAmountPaise,
             items            = items,
