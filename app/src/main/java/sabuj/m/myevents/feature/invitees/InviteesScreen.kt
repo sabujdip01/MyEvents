@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -350,7 +351,7 @@ private fun InviteesTableContent(
         LazyColumn(
             modifier       = Modifier.weight(1f),
             contentPadding = PaddingValues(bottom = 96.dp),
-            verticalArrangement = Arrangement.spacedBy(Spacing.xs),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             itemsIndexed(invitees, key = { _, item -> item.id }) { index, item ->
                 val event = events.find { it.id == item.eventId }
@@ -373,7 +374,7 @@ private fun InviteesTableContent(
             color    = AppColor.primaryContainer,
         ) {
             Row(
-                modifier          = Modifier.padding(horizontal = Spacing.lg, vertical = Spacing.md),
+                modifier          = Modifier.padding(horizontal = Spacing.lg, vertical = Spacing.md).navigationBarsPadding(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
@@ -419,7 +420,7 @@ private fun InviteeRowCard(
             modifier = Modifier
                 .background(gradient)
                 .clickable { onEdit() }
-                .padding(Spacing.md),
+                .padding(9.dp),
         ) {
             // Row 1: <Guest Title>
             Text(
@@ -429,7 +430,7 @@ private fun InviteeRowCard(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            Spacer(Modifier.height(Spacing.xs))
+            Spacer(Modifier.height(3.dp))
 
             // Row 2: <Checkbox (visible in delete mode)> <Event Name> <Guest Count> <Invitation Status>
             Row(

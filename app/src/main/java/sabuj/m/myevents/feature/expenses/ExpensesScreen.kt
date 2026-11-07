@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -340,7 +341,7 @@ private fun ExpenseListContent(
         LazyColumn(
             modifier       = Modifier.weight(1f),
             contentPadding = PaddingValues(bottom = 96.dp),
-            verticalArrangement = Arrangement.spacedBy(Spacing.xs),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             itemsIndexed(displayExpenses, key = { _, item -> item.id }) { index, item ->
                 val event = events.find { it.id == item.eventId }
@@ -361,7 +362,7 @@ private fun ExpenseListContent(
             modifier = Modifier.fillMaxWidth(),
             color    = AppColor.primaryContainer,
         ) {
-            Column(modifier = Modifier.padding(horizontal = Spacing.lg, vertical = Spacing.sm)) {
+            Column(modifier = Modifier.padding(horizontal = Spacing.lg, vertical = Spacing.sm).navigationBarsPadding()) {
                 if (isOverBudget) {
                     Text(
                         text     = "⚠️ Over Budget by ${MoneyFormatter.format(grandTotalPaise - totalBudgetPaise)}",
@@ -424,7 +425,7 @@ private fun ExpenseRowCard(
             modifier = Modifier
                 .background(gradient)
                 .clickable(enabled = !expense.isReadOnly) { onEdit() }
-                .padding(Spacing.md),
+                .padding(9.dp),
         ) {
             // Row 1: <Purpose>
             Text(
@@ -434,7 +435,7 @@ private fun ExpenseRowCard(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            Spacer(Modifier.height(Spacing.xs))
+            Spacer(Modifier.height(3.dp))
 
             // Row 2: <Checkbox (if delete mode)> <Event Name> <Total Amount> <Paid> <Due> <Status>
             Row(
