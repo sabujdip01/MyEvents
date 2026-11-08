@@ -1,5 +1,6 @@
 package sabuj.m.myevents.feature.expenses
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,6 +41,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -301,9 +304,10 @@ private fun ExpenseListContent(
     val isOverBudget    = totalBudgetPaise > 0L && grandTotalPaise > totalBudgetPaise
 
     Column(modifier = modifier) {
+        // Cards scroll freely in LazyColumn
         LazyColumn(
-            modifier       = Modifier.weight(1f),
-            contentPadding = PaddingValues(bottom = 16.dp),
+            modifier            = Modifier.weight(1f),
+            contentPadding      = PaddingValues(bottom = 6.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             itemsIndexed(displayExpenses, key = { _, item -> item.id }) { index, item ->
@@ -314,19 +318,18 @@ private fun ExpenseListContent(
                     slot    = index % 6,
                 )
             }
-
-            item {
-                Spacer(Modifier.height(8.dp))
-                SummaryFooter(
-                    totalItemsCount  = totalItemsCount,
-                    grandTotalPaise  = grandTotalPaise,
-                    paidTotalPaise   = paidTotalPaise,
-                    dueTotalPaise    = dueTotalPaise,
-                    totalBudgetPaise = totalBudgetPaise,
-                    isOverBudget     = isOverBudget,
-                )
-            }
         }
+
+        // Summary footer is always visible at the bottom, sticking just above the Android nav bar
+        SummaryFooter(
+            totalItemsCount  = totalItemsCount,
+            grandTotalPaise  = grandTotalPaise,
+            paidTotalPaise   = paidTotalPaise,
+            dueTotalPaise    = dueTotalPaise,
+            totalBudgetPaise = totalBudgetPaise,
+            isOverBudget     = isOverBudget,
+            modifier         = Modifier.navigationBarsPadding().padding(bottom = 10.dp),
+        )
     }
 }
 
@@ -338,36 +341,126 @@ private fun SummaryFooter(
     dueTotalPaise: Long,
     totalBudgetPaise: Long,
     isOverBudget: Boolean,
+    modifier: Modifier = Modifier,
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.md),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = Spacing.md)
+            .then(modifier),
         shape    = RoundedCornerShape(Radius.field),
         color    = AppColor.primaryContainer,
     ) {
-        Column(modifier = Modifier.padding(horizontal = Spacing.md, vertical = Spacing.sm).navigationBarsPadding()) {
+        Column(modifier = Modifier.padding(vertical = Spacing.sm)) {
+            // Over-budget warning row
             if (isOverBudget) {
                 Text(
                     text     = "⚠️ Over Budget by ${MoneyFormatter.format(grandTotalPaise - totalBudgetPaise)}",
                     style    = titleS,
                     color    = AppColor.danger,
-                    modifier = Modifier.padding(bottom = 4.dp),
+                    modifier = Modifier
+                        .padding(horizontal = Spacing.md)
+                        .padding(bottom = 4.dp),
                 )
             }
+
+            // Row 1: values aligned to card columns (13% | 25% | 50% | 12%)
+            // 13% = item count | 25% = empty | 50% = Total / Paid / Due sums | 12% = empty
             Row(
-                modifier              = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier          = Modifier.fillMaxWidth().padding(horizontal = Spacing.xs),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("Items: $totalItemsCount", style = labelM, color = AppColor.onPrimaryContainer)
-                Text("Paid: ${MoneyFormatter.format(paidTotalPaise)}", style = labelM, color = AppColor.onPrimaryContainer)
-                Text("Due: ${MoneyFormatter.format(dueTotalPaise)}", style = labelM, color = AppColor.danger)
+                // 13% — item count, right-aligned to match icon column
+                Box(Modifier.weight(0.13f), contentAlignment = Alignment.CenterEnd) {
+                    Text(
+                        text       = "$totalItemsCount",
+                        style      = labelL,
+                        fontWeight = FontWeight.Bold,
+                        color      = AppColor.onPrimaryContainer,
+                    )
+                }
+                // 25% — empty title column placeholder
+                Spacer(Modifier.weight(0.25f))
+                // 50% — three equal sub-cols: Total | Paid | Due
+                Row(Modifier.weight(0.50f)) {
+                    Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+                        Text(
+                            text       = MoneyFormatter.format(grandTotalPaise),
+                            style      = labelL,
+                            fontWeight = FontWeight.Bold,
+                            color      = AppColor.onPrimaryContainer,
+                            maxLines   = 1,
+                        )
+                    }
+                    Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+                        Text(
+                            text     = MoneyFormatter.format(paidTotalPaise),
+                            style    = labelL,
+                            color    = AppColor.primary,
+                            maxLines = 1,
+                        )
+                    }
+                    Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+                        Text(
+                            text     = MoneyFormatter.format(dueTotalPaise),
+                            style    = labelL,
+                            color    = AppColor.danger,
+                            maxLines = 1,
+                        )
+                    }
+                }
+                // 12% — empty pill column placeholder
+                Spacer(Modifier.weight(0.12f))
             }
+
             Spacer(Modifier.height(2.dp))
+
+            // Row 2: labels aligned to same card columns
+            // 13% = budget amount | 25% = empty | 50% = "Total amount" / "Total paid" / "Total due" | 12% = empty
             Row(
-                modifier              = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier          = Modifier.fillMaxWidth().padding(horizontal = Spacing.xs),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("Total: ${MoneyFormatter.format(grandTotalPaise)}", style = labelL, color = AppColor.onPrimaryContainer, fontWeight = FontWeight.Bold)
-                Text("Budget: ${MoneyFormatter.format(totalBudgetPaise)}", style = labelL, color = AppColor.onPrimaryContainer)
+                // 13% — budget value, right-aligned
+                Box(Modifier.weight(0.13f), contentAlignment = Alignment.CenterEnd) {
+                    Text(
+                        text     = MoneyFormatter.format(totalBudgetPaise),
+                        style    = bodyM.copy(fontSize = 11.sp),
+                        color    = AppColor.onPrimaryContainer,
+                        maxLines = 1,
+                    )
+                }
+                // 25% — empty
+                Spacer(Modifier.weight(0.25f))
+                // 50% — three label sub-cols
+                Row(Modifier.weight(0.50f)) {
+                    Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+                        Text(
+                            text     = "Total amount",
+                            style    = bodyM.copy(fontSize = 10.sp),
+                            color    = AppColor.text2,
+                            maxLines = 1,
+                        )
+                    }
+                    Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+                        Text(
+                            text     = "Total paid",
+                            style    = bodyM.copy(fontSize = 10.sp),
+                            color    = AppColor.text2,
+                            maxLines = 1,
+                        )
+                    }
+                    Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+                        Text(
+                            text     = "Total due",
+                            style    = bodyM.copy(fontSize = 10.sp),
+                            color    = AppColor.text2,
+                            maxLines = 1,
+                        )
+                    }
+                }
+                // 12% — empty
+                Spacer(Modifier.weight(0.12f))
             }
         }
     }
@@ -411,7 +504,7 @@ private fun ExpenseRowCard(
                 .padding(horizontal = Spacing.xs, vertical = 6.dp), // 25% height reduction
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // 1. 13% Relative Width: Booking / Item List Category Icon
+            // 1. 13% Relative Width: Actual BookingIcon from booking/task; fallback to category icon
             Box(
                 modifier         = Modifier.weight(0.13f),
                 contentAlignment = Alignment.Center,
@@ -420,17 +513,37 @@ private fun ExpenseRowCard(
                     modifier        = Modifier.size(32.dp).clip(CircleShape).background(AppColor.primaryContainer),
                     contentAlignment = Alignment.Center,
                 ) {
-                    val categoryIcon = when (expense.category) {
-                        ExpenseCategory.Bookings -> sabuj.m.myevents.core.icons.AppIcon.Bookings.fallback
-                        ExpenseCategory.ItemList -> sabuj.m.myevents.core.icons.AppIcon.Checklist.fallback
-                        else -> sabuj.m.myevents.core.icons.AppIcon.Expenses.fallback
+                    val sourceIcon = expense.sourceIcon
+                    if (sourceIcon != null && sourceIcon.customRes != null) {
+                        // Custom PNG asset selected by the user for this booking/item list
+                        Image(
+                            painter            = painterResource(sourceIcon.customRes!!),
+                            contentDescription = null,
+                            modifier           = Modifier.size(22.dp),
+                            contentScale       = ContentScale.Fit,
+                        )
+                    } else if (sourceIcon != null) {
+                        // BookingIcon with only a vector fallback
+                        Icon(
+                            imageVector        = sourceIcon.fallback,
+                            contentDescription = null,
+                            tint               = AppColor.primary,
+                            modifier           = Modifier.size(18.dp),
+                        )
+                    } else {
+                        // Direct expense — show generic category icon
+                        val categoryIcon = when (expense.category) {
+                            ExpenseCategory.Bookings -> sabuj.m.myevents.core.icons.AppIcon.Bookings.fallback
+                            ExpenseCategory.ItemList -> sabuj.m.myevents.core.icons.AppIcon.Checklist.fallback
+                            else                     -> sabuj.m.myevents.core.icons.AppIcon.Expenses.fallback
+                        }
+                        Icon(
+                            imageVector        = categoryIcon,
+                            contentDescription = null,
+                            tint               = AppColor.primary,
+                            modifier           = Modifier.size(18.dp),
+                        )
                     }
-                    Icon(
-                        imageVector        = categoryIcon,
-                        contentDescription = null,
-                        tint               = AppColor.primary,
-                        modifier           = Modifier.size(18.dp),
-                    )
                 }
             }
 
@@ -493,8 +606,8 @@ private fun ExpenseRowCard(
                     }
                 }
 
-                // Col 3: Due Amount with text (blank if 0, holding place)
-                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+                // Col 3: Due Amount with text (blank if 0, holding place) — shifted slightly left with end padding
+                Box(modifier = Modifier.weight(1f).padding(end = 4.dp), contentAlignment = Alignment.CenterEnd) {
                     if (expense.dueAmountPaise > 0L) {
                         Column(horizontalAlignment = Alignment.End) {
                             Text(

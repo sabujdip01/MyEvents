@@ -1,5 +1,6 @@
 package sabuj.m.myevents.feature.expenses
 
+import sabuj.m.myevents.core.icons.BookingIcon
 import sabuj.m.myevents.domain.model.Booking
 import sabuj.m.myevents.domain.model.Event
 import sabuj.m.myevents.domain.model.Expense
@@ -18,6 +19,8 @@ data class DisplayExpense(
     val category: ExpenseCategory,
     val isReadOnly: Boolean = true,
     val statusText: String,
+    /** The actual BookingIcon selected for this booking or item list; null for direct expenses. */
+    val sourceIcon: BookingIcon? = null,
 )
 
 /** UI state for Expenses screen. */
@@ -37,7 +40,7 @@ data class ExpensesUiState(
         get() {
             val list = mutableListOf<DisplayExpense>()
 
-            // 1. Direct Expenses
+            // 1. Direct Expenses (no booking icon — use null so the card shows the category fallback)
             expenses.forEach { exp ->
                 list.add(
                     DisplayExpense(
@@ -51,11 +54,12 @@ data class ExpensesUiState(
                         category         = ExpenseCategory.ItemList,
                         isReadOnly       = true,
                         statusText       = if (exp.amountDuePaise <= 0L) "Paid" else "Due",
+                        sourceIcon       = null,
                     )
                 )
             }
 
-            // 2. Vendor Bookings
+            // 2. Vendor Bookings — carry the actual BookingIcon selected for this booking
             bookings.forEach { b ->
                 list.add(
                     DisplayExpense(
@@ -69,11 +73,12 @@ data class ExpensesUiState(
                         category         = ExpenseCategory.Bookings,
                         isReadOnly       = true,
                         statusText       = if (b.isFullyPaid) "Paid" else "Due",
+                        sourceIcon       = b.bookingIcon,
                     )
                 )
             }
 
-            // 3. Item Lists (Tasks)
+            // 3. Item Lists (Tasks) — carry the BookingIcon selected for the task
             tasks.forEach { t ->
                 val paidPaise = t.items.filter { it.checked }.sumOf { it.pricePaise }
                 val duePaise = (t.totalAmountPaise - paidPaise).coerceAtLeast(0L)
@@ -89,6 +94,7 @@ data class ExpensesUiState(
                         category         = ExpenseCategory.ItemList,
                         isReadOnly       = true,
                         statusText       = if (duePaise <= 0L || t.completed) "Paid" else "Due",
+                        sourceIcon       = t.icon,
                     )
                 )
             }

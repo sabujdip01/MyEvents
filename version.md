@@ -1,9 +1,10 @@
 # Version History
 
-Current: V0.T.27
+Current: V0.T.28
 
 | Version  | Phase | Build | Commit    | Summary                                                                                             |
 | -------- |-------|-------|-----------|-----------------------------------------------------------------------------------------------------|
+| V0.T.28  | Test  | 28    | -         | feat(expenses): actual booking icons on cards, sticky footer, column-aligned totals row             |
 | V0.T.27  | Test  | 27    | -         | fix(expenses): read-only view, tabular Excel card layout, sum pills & footer position              |
 | V0.T.26  | Test  | 26    | 3044439   | fix(home): card reorder & rename, spent calc, guest card 2-col layout & 36dp view event icon       |
 | V0.T.25  | Test  | 25    | 51e709c   | fix(checklist): hide complete-by pill when all collected & ignore blank row deletions in save check |
