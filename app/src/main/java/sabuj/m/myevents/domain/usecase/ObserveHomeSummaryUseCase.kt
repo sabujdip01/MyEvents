@@ -52,12 +52,11 @@ class ObserveHomeSummaryUseCase @Inject constructor(
             val bookingTotal = bookings.sumOf { it.totalAmountPaise }
             val bookingDues = bookings.sumOf { it.amountLeftPaise }
 
-            val expensePaid = expenses.sumOf { (it.amountPaise - it.amountDuePaise).coerceAtLeast(0L) }
+            val taskTotal = tasks.sumOf { it.totalAmountPaise }
+            val expenseTotal = expenses.sumOf { it.amountPaise }
             val expenseDues = expenses.sumOf { it.amountDuePaise }
 
-            val giftTotal = gifts.sumOf { it.amountPaise }
-
-            val totalSpent = (bookingPaid + expensePaid - giftTotal).coerceAtLeast(0L)
+            val totalSpent = (bookingTotal + taskTotal + expenseTotal).coerceAtLeast(0L)
             val totalDues = bookingDues + expenseDues
 
             val totalGuestsCount = invitees.sumOf { it.expectedCount }

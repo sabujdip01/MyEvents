@@ -169,7 +169,7 @@ fun EventDetailsContent(
                 EventIconDisplay(
                     icon               = event.icon,
                     contentDescription = event.title,
-                    modifier           = Modifier.size(24.dp),
+                    modifier           = Modifier.size(36.dp),
                 )
             }
             Spacer(Modifier.width(11.dp))
