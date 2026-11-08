@@ -1,10 +1,11 @@
 # Version History
 
-Current: V0.T.26
+Current: V0.T.27
 
 | Version  | Phase | Build | Commit    | Summary                                                                                             |
 | -------- |-------|-------|-----------|-----------------------------------------------------------------------------------------------------|
-| V0.T.26  | Test  | 26    | -         | fix(home): card reorder & rename, spent calc, guest card 2-col layout & 36dp view event icon       |
+| V0.T.27  | Test  | 27    | -         | fix(expenses): read-only view, tabular Excel card layout, sum pills & footer position              |
+| V0.T.26  | Test  | 26    | 3044439   | fix(home): card reorder & rename, spent calc, guest card 2-col layout & 36dp view event icon       |
 | V0.T.25  | Test  | 25    | 51e709c   | fix(checklist): hide complete-by pill when all collected & ignore blank row deletions in save check |
 | V0.T.24  | Test  | 24    | f465f93   | fix(checklist): initial edit save state, exclude blank items from count & Room v7 migration          |
 | V0.T.23  | Test  | 23    | 5d0d764   | fix(checklist): item card styling, delete mode toggle & undoable task deletion                      |

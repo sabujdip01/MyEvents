@@ -4,44 +4,47 @@ import androidx.compose.runtime.Composable
 import sabuj.m.myevents.core.preview.LightDarkPreviews
 import sabuj.m.myevents.core.preview.PreviewData
 import sabuj.m.myevents.core.theme.AppTheme
+import sabuj.m.myevents.domain.model.Expense
 
 @LightDarkPreviews
 @Composable
-private fun AddExpenseSheetPreview() {
+private fun ExpensesScreenPreview() {
+    val sampleEvents = PreviewData.sampleEvents
+    val sampleExpenses = listOf(
+        Expense(
+            id             = "exp-1",
+            eventId        = sampleEvents.first().id,
+            groupId        = "",
+            purpose        = "Stage Flower Decor",
+            amountPaise    = 45_000_00L,
+            amountDuePaise = 15_000_00L,
+            items          = emptyList(),
+            allReceived    = false,
+            createdAt      = System.currentTimeMillis(),
+            updatedAt      = System.currentTimeMillis(),
+        ),
+        Expense(
+            id             = "exp-2",
+            eventId        = sampleEvents.first().id,
+            groupId        = "",
+            purpose        = "Sound System & DJ",
+            amountPaise    = 25_000_00L,
+            amountDuePaise = 0L,
+            items          = emptyList(),
+            allReceived    = true,
+            createdAt      = System.currentTimeMillis(),
+            updatedAt      = System.currentTimeMillis(),
+        ),
+    )
+    val state = ExpensesUiState(
+        isLoading = false,
+        events    = sampleEvents,
+        expenses  = sampleExpenses,
+    )
     AppTheme {
-        AddEditExpenseSheet(
-            sheetState          = ExpenseSheetState.Add(
-                purpose          = "Flower decoration",
-                eventId          = PreviewData.sampleEvents.first().id,
-                totalAmountPaise = 30_000_00L,
-            ),
-            events              = PreviewData.sampleEvents,
-            onDismiss           = {},
-            onPurposeChange     = {},
-            onEventChange       = {},
-            onTotalAmountChange = {},
-            onSave              = {},
-        )
-    }
-}
-
-@LightDarkPreviews
-@Composable
-private fun EditExpenseSheetPreview() {
-    AppTheme {
-        AddEditExpenseSheet(
-            sheetState          = ExpenseSheetState.Edit(
-                expenseId        = "exp-preview-1",
-                eventId          = PreviewData.sampleEvents.first().id,
-                purpose          = "Stage Flower Decor",
-                totalAmountPaise = 30_000_00L,
-            ),
-            events              = PreviewData.sampleEvents,
-            onDismiss           = {},
-            onPurposeChange     = {},
-            onEventChange       = {},
-            onTotalAmountChange = {},
-            onSave              = {},
+        ExpensesContent(
+            uiState     = state,
+            onMenuClick = {},
         )
     }
 }

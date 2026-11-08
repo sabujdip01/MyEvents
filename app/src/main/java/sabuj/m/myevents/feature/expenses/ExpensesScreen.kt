@@ -1,7 +1,6 @@
 package sabuj.m.myevents.feature.expenses
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,20 +10,18 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,9 +38,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import sabuj.m.myevents.core.icons.EventIconDisplay
 import sabuj.m.myevents.core.theme.AppColor
@@ -56,8 +57,6 @@ import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.labelM
 import sabuj.m.myevents.core.theme.titleL
 import sabuj.m.myevents.core.theme.titleS
-import sabuj.m.myevents.core.ui.AppDeleteDialog
-import sabuj.m.myevents.core.ui.AppFab
 import sabuj.m.myevents.core.ui.AppTopBar
 import sabuj.m.myevents.core.ui.Pill
 import sabuj.m.myevents.core.ui.PillVariant
@@ -71,12 +70,31 @@ fun ExpensesScreen(
     viewModel: ExpensesViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    ExpensesContent(
+        uiState             = uiState,
+        onMenuClick         = onMenuClick,
+        onTabSelect         = { viewModel.selectTab(it) },
+        onSearchQueryChange = { viewModel.updateSearchQuery(it) },
+        onFilterChange      = { viewModel.setFilter(it) },
+        onSnackbarDismiss   = { viewModel.snackbarDismissed() },
+    )
+}
+
+@Composable
+fun ExpensesContent(
+    uiState: ExpensesUiState,
+    onMenuClick: () -> Unit,
+    onTabSelect: (String?) -> Unit = {},
+    onSearchQueryChange: (String) -> Unit = {},
+    onFilterChange: (ExpenseCategory) -> Unit = {},
+    onSnackbarDismiss: () -> Unit = {},
+) {
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(uiState.snackbarMessage) {
         val msg = uiState.snackbarMessage ?: return@LaunchedEffect
         snackbarHostState.showSnackbar(msg)
-        viewModel.snackbarDismissed()
+        onSnackbarDismiss()
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -90,30 +108,27 @@ fun ExpensesScreen(
 
             Column(modifier = Modifier.fillMaxSize()) {
                 // Top bar
-                ExpensesTopBar(
-                    isDeleteMode   = uiState.isDeleteMode,
-                    onToggleDelete = { viewModel.toggleDeleteMode() },
-                    onMenuClick    = onMenuClick,
-                )
+                ExpensesTopBar(onMenuClick = onMenuClick)
 
                 Spacer(Modifier.height(Spacing.sm))
 
-                // Event Tabs
+                // Event Tabs with Sum of amounts & Pill radius
                 if (uiState.events.isNotEmpty()) {
                     ExpenseEventTabsRow(
                         events          = uiState.events,
+                        displayExpenses = uiState.allDisplayExpenses,
                         selectedEventId = uiState.selectedEventId,
-                        onTabSelect     = { viewModel.selectTab(it) },
+                        onTabSelect     = onTabSelect,
                     )
                     Spacer(Modifier.height(Spacing.sm))
                 }
 
-                // Search & Filter Chips (G3, G4, G6)
+                // Search & Filter Chips (All, Bookings, Item Lists, Other, Due, Paid)
                 ExpenseSearchAndFilterBar(
                     searchQuery         = uiState.searchQuery,
-                    onSearchQueryChange = { viewModel.updateSearchQuery(it) },
+                    onSearchQueryChange = onSearchQueryChange,
                     activeFilter        = uiState.filter,
-                    onFilterChange      = { viewModel.setFilter(it) },
+                    onFilterChange      = onFilterChange,
                 )
 
                 Spacer(Modifier.height(Spacing.md))
@@ -126,121 +141,65 @@ fun ExpensesScreen(
                     }
                 } else {
                     ExpenseListContent(
-                        displayExpenses   = list,
-                        events            = uiState.events,
-                        isDeleteMode      = uiState.isDeleteMode,
-                        selectedForDelete = uiState.selectedForDelete,
-                        onSelectForDelete = { viewModel.toggleSelectForDelete(it) },
-                        onEditExpense     = { viewModel.showEditSheet(it) },
-                        modifier          = Modifier.weight(1f),
+                        displayExpenses = list,
+                        events          = uiState.events,
+                        modifier        = Modifier.weight(1f),
                     )
                 }
             }
         }
 
-        // FAB (Items G1 & F2 — Universal AppFab with navigationBarsPadding)
-        AppFab(
-            onClick = {
-                if (uiState.isDeleteMode) viewModel.deleteSelectedExpenses()
-                else viewModel.showAddSheet()
-            },
-            icon               = if (uiState.isDeleteMode) Icons.Rounded.Delete else Icons.Rounded.Add,
-            contentDescription = if (uiState.isDeleteMode) "Delete selected" else "Add expense",
-            modifier           = Modifier.align(Alignment.BottomEnd),
-        )
-
         SnackbarHost(
             hostState = snackbarHostState,
-            modifier  = Modifier.align(Alignment.BottomCenter).padding(bottom = 88.dp),
-        )
-    }
-
-    // Add / Edit Sheet
-    when (val sheet = uiState.sheetState) {
-        is ExpenseSheetState.Add, is ExpenseSheetState.Edit -> AddEditExpenseSheet(
-            sheetState          = sheet,
-            events              = uiState.events,
-            onDismiss           = { viewModel.hideSheet() },
-            onPurposeChange     = { purpose ->
-                if (sheet is ExpenseSheetState.Add) viewModel.updateAddSheetField { it.copy(purpose = purpose) }
-                else if (sheet is ExpenseSheetState.Edit) viewModel.updateEditSheetField { it.copy(purpose = purpose) }
-            },
-            onEventChange       = { eventId ->
-                if (sheet is ExpenseSheetState.Add) viewModel.updateAddSheetField { it.copy(eventId = eventId) }
-                else if (sheet is ExpenseSheetState.Edit) viewModel.updateEditSheetField { it.copy(eventId = eventId) }
-            },
-            onTotalAmountChange = { total ->
-                if (sheet is ExpenseSheetState.Add) viewModel.updateAddSheetField { it.copy(totalAmountPaise = total) }
-                else if (sheet is ExpenseSheetState.Edit) viewModel.updateEditSheetField { it.copy(totalAmountPaise = total) }
-            },
-            onSave              = { viewModel.saveExpense() },
-        )
-        else -> Unit
-    }
-
-    // Delete Confirmation Dialog
-    val deleteExpenseId = uiState.deleteExpenseId
-    if (deleteExpenseId != null) {
-        AppDeleteDialog(
-            title     = "Delete Expense?",
-            message   = "This expense will be permanently deleted.",
-            onDismiss = { viewModel.toggleDeleteMode() },
-            onConfirm = { viewModel.deleteSelectedExpenses() },
+            modifier  = Modifier.align(Alignment.BottomCenter).padding(bottom = 16.dp),
         )
     }
 }
 
 @Composable
-private fun ExpensesTopBar(
-    isDeleteMode: Boolean,
-    onToggleDelete: () -> Unit,
-    onMenuClick: () -> Unit,
-) {
+private fun ExpensesTopBar(onMenuClick: () -> Unit) {
     AppTopBar(
         titleText   = "Expenses",
         onMenuClick = onMenuClick,
-        actions     = {
-            Text(
-                text     = if (isDeleteMode) "Done" else "Edit",
-                style    = labelL,
-                color    = AppColor.primary,
-                modifier = Modifier
-                    .clickable { onToggleDelete() }
-                    .padding(Spacing.sm),
-            )
-        },
     )
 }
 
 @Composable
 private fun ExpenseEventTabsRow(
     events: List<Event>,
+    displayExpenses: List<DisplayExpense>,
     selectedEventId: String?,
     onTabSelect: (String?) -> Unit,
 ) {
+    val totalAll = displayExpenses.sumOf { it.totalAmountPaise }
     LazyRow(
-        contentPadding        = PaddingValues(horizontal = Spacing.sm),
+        contentPadding        = PaddingValues(horizontal = Spacing.lg),
         horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
     ) {
         item {
             val isSelected = selectedEventId == null
             Surface(
                 onClick  = { onTabSelect(null) },
-                shape    = RoundedCornerShape(Radius.chip),
+                shape    = RoundedCornerShape(Radius.pill),
                 color    = if (isSelected) AppColor.primaryContainer else AppColor.surfaceVariant,
                 modifier = Modifier.height(36.dp),
             ) {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(horizontal = Spacing.md)) {
-                    Text("All", style = labelM, color = if (isSelected) AppColor.primary else AppColor.text2)
+                    Text(
+                        text  = "All (${MoneyFormatter.format(totalAll)})",
+                        style = labelM,
+                        color = if (isSelected) AppColor.onPrimaryContainer else AppColor.text2,
+                    )
                 }
             }
         }
 
         itemsIndexed(events) { _, event ->
             val isSelected = selectedEventId == event.id
+            val totalForEvent = displayExpenses.filter { it.eventId == event.id }.sumOf { it.totalAmountPaise }
             Surface(
                 onClick  = { onTabSelect(event.id) },
-                shape    = RoundedCornerShape(Radius.chip),
+                shape    = RoundedCornerShape(Radius.pill),
                 color    = if (isSelected) AppColor.primaryContainer else AppColor.surfaceVariant,
                 modifier = Modifier.height(36.dp),
             ) {
@@ -254,7 +213,11 @@ private fun ExpenseEventTabsRow(
                         modifier           = Modifier.size(18.dp),
                     )
                     Spacer(Modifier.width(Spacing.xs))
-                    Text(event.title, style = labelM, color = if (isSelected) AppColor.primary else AppColor.text2)
+                    Text(
+                        text  = "${event.title} (${MoneyFormatter.format(totalForEvent)})",
+                        style = labelM,
+                        color = if (isSelected) AppColor.onPrimaryContainer else AppColor.text2,
+                    )
                 }
             }
         }
@@ -299,11 +262,11 @@ private fun ExpenseSearchAndFilterBar(
             itemsIndexed(ExpenseCategory.entries.toTypedArray()) { _, filter ->
                 val isSelected = activeFilter == filter
                 val label = when (filter) {
-                    ExpenseCategory.All        -> "All"
-                    ExpenseCategory.Vendor     -> "Vendor"
-                    ExpenseCategory.ItemList   -> "Item Lists"
-                    ExpenseCategory.Other      -> "Other"
-                    ExpenseCategory.DuePending -> "Due Pending"
+                    ExpenseCategory.All      -> "All"
+                    ExpenseCategory.Bookings -> "Bookings"
+                    ExpenseCategory.ItemList -> "Item Lists"
+                    ExpenseCategory.Due      -> "Due"
+                    ExpenseCategory.Paid     -> "Paid"
                 }
                 Surface(
                     onClick  = { onFilterChange(filter) },
@@ -312,7 +275,11 @@ private fun ExpenseSearchAndFilterBar(
                     modifier = Modifier.height(32.dp),
                 ) {
                     Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(horizontal = Spacing.sm)) {
-                        Text(label, style = labelM, color = if (isSelected) AppColor.primary else AppColor.text2)
+                        Text(
+                            text  = label,
+                            style = labelM,
+                            color = if (isSelected) AppColor.primary else AppColor.text2,
+                        )
                     }
                 }
             }
@@ -324,10 +291,6 @@ private fun ExpenseSearchAndFilterBar(
 private fun ExpenseListContent(
     displayExpenses: List<DisplayExpense>,
     events: List<Event>,
-    isDeleteMode: Boolean,
-    selectedForDelete: Set<String>,
-    onSelectForDelete: (String) -> Unit,
-    onEditExpense: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val totalItemsCount = displayExpenses.size
@@ -340,79 +303,99 @@ private fun ExpenseListContent(
     Column(modifier = modifier) {
         LazyColumn(
             modifier       = Modifier.weight(1f),
-            contentPadding = PaddingValues(bottom = 96.dp),
+            contentPadding = PaddingValues(bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             itemsIndexed(displayExpenses, key = { _, item -> item.id }) { index, item ->
                 val event = events.find { it.id == item.eventId }
                 ExpenseRowCard(
-                    expense           = item,
-                    event             = event,
-                    slot              = index % 6,
-                    isDeleteMode      = isDeleteMode,
-                    isSelected        = selectedForDelete.contains(item.id),
-                    onSelectForDelete = { onSelectForDelete(item.id) },
-                    onEdit            = { if (!item.isReadOnly) onEditExpense(item.originalId) },
+                    expense = item,
+                    event   = event,
+                    slot    = index % 6,
+                )
+            }
+
+            item {
+                Spacer(Modifier.height(8.dp))
+                SummaryFooter(
+                    totalItemsCount  = totalItemsCount,
+                    grandTotalPaise  = grandTotalPaise,
+                    paidTotalPaise   = paidTotalPaise,
+                    dueTotalPaise    = dueTotalPaise,
+                    totalBudgetPaise = totalBudgetPaise,
+                    isOverBudget     = isOverBudget,
                 )
             }
         }
+    }
+}
 
-        // Summary Footer (Items G5 & G8 — Item count, Paid, Due, Grand Total, Budget & Over budget flag)
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            color    = AppColor.primaryContainer,
-        ) {
-            Column(modifier = Modifier.padding(horizontal = Spacing.lg, vertical = Spacing.sm).navigationBarsPadding()) {
-                if (isOverBudget) {
-                    Text(
-                        text     = "⚠️ Over Budget by ${MoneyFormatter.format(grandTotalPaise - totalBudgetPaise)}",
-                        style    = titleS,
-                        color    = AppColor.danger,
-                        modifier = Modifier.padding(bottom = 4.dp),
-                    )
-                }
-                Row(
-                    modifier              = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Text("Items: $totalItemsCount", style = labelM, color = AppColor.onPrimaryContainer)
-                    Text("Paid: ${MoneyFormatter.format(paidTotalPaise)}", style = labelM, color = AppColor.onPrimaryContainer)
-                    Text("Due: ${MoneyFormatter.format(dueTotalPaise)}", style = labelM, color = AppColor.danger)
-                }
-                Spacer(Modifier.height(2.dp))
-                Row(
-                    modifier              = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Text("Total: ${MoneyFormatter.format(grandTotalPaise)}", style = labelL, color = AppColor.onPrimaryContainer, fontWeight = FontWeight.Bold)
-                    Text("Budget: ${MoneyFormatter.format(totalBudgetPaise)}", style = labelL, color = AppColor.onPrimaryContainer)
-                }
+@Composable
+private fun SummaryFooter(
+    totalItemsCount: Int,
+    grandTotalPaise: Long,
+    paidTotalPaise: Long,
+    dueTotalPaise: Long,
+    totalBudgetPaise: Long,
+    isOverBudget: Boolean,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.md),
+        shape    = RoundedCornerShape(Radius.field),
+        color    = AppColor.primaryContainer,
+    ) {
+        Column(modifier = Modifier.padding(horizontal = Spacing.md, vertical = Spacing.sm).navigationBarsPadding()) {
+            if (isOverBudget) {
+                Text(
+                    text     = "⚠️ Over Budget by ${MoneyFormatter.format(grandTotalPaise - totalBudgetPaise)}",
+                    style    = titleS,
+                    color    = AppColor.danger,
+                    modifier = Modifier.padding(bottom = 4.dp),
+                )
+            }
+            Row(
+                modifier              = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text("Items: $totalItemsCount", style = labelM, color = AppColor.onPrimaryContainer)
+                Text("Paid: ${MoneyFormatter.format(paidTotalPaise)}", style = labelM, color = AppColor.onPrimaryContainer)
+                Text("Due: ${MoneyFormatter.format(dueTotalPaise)}", style = labelM, color = AppColor.danger)
+            }
+            Spacer(Modifier.height(2.dp))
+            Row(
+                modifier              = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text("Total: ${MoneyFormatter.format(grandTotalPaise)}", style = labelL, color = AppColor.onPrimaryContainer, fontWeight = FontWeight.Bold)
+                Text("Budget: ${MoneyFormatter.format(totalBudgetPaise)}", style = labelL, color = AppColor.onPrimaryContainer)
             }
         }
     }
 }
 
 /**
- * Expense Card Layout matching Item G8 specification:
- * Row 1: <Purpose> (using slot gradient for different events)
- * Row 2: <Checkbox (visible in Delete/Edit mode)> <Event Name> <Total Amount> <Paid already> <Due> <Status>
+ * Tabular Expense Card Layout matching specifications:
+ * - Same wide width as booking cards (`padding(horizontal = Spacing.md)`)
+ * - 25% height reduction (`padding(vertical = 6.dp)`)
+ * - 13% Icon Section: Category Icon (Bookings/Item Lists/Expenses)
+ * - 25% Title Section: Expense Title <Booking / Item List> & Event Subtitle (Left aligned)
+ * - 50% Amount Section: 3 Excel-like Tabular Columns (+15% larger amounts font, right aligned)
+ * - 12% Status Pill Section: Due / Paid Pill (Only "Due" or "Paid", no "Pending")
  */
 @Composable
 private fun ExpenseRowCard(
     expense: DisplayExpense,
     event: Event?,
     slot: Int,
-    isDeleteMode: Boolean,
-    isSelected: Boolean,
-    onSelectForDelete: () -> Unit,
-    onEdit: () -> Unit,
 ) {
     val isDark = AppColor.isDark
     val palette = PaletteId.A
     val gradient: Brush = remember(slot, isDark) { gradientFor(slot, palette, isDark) }
 
     Surface(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.lg),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = Spacing.md), // Same wide width as booking cards
         shape    = RoundedCornerShape(Radius.field),
         color    = AppColor.surface,
         shadowElevation = 1.dp,
@@ -421,67 +404,126 @@ private fun ExpenseRowCard(
             if (AppColor.isDark) AppColor.outlineVariant else AppColor.outlineVariant.copy(alpha = 0.5f),
         ),
     ) {
-        Column(
+        Row(
             modifier = Modifier
+                .fillMaxWidth()
                 .background(gradient)
-                .clickable(enabled = !expense.isReadOnly) { onEdit() }
-                .padding(9.dp),
+                .padding(horizontal = Spacing.xs, vertical = 6.dp), // 25% height reduction
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Row 1: <Purpose>
-            Text(
-                text     = expense.purpose,
-                style    = titleS,
-                color    = AppColor.text,
-                modifier = Modifier.fillMaxWidth(),
-            )
-
-            Spacer(Modifier.height(3.dp))
-
-            // Row 2: <Checkbox (if delete mode)> <Event Name> <Total Amount> <Paid> <Due> <Status>
-            Row(
-                modifier          = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
+            // 1. 13% Relative Width: Booking / Item List Category Icon
+            Box(
+                modifier         = Modifier.weight(0.13f),
+                contentAlignment = Alignment.Center,
             ) {
-                if (isDeleteMode && !expense.isReadOnly) {
-                    Checkbox(
-                        checked         = isSelected,
-                        onCheckedChange = { onSelectForDelete() },
-                        colors          = CheckboxDefaults.colors(checkedColor = AppColor.danger),
+                Box(
+                    modifier        = Modifier.size(32.dp).clip(CircleShape).background(AppColor.primaryContainer),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    val categoryIcon = when (expense.category) {
+                        ExpenseCategory.Bookings -> sabuj.m.myevents.core.icons.AppIcon.Bookings.fallback
+                        ExpenseCategory.ItemList -> sabuj.m.myevents.core.icons.AppIcon.Checklist.fallback
+                        else -> sabuj.m.myevents.core.icons.AppIcon.Expenses.fallback
+                    }
+                    Icon(
+                        imageVector        = categoryIcon,
+                        contentDescription = null,
+                        tint               = AppColor.primary,
+                        modifier           = Modifier.size(18.dp),
                     )
                 }
+            }
 
+            // 2. 25% Relative Width: Expense Title <Booking / Item List> & Event Name Subtitle (Left aligned)
+            Column(
+                modifier            = Modifier.weight(0.25f),
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Text(
+                    text     = expense.purpose,
+                    style    = labelL,
+                    color    = AppColor.text,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
                 Text(
                     text     = event?.title ?: "General",
-                    style    = bodyM,
+                    style    = bodyM.copy(fontSize = 12.sp),
                     color    = AppColor.text2,
-                    modifier = Modifier.weight(1f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
+            }
 
-                Text(
-                    text  = MoneyFormatter.format(expense.totalAmountPaise),
-                    style = bodyM,
-                    color = AppColor.text,
-                    fontWeight = FontWeight.SemiBold,
-                )
-
-                Text(
-                    text  = "${MoneyFormatter.format(expense.paidAmountPaise)} paid",
-                    style = bodyM,
-                    color = AppColor.primary,
-                )
-
-                if (expense.dueAmountPaise > 0L) {
+            // 3. 50% Relative Width: 3 Excel-like Tabular Columns (Right aligned with 15% increased amounts font & text as subtitle)
+            Row(
+                modifier          = Modifier.weight(0.50f),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                // Col 1: Total Amount
+                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
                     Text(
-                        text  = "Due ${MoneyFormatter.format(expense.dueAmountPaise)}",
-                        style = bodyM,
-                        color = AppColor.danger,
+                        text      = MoneyFormatter.format(expense.totalAmountPaise),
+                        style     = bodyM.copy(fontSize = 14.sp, fontWeight = FontWeight.Bold),
+                        color     = AppColor.text,
+                        maxLines  = 1,
+                        textAlign = TextAlign.End,
                     )
                 }
 
+                // Col 2: Paid Amount with text (blank if 0, holding place)
+                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+                    if (expense.paidAmountPaise > 0L) {
+                        Column(horizontalAlignment = Alignment.End) {
+                            Text(
+                                text      = MoneyFormatter.format(expense.paidAmountPaise),
+                                style     = bodyM.copy(fontSize = 13.sp, fontWeight = FontWeight.SemiBold),
+                                color     = AppColor.primary,
+                                maxLines  = 1,
+                                textAlign = TextAlign.End,
+                            )
+                            Text(
+                                text      = "paid",
+                                style     = bodyM.copy(fontSize = 10.sp),
+                                color     = AppColor.text2,
+                                maxLines  = 1,
+                                textAlign = TextAlign.End,
+                            )
+                        }
+                    }
+                }
+
+                // Col 3: Due Amount with text (blank if 0, holding place)
+                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+                    if (expense.dueAmountPaise > 0L) {
+                        Column(horizontalAlignment = Alignment.End) {
+                            Text(
+                                text      = MoneyFormatter.format(expense.dueAmountPaise),
+                                style     = bodyM.copy(fontSize = 13.sp, fontWeight = FontWeight.SemiBold),
+                                color     = AppColor.danger,
+                                maxLines  = 1,
+                                textAlign = TextAlign.End,
+                            )
+                            Text(
+                                text      = "due",
+                                style     = bodyM.copy(fontSize = 10.sp),
+                                color     = AppColor.danger,
+                                maxLines  = 1,
+                                textAlign = TextAlign.End,
+                            )
+                        }
+                    }
+                }
+            }
+
+            // 4. 12% Relative Width: Due / Paid Status Pill (Only Due or Paid, no Pending)
+            Box(
+                modifier         = Modifier.weight(0.12f),
+                contentAlignment = Alignment.CenterEnd,
+            ) {
                 Pill(
-                    text    = expense.statusText,
-                    variant = if (expense.dueAmountPaise <= 0L) PillVariant.Success else PillVariant.Warning,
+                    text    = if (expense.dueAmountPaise <= 0L) "Paid" else "Due",
+                    variant = if (expense.dueAmountPaise <= 0L) PillVariant.Success else PillVariant.Danger,
                 )
             }
         }

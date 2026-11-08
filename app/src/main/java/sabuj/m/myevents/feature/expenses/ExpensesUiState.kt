@@ -5,7 +5,7 @@ import sabuj.m.myevents.domain.model.Event
 import sabuj.m.myevents.domain.model.Expense
 import sabuj.m.myevents.domain.model.Task
 
-enum class ExpenseCategory { All, Vendor, ItemList, Other, DuePending }
+enum class ExpenseCategory { All, Bookings, ItemList, Due, Paid }
 
 data class DisplayExpense(
     val id: String,
@@ -16,31 +16,9 @@ data class DisplayExpense(
     val paidAmountPaise: Long,
     val dueAmountPaise: Long,
     val category: ExpenseCategory,
-    val isReadOnly: Boolean = false,
+    val isReadOnly: Boolean = true,
     val statusText: String,
 )
-
-sealed class ExpenseSheetState {
-    object Hidden : ExpenseSheetState()
-
-    data class Add(
-        val purpose: String = "",
-        val eventId: String = "",
-        val totalAmountPaise: Long = 0L,
-        val purposeError: String? = null,
-        val eventError: String? = null,
-        val amountError: String? = null,
-    ) : ExpenseSheetState()
-
-    data class Edit(
-        val expenseId: String,
-        val eventId: String,
-        val purpose: String,
-        val totalAmountPaise: Long,
-        val purposeError: String? = null,
-        val amountError: String? = null,
-    ) : ExpenseSheetState()
-}
 
 /** UI state for Expenses screen. */
 data class ExpensesUiState(
@@ -52,10 +30,6 @@ data class ExpensesUiState(
     val tasks: List<Task> = emptyList(),
     val searchQuery: String = "",
     val filter: ExpenseCategory = ExpenseCategory.All,
-    val sheetState: ExpenseSheetState = ExpenseSheetState.Hidden,
-    val isDeleteMode: Boolean = false,
-    val selectedForDelete: Set<String> = emptySet(),
-    val deleteExpenseId: String? = null,
     val snackbarMessage: String? = null,
 ) {
     /** Aggregated list of display expenses combining Direct Expenses, Vendor Bookings, and Item Lists. */
@@ -74,8 +48,8 @@ data class ExpensesUiState(
                         totalAmountPaise = exp.amountPaise,
                         paidAmountPaise  = (exp.amountPaise - exp.amountDuePaise).coerceAtLeast(0L),
                         dueAmountPaise   = exp.amountDuePaise,
-                        category         = ExpenseCategory.Other,
-                        isReadOnly       = false,
+                        category         = ExpenseCategory.ItemList,
+                        isReadOnly       = true,
                         statusText       = if (exp.amountDuePaise <= 0L) "Paid" else "Due",
                     )
                 )
@@ -88,11 +62,11 @@ data class ExpensesUiState(
                         id               = "vendor-${b.id}",
                         originalId       = b.id,
                         eventId          = b.eventId,
-                        purpose          = "${b.title} (Vendor)",
+                        purpose          = "${b.title} (Booking)",
                         totalAmountPaise = b.totalAmountPaise,
                         paidAmountPaise  = b.paidPaise,
                         dueAmountPaise   = b.amountLeftPaise,
-                        category         = ExpenseCategory.Vendor,
+                        category         = ExpenseCategory.Bookings,
                         isReadOnly       = true,
                         statusText       = if (b.isFullyPaid) "Paid" else "Due",
                     )
@@ -114,7 +88,7 @@ data class ExpensesUiState(
                         dueAmountPaise   = duePaise,
                         category         = ExpenseCategory.ItemList,
                         isReadOnly       = true,
-                        statusText       = if (t.completed || (t.totalAmountPaise > 0 && duePaise <= 0L)) "Paid" else "Pending",
+                        statusText       = if (duePaise <= 0L || t.completed) "Paid" else "Due",
                     )
                 )
             }
@@ -134,10 +108,10 @@ data class ExpensesUiState(
 
             result = when (filter) {
                 ExpenseCategory.All -> result
-                ExpenseCategory.Vendor -> result.filter { it.category == ExpenseCategory.Vendor }
+                ExpenseCategory.Bookings -> result.filter { it.category == ExpenseCategory.Bookings }
                 ExpenseCategory.ItemList -> result.filter { it.category == ExpenseCategory.ItemList }
-                ExpenseCategory.Other -> result.filter { it.category == ExpenseCategory.Other }
-                ExpenseCategory.DuePending -> result.filter { it.dueAmountPaise > 0L }
+                ExpenseCategory.Due -> result.filter { it.dueAmountPaise > 0L }
+                ExpenseCategory.Paid -> result.filter { it.dueAmountPaise <= 0L }
             }
 
             return result
