@@ -430,7 +430,7 @@ private fun SummaryFooter(
                 Row(Modifier.weight(0.44f)) {
                     Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
                         Text(
-                            text     = "Total amount",
+                            text     = "Total",
                             style    = bodyM.copy(fontSize = 12.5.sp),
                             color    = AppColor.text2,
                             maxLines = 1,
@@ -493,7 +493,7 @@ private fun ExpenseRowCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(gradient)
-                .padding(horizontal = Spacing.xs, vertical = 5.dp), // height kept same (1dp spacer inside paid/due col compensated)
+                .padding(horizontal = Spacing.xs, vertical = 4.dp), // 1dp spacer in title col compensated
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // 1. ~9% (was 13% — 30% narrower) Icon col: shifted left via CenterStart alignment
@@ -539,7 +539,7 @@ private fun ExpenseRowCard(
                 }
             }
 
-            // 2. 35% Title col (expanded — amounts reduced to 44% to push them right, giving title room)
+            // 2. 35% Title col — booking name + 1dp gap + event name (gap +20%, card height compensated)
             Column(
                 modifier            = Modifier.weight(0.35f),
                 verticalArrangement = Arrangement.Center,
@@ -551,6 +551,7 @@ private fun ExpenseRowCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
+                Spacer(Modifier.height(1.dp)) // +20% gap between booking name and event name
                 Text(
                     text     = event?.title ?: "General",
                     style    = bodyM.copy(fontSize = 12.sp),
