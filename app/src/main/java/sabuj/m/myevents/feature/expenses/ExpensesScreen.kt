@@ -320,7 +320,7 @@ private fun ExpenseListContent(
             }
         }
 
-        // Summary footer is always visible at the bottom, sticking just above the Android nav bar
+        // Summary footer — always visible, sticky just above the Android nav bar with 6dp gap
         SummaryFooter(
             totalItemsCount  = totalItemsCount,
             grandTotalPaise  = grandTotalPaise,
@@ -328,7 +328,7 @@ private fun ExpenseListContent(
             dueTotalPaise    = dueTotalPaise,
             totalBudgetPaise = totalBudgetPaise,
             isOverBudget     = isOverBudget,
-            modifier         = Modifier.navigationBarsPadding().padding(bottom = 10.dp),
+            modifier         = Modifier.navigationBarsPadding().padding(bottom = 6.dp),
         )
     }
 }
@@ -345,14 +345,13 @@ private fun SummaryFooter(
 ) {
     Surface(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = Spacing.md)
+            .fillMaxWidth()       // Full width matching booking cards
             .then(modifier),
         shape    = RoundedCornerShape(Radius.field),
         color    = AppColor.primaryContainer,
     ) {
         Column(modifier = Modifier.padding(vertical = Spacing.sm)) {
-            // Over-budget warning row
+            // Over-budget warning
             if (isOverBudget) {
                 Text(
                     text     = "⚠️ Over Budget by ${MoneyFormatter.format(grandTotalPaise - totalBudgetPaise)}",
@@ -364,24 +363,31 @@ private fun SummaryFooter(
                 )
             }
 
-            // Row 1: values aligned to card columns (13% | 25% | 50% | 12%)
-            // 13% = item count | 25% = empty | 50% = Total / Paid / Due sums | 12% = empty
+            // Row 1: values — columns match card weights (9% icon | 29% title | 50% amounts | 12% pill)
             Row(
                 modifier          = Modifier.fillMaxWidth().padding(horizontal = Spacing.xs),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // 13% — item count, right-aligned to match icon column
-                Box(Modifier.weight(0.13f), contentAlignment = Alignment.CenterEnd) {
+                // 9% — item count label "Total items N", left-aligned to match icon col
+                Box(Modifier.weight(0.09f), contentAlignment = Alignment.CenterStart) {
                     Text(
                         text       = "$totalItemsCount",
                         style      = labelL,
                         fontWeight = FontWeight.Bold,
                         color      = AppColor.onPrimaryContainer,
+                        maxLines   = 1,
                     )
                 }
-                // 25% — empty title column placeholder
-                Spacer(Modifier.weight(0.25f))
-                // 50% — three equal sub-cols: Total | Paid | Due
+                // 29% — "Total items" label, left-aligned to match title col
+                Box(Modifier.weight(0.29f), contentAlignment = Alignment.CenterStart) {
+                    Text(
+                        text     = "Total items",
+                        style    = labelL,
+                        color    = AppColor.onPrimaryContainer,
+                        maxLines = 1,
+                    )
+                }
+                // 50% — three equal sub-cols: Total | Paid | Due sums
                 Row(Modifier.weight(0.50f)) {
                     Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
                         Text(
@@ -400,7 +406,8 @@ private fun SummaryFooter(
                             maxLines = 1,
                         )
                     }
-                    Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+                    // Due col matches card's 8dp end shift
+                    Box(Modifier.weight(1f).padding(end = 8.dp), contentAlignment = Alignment.CenterEnd) {
                         Text(
                             text     = MoneyFormatter.format(dueTotalPaise),
                             style    = labelL,
@@ -409,29 +416,36 @@ private fun SummaryFooter(
                         )
                     }
                 }
-                // 12% — empty pill column placeholder
+                // 12% — empty pill placeholder
                 Spacer(Modifier.weight(0.12f))
             }
 
-            Spacer(Modifier.height(2.dp))
+            // +20% gap between value row and label row (was 2dp → 2.4dp, rounded to 3dp)
+            Spacer(Modifier.height(3.dp))
 
             // Row 2: labels aligned to same card columns
-            // 13% = budget amount | 25% = empty | 50% = "Total amount" / "Total paid" / "Total due" | 12% = empty
             Row(
                 modifier          = Modifier.fillMaxWidth().padding(horizontal = Spacing.xs),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // 13% — budget value, right-aligned
-                Box(Modifier.weight(0.13f), contentAlignment = Alignment.CenterEnd) {
+                // 9% — budget amount value
+                Box(Modifier.weight(0.09f), contentAlignment = Alignment.CenterStart) {
                     Text(
-                        text     = MoneyFormatter.format(totalBudgetPaise),
-                        style    = bodyM.copy(fontSize = 11.sp),
+                        text       = MoneyFormatter.format(totalBudgetPaise),
+                        style      = labelL,  // Same font as "Total items" row
+                        color      = AppColor.onPrimaryContainer,
+                        maxLines   = 1,
+                    )
+                }
+                // 29% — "Budget" label
+                Box(Modifier.weight(0.29f), contentAlignment = Alignment.CenterStart) {
+                    Text(
+                        text     = "Budget",
+                        style    = labelL,  // Same font as "Total items" label
                         color    = AppColor.onPrimaryContainer,
                         maxLines = 1,
                     )
                 }
-                // 25% — empty
-                Spacer(Modifier.weight(0.25f))
                 // 50% — three label sub-cols
                 Row(Modifier.weight(0.50f)) {
                     Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
@@ -450,7 +464,7 @@ private fun SummaryFooter(
                             maxLines = 1,
                         )
                     }
-                    Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+                    Box(Modifier.weight(1f).padding(end = 8.dp), contentAlignment = Alignment.CenterEnd) {
                         Text(
                             text     = "Total due",
                             style    = bodyM.copy(fontSize = 10.sp),
@@ -467,13 +481,13 @@ private fun SummaryFooter(
 }
 
 /**
- * Tabular Expense Card Layout matching specifications:
- * - Same wide width as booking cards (`padding(horizontal = Spacing.md)`)
+ * Tabular Expense Card Layout:
+ * - Full width matching booking cards (no outer horizontal padding on Surface)
  * - 25% height reduction (`padding(vertical = 6.dp)`)
- * - 13% Icon Section: Category Icon (Bookings/Item Lists/Expenses)
- * - 25% Title Section: Expense Title <Booking / Item List> & Event Subtitle (Left aligned)
- * - 50% Amount Section: 3 Excel-like Tabular Columns (+15% larger amounts font, right aligned)
- * - 12% Status Pill Section: Due / Paid Pill (Only "Due" or "Paid", no "Pending")
+ * - 9% Icon Section: Actual BookingIcon from booking/task; falls back to category icon
+ * - 29% Title Section: Expense Title & Event Subtitle (left aligned)
+ * - 50% Amount Section: 3 Excel-like Tabular Columns (right aligned)
+ * - 12% Status Pill Section: Due / Paid Pill
  */
 @Composable
 private fun ExpenseRowCard(
@@ -486,9 +500,7 @@ private fun ExpenseRowCard(
     val gradient: Brush = remember(slot, isDark) { gradientFor(slot, palette, isDark) }
 
     Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = Spacing.md), // Same wide width as booking cards
+        modifier = Modifier.fillMaxWidth(), // Full width matching booking cards — no outer horizontal padding
         shape    = RoundedCornerShape(Radius.field),
         color    = AppColor.surface,
         shadowElevation = 1.dp,
@@ -501,13 +513,13 @@ private fun ExpenseRowCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(gradient)
-                .padding(horizontal = Spacing.xs, vertical = 6.dp), // 25% height reduction
+                .padding(horizontal = Spacing.xs, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // 1. 13% Relative Width: Actual BookingIcon from booking/task; fallback to category icon
+            // 1. ~9% (was 13% — 30% narrower) Icon col: shifted left via CenterStart alignment
             Box(
-                modifier         = Modifier.weight(0.13f),
-                contentAlignment = Alignment.Center,
+                modifier         = Modifier.weight(0.09f),
+                contentAlignment = Alignment.CenterStart,
             ) {
                 Box(
                     modifier        = Modifier.size(32.dp).clip(CircleShape).background(AppColor.primaryContainer),
@@ -547,9 +559,9 @@ private fun ExpenseRowCard(
                 }
             }
 
-            // 2. 25% Relative Width: Expense Title <Booking / Item List> & Event Name Subtitle (Left aligned)
+            // 2. 29% Title col (expanded from 25% since icon col is narrower now)
             Column(
-                modifier            = Modifier.weight(0.25f),
+                modifier            = Modifier.weight(0.29f),
                 verticalArrangement = Arrangement.Center,
             ) {
                 Text(
@@ -606,8 +618,8 @@ private fun ExpenseRowCard(
                     }
                 }
 
-                // Col 3: Due Amount with text (blank if 0, holding place) — shifted slightly left with end padding
-                Box(modifier = Modifier.weight(1f).padding(end = 4.dp), contentAlignment = Alignment.CenterEnd) {
+                // Col 3: Due Amount — shifted left with 8dp end padding, text stays right-aligned inside
+                Box(modifier = Modifier.weight(1f).padding(end = 8.dp), contentAlignment = Alignment.CenterEnd) {
                     if (expense.dueAmountPaise > 0L) {
                         Column(horizontalAlignment = Alignment.End) {
                             Text(
