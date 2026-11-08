@@ -368,25 +368,15 @@ private fun SummaryFooter(
                 modifier          = Modifier.fillMaxWidth().padding(horizontal = Spacing.xs),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // 9% — item count label "Total items N", left-aligned to match icon col
-                Box(Modifier.weight(0.09f), contentAlignment = Alignment.CenterStart) {
-                    Text(
-                        text       = "$totalItemsCount",
-                        style      = labelL,
-                        fontWeight = FontWeight.Bold,
-                        color      = AppColor.onPrimaryContainer,
-                        maxLines   = 1,
-                    )
-                }
-                // 29% — "Total items" label, left-aligned to match title col
-                Box(Modifier.weight(0.29f), contentAlignment = Alignment.CenterStart) {
-                    Text(
-                        text     = "Total items",
-                        style    = labelL,
-                        color    = AppColor.onPrimaryContainer,
-                        maxLines = 1,
-                    )
-                }
+                // 9%+29% combined — "Total items N" as a single text spanning icon+title cols
+                Text(
+                    text       = "Total items $totalItemsCount",
+                    style      = labelL,
+                    fontWeight = FontWeight.Bold,
+                    color      = AppColor.onPrimaryContainer,
+                    maxLines   = 1,
+                    modifier   = Modifier.weight(0.38f),
+                )
                 // 50% — three equal sub-cols: Total | Paid | Due sums
                 Row(Modifier.weight(0.50f)) {
                     Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
@@ -402,7 +392,7 @@ private fun SummaryFooter(
                         Text(
                             text     = MoneyFormatter.format(paidTotalPaise),
                             style    = labelL,
-                            color    = AppColor.primary,
+                            color    = AppColor.onSuccessContainer,
                             maxLines = 1,
                         )
                     }
@@ -411,7 +401,7 @@ private fun SummaryFooter(
                         Text(
                             text     = MoneyFormatter.format(dueTotalPaise),
                             style    = labelL,
-                            color    = AppColor.danger,
+                            color    = AppColor.onWarningContainer,
                             maxLines = 1,
                         )
                     }
@@ -420,32 +410,22 @@ private fun SummaryFooter(
                 Spacer(Modifier.weight(0.12f))
             }
 
-            // +20% gap between value row and label row (was 2dp → 2.4dp, rounded to 3dp)
-            Spacer(Modifier.height(3.dp))
+            // +20% gap between value row and label row (was 3dp → 4dp rounded up)
+            Spacer(Modifier.height(4.dp))
 
             // Row 2: labels aligned to same card columns
             Row(
                 modifier          = Modifier.fillMaxWidth().padding(horizontal = Spacing.xs),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // 9% — budget amount value
-                Box(Modifier.weight(0.09f), contentAlignment = Alignment.CenterStart) {
-                    Text(
-                        text       = MoneyFormatter.format(totalBudgetPaise),
-                        style      = labelL,  // Same font as "Total items" row
-                        color      = AppColor.onPrimaryContainer,
-                        maxLines   = 1,
-                    )
-                }
-                // 29% — "Budget" label
-                Box(Modifier.weight(0.29f), contentAlignment = Alignment.CenterStart) {
-                    Text(
-                        text     = "Budget",
-                        style    = labelL,  // Same font as "Total items" label
-                        color    = AppColor.onPrimaryContainer,
-                        maxLines = 1,
-                    )
-                }
+                // 9%+29% combined — "Budget ₹X" in same labelL font as Row 1
+                Text(
+                    text     = "Budget ${MoneyFormatter.format(totalBudgetPaise)}",
+                    style    = labelL,
+                    color    = AppColor.onPrimaryContainer,
+                    maxLines = 1,
+                    modifier = Modifier.weight(0.38f),
+                )
                 // 50% — three label sub-cols
                 Row(Modifier.weight(0.50f)) {
                     Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
@@ -460,7 +440,7 @@ private fun SummaryFooter(
                         Text(
                             text     = "Total paid",
                             style    = bodyM.copy(fontSize = 10.sp),
-                            color    = AppColor.text2,
+                            color    = AppColor.onSuccessContainer,
                             maxLines = 1,
                         )
                     }
@@ -468,7 +448,7 @@ private fun SummaryFooter(
                         Text(
                             text     = "Total due",
                             style    = bodyM.copy(fontSize = 10.sp),
-                            color    = AppColor.text2,
+                            color    = AppColor.onWarningContainer,
                             maxLines = 1,
                         )
                     }
@@ -585,32 +565,32 @@ private fun ExpenseRowCard(
                 modifier          = Modifier.weight(0.50f),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // Col 1: Total Amount
+                // Col 1: Total Amount (+25% font: 14sp → 17.5sp)
                 Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
                     Text(
                         text      = MoneyFormatter.format(expense.totalAmountPaise),
-                        style     = bodyM.copy(fontSize = 14.sp, fontWeight = FontWeight.Bold),
+                        style     = bodyM.copy(fontSize = 17.5.sp, fontWeight = FontWeight.Bold),
                         color     = AppColor.text,
                         maxLines  = 1,
                         textAlign = TextAlign.End,
                     )
                 }
 
-                // Col 2: Paid Amount with text (blank if 0, holding place)
+                // Col 2: Paid Amount — Success pill text color for both value and label
                 Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
                     if (expense.paidAmountPaise > 0L) {
                         Column(horizontalAlignment = Alignment.End) {
                             Text(
                                 text      = MoneyFormatter.format(expense.paidAmountPaise),
                                 style     = bodyM.copy(fontSize = 13.sp, fontWeight = FontWeight.SemiBold),
-                                color     = AppColor.primary,
+                                color     = AppColor.onSuccessContainer,
                                 maxLines  = 1,
                                 textAlign = TextAlign.End,
                             )
                             Text(
                                 text      = "paid",
-                                style     = bodyM.copy(fontSize = 10.sp),
-                                color     = AppColor.text2,
+                                style     = bodyM.copy(fontSize = 12.5.sp),  // +25%
+                                color     = AppColor.onSuccessContainer,
                                 maxLines  = 1,
                                 textAlign = TextAlign.End,
                             )
@@ -618,21 +598,21 @@ private fun ExpenseRowCard(
                     }
                 }
 
-                // Col 3: Due Amount — shifted left with 8dp end padding, text stays right-aligned inside
+                // Col 3: Due Amount — Warning pill text color; shifted left with 8dp end padding
                 Box(modifier = Modifier.weight(1f).padding(end = 8.dp), contentAlignment = Alignment.CenterEnd) {
                     if (expense.dueAmountPaise > 0L) {
                         Column(horizontalAlignment = Alignment.End) {
                             Text(
                                 text      = MoneyFormatter.format(expense.dueAmountPaise),
                                 style     = bodyM.copy(fontSize = 13.sp, fontWeight = FontWeight.SemiBold),
-                                color     = AppColor.danger,
+                                color     = AppColor.onWarningContainer,
                                 maxLines  = 1,
                                 textAlign = TextAlign.End,
                             )
                             Text(
                                 text      = "due",
-                                style     = bodyM.copy(fontSize = 10.sp),
-                                color     = AppColor.danger,
+                                style     = bodyM.copy(fontSize = 12.5.sp),  // +25%
+                                color     = AppColor.onWarningContainer,
                                 maxLines  = 1,
                                 textAlign = TextAlign.End,
                             )
@@ -641,14 +621,14 @@ private fun ExpenseRowCard(
                 }
             }
 
-            // 4. 12% Relative Width: Due / Paid Status Pill (Only Due or Paid, no Pending)
+            // 4. 12% Relative Width: Paid = Success pill, Due = Warning pill
             Box(
                 modifier         = Modifier.weight(0.12f),
                 contentAlignment = Alignment.CenterEnd,
             ) {
                 Pill(
                     text    = if (expense.dueAmountPaise <= 0L) "Paid" else "Due",
-                    variant = if (expense.dueAmountPaise <= 0L) PillVariant.Success else PillVariant.Danger,
+                    variant = if (expense.dueAmountPaise <= 0L) PillVariant.Success else PillVariant.Warning,
                 )
             }
         }
