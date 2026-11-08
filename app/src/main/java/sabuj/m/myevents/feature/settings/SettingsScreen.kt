@@ -26,6 +26,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import sabuj.m.myevents.core.ui.AppSnackbar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -285,7 +286,7 @@ fun SettingsScreenContent(
             }
         }
 
-        SnackbarHost(
+        AppSnackbar(
             hostState = snackbarHostState,
             modifier  = Modifier.align(Alignment.BottomCenter),
         )

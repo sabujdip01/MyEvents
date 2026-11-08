@@ -26,6 +26,8 @@ data class EventsUiState(
     val inviteeCount: Int = 0,
     val isLoading: Boolean = true,
     val errorMessage: String? = null,
+    val snackbarMessage: String? = null,
+    val lastDeletedEventId: String? = null,
 )
 
 /** Controls which bottom sheet is shown. */
@@ -51,6 +53,8 @@ sealed interface EventsUiEvent {
     data class EditRequested(val event: Event) : EventsUiEvent
     data class DeleteRequested(val event: Event) : EventsUiEvent
     data object DeleteConfirmed : EventsUiEvent
+    data object UndoDelete : EventsUiEvent
+    data object SnackbarDismissed : EventsUiEvent
 
     data class SaveNew(
         val title: String,

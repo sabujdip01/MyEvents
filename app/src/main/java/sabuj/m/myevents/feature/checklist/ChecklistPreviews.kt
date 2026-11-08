@@ -50,9 +50,9 @@ private fun ItemListCardNormalPreview() {
 
 @LightDarkPreviews
 @Composable
-private fun ItemListCardDeleteModePreview() {
+private fun ItemListCardCompletedPreview() {
     val sampleTask = sabuj.m.myevents.domain.model.Task(
-        id               = "task-preview-1",
+        id               = "task-preview-2",
         eventId          = "evt-preview-1",
         title            = "Finalize Mandap Decorator",
         dueDate          = java.time.LocalDate.now().plusDays(10),
@@ -60,9 +60,9 @@ private fun ItemListCardDeleteModePreview() {
         items            = listOf(
             sabuj.m.myevents.domain.model.TaskItem("Flowers", 15_000_00L, true),
             sabuj.m.myevents.domain.model.TaskItem("Lighting", 15_000_00L, true),
-            sabuj.m.myevents.domain.model.TaskItem("Backdrop", 15_000_00L, false),
+            sabuj.m.myevents.domain.model.TaskItem("Backdrop", 15_000_00L, true),
         ),
-        completed        = false,
+        completed        = true,
         createdAt        = System.currentTimeMillis(),
         updatedAt        = System.currentTimeMillis(),
         syncState        = sabuj.m.myevents.domain.model.SyncState.PENDING,
@@ -77,53 +77,11 @@ private fun ItemListCardDeleteModePreview() {
             ItemListCard(
                 task          = sampleTask,
                 event         = PreviewData.sampleEvents.first(),
-                slot          = 1,
-                isDeleteMode  = true,
+                slot          = 0,
+                isDeleteMode  = false,
                 onEditClick   = {},
                 onDeleteClick = {},
             )
         }
-    }
-}
-
-@LightDarkPreviews
-@Composable
-private fun AddTaskSheetPreview() {
-    AppTheme {
-        AddEditTaskSheet(
-            sheetState      = TaskSheetState.Add(
-                title   = "Finalize Mandap Decorator",
-                eventId = PreviewData.sampleEvents.first().id,
-            ),
-            events          = PreviewData.sampleEvents,
-            onDismiss       = {},
-            onTitleChange   = {},
-            onEventChange   = {},
-            onDueDateChange = {},
-            onSave          = {},
-        )
-    }
-}
-
-@LightDarkPreviews
-@Composable
-private fun EditTaskSheetPreview() {
-    AppTheme {
-        AddEditTaskSheet(
-            sheetState      = TaskSheetState.Edit(
-                taskId          = "task-1",
-                icon            = sabuj.m.myevents.core.icons.BookingIcon.Cake,
-                eventId         = PreviewData.sampleEvents.first().id,
-                title           = "Finalize Mandap Decorator",
-                dueDateEpochDay = null,
-                completed       = false,
-            ),
-            events          = PreviewData.sampleEvents,
-            onDismiss       = {},
-            onTitleChange   = {},
-            onEventChange   = {},
-            onDueDateChange = {},
-            onSave          = {},
-        )
     }
 }

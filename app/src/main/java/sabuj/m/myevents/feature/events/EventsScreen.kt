@@ -26,8 +26,12 @@ import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import sabuj.m.myevents.core.ui.AppSnackbar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -117,6 +121,20 @@ fun EventsContent(
     val pageCount = remember { getTotalPageCount() }
     val initialPage = remember { pageForMonth(uiState.currentMonth).coerceIn(0, pageCount - 1) }
     val pagerState = rememberPagerState(initialPage = initialPage) { pageCount }
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(uiState.snackbarMessage) {
+        val msg = uiState.snackbarMessage ?: return@LaunchedEffect
+        val result = snackbarHostState.showSnackbar(
+            message     = msg,
+            actionLabel = "Undo",
+            duration    = SnackbarDuration.Short,
+        )
+        if (result == SnackbarResult.ActionPerformed) {
+            onEvent(EventsUiEvent.UndoDelete)
+        }
+        onEvent(EventsUiEvent.SnackbarDismissed)
+    }
 
     // Derived directly from calendar pager's current page — guaranteed 100% in sync
     val displayedMonth = remember(pagerState.currentPage) {
@@ -135,84 +153,91 @@ fun EventsContent(
             .sortedBy { it.date }
     }
 
-    ScreenScaffold(onMenuClick = onMenuClick) {
-        if (uiState.isLoading) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = AppColor.primary)
+    Box(modifier = Modifier.fillMaxSize()) {
+        ScreenScaffold(onMenuClick = onMenuClick) {
+            if (uiState.isLoading) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = AppColor.primary)
+                }
+                return@ScreenScaffold
             }
-            return@ScreenScaffold
-        }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
-        ) {
-            // Top bar
-            EventsTopBar(
-                currentMonth = displayedMonth,
-                onMenuClick  = onMenuClick,
-                onReturnToCurrentMonth = {
-                    val targetPage = pageForMonth(YearMonth.now()).coerceIn(0, pageCount - 1)
-                    coroutineScope.launch { pagerState.animateScrollToPage(targetPage) }
-                },
-                onOpenMonthPicker = { showMonthPicker = true },
-            )
-
-            Spacer(Modifier.height(Spacing.xs))
-
-            // Calendar pager
-            CalendarPager(
-                eventsByDate    = uiState.eventsByDate,
-                onMonthChanged  = { },
-                onDateTap       = { onEvent(EventsUiEvent.DateTapped(it)) },
-                onDateLongPress = { onEvent(EventsUiEvent.DateLongPressed(it)) },
-                pagerState      = pagerState,
-                modifier        = Modifier
-                    .fillMaxWidth()
-                    .height(390.dp),
-            )
-
-            // Space between calendar and event list = 1/4 of current Calendar height (85dp)
-            Spacer(Modifier.height(85.dp))
-
-            // Item D1: Monthly Events List under the calendar
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = Spacing.lg)
-                    .padding(bottom = 32.dp),
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
             ) {
-                Text(
-                    text       = "Event(s) in this month:",
-                    style      = titleM,
-                    fontWeight = FontWeight.Bold,
-                    color      = AppColor.text,
-                    modifier   = Modifier.padding(bottom = Spacing.md),
+                // Top bar
+                EventsTopBar(
+                    currentMonth = displayedMonth,
+                    onMenuClick  = onMenuClick,
+                    onReturnToCurrentMonth = {
+                        val targetPage = pageForMonth(YearMonth.now()).coerceIn(0, pageCount - 1)
+                        coroutineScope.launch { pagerState.animateScrollToPage(targetPage) }
+                    },
+                    onOpenMonthPicker = { showMonthPicker = true },
                 )
 
-                if (currentMonthEvents.isNotEmpty()) {
-                    Column(
-                        modifier            = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(Spacing.sm),
-                    ) {
-                        currentMonthEvents.forEach { event ->
-                            MonthlyEventRow(
-                                event   = event,
-                                onClick = { onEvent(EventsUiEvent.DateTapped(event.date)) },
-                            )
-                        }
-                    }
-                } else {
+                Spacer(Modifier.height(Spacing.xs))
+
+                // Calendar pager
+                CalendarPager(
+                    eventsByDate    = uiState.eventsByDate,
+                    onMonthChanged  = { },
+                    onDateTap       = { onEvent(EventsUiEvent.DateTapped(it)) },
+                    onDateLongPress = { onEvent(EventsUiEvent.DateLongPressed(it)) },
+                    pagerState      = pagerState,
+                    modifier        = Modifier
+                        .fillMaxWidth()
+                        .height(390.dp),
+                )
+
+                // Space between calendar and event list = 1/4 of current Calendar height (85dp)
+                Spacer(Modifier.height(85.dp))
+
+                // Item D1: Monthly Events List under the calendar
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Spacing.lg)
+                        .padding(bottom = 32.dp),
+                ) {
                     Text(
-                        text     = "No events planned for this month",
-                        style    = bodyM,
-                        color    = AppColor.text2,
-                        modifier = Modifier.padding(vertical = Spacing.xs),
+                        text       = "Event(s) in this month:",
+                        style      = titleM,
+                        fontWeight = FontWeight.Bold,
+                        color      = AppColor.text,
+                        modifier   = Modifier.padding(bottom = Spacing.md),
                     )
+
+                    if (currentMonthEvents.isNotEmpty()) {
+                        Column(
+                            modifier            = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(Spacing.sm),
+                        ) {
+                            currentMonthEvents.forEach { event ->
+                                MonthlyEventRow(
+                                    event   = event,
+                                    onClick = { onEvent(EventsUiEvent.DateTapped(event.date)) },
+                                )
+                            }
+                        }
+                    } else {
+                        Text(
+                            text     = "No events planned for this month",
+                            style    = bodyM,
+                            color    = AppColor.text2,
+                            modifier = Modifier.padding(vertical = Spacing.xs),
+                        )
+                    }
                 }
             }
         }
+
+        AppSnackbar(
+            hostState = snackbarHostState,
+            modifier  = Modifier.align(Alignment.BottomCenter).padding(bottom = 88.dp),
+        )
     }
 
     if (showMonthPicker) {

@@ -99,7 +99,7 @@ private val drawerItems = listOf(
     DrawerItem(Routes.BOOKINGS,  "Booking",            AppIcon.Bookings.fallback),
     DrawerItem(Routes.CHECKLIST, "Item Lists",         AppIcon.Checklist.fallback),
     DrawerItem(Routes.EXPENSES,  "Expenses",           AppIcon.Expenses.fallback),
-    DrawerItem(Routes.INVITEES,  "Invitees",           AppIcon.Invitees.fallback),
+    DrawerItem(Routes.INVITEES,  "Guests",             AppIcon.Invitees.fallback),
     DrawerItem(Routes.SETTINGS,  "Settings",           AppIcon.SettingsIcon.fallback),
 )
 

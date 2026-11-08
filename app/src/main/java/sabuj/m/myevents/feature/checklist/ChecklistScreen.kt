@@ -45,6 +45,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import sabuj.m.myevents.core.icons.EventIconDisplay
 import androidx.hilt.navigation.compose.hiltViewModel
 import sabuj.m.myevents.core.icons.AppIcon
@@ -58,6 +59,7 @@ import sabuj.m.myevents.core.theme.gradientFor
 import sabuj.m.myevents.core.theme.gradientIconColor
 import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.labelM
+import sabuj.m.myevents.core.ui.AppSnackbar
 import sabuj.m.myevents.core.theme.numberL
 import sabuj.m.myevents.core.theme.titleL
 import sabuj.m.myevents.core.theme.titleS
@@ -118,6 +120,7 @@ fun ChecklistScreen(
                 if (uiState.events.isNotEmpty()) {
                     TaskEventTabsRow(
                         events          = uiState.events,
+                        tasks           = uiState.tasks,
                         selectedEventId = uiState.selectedEventId,
                         onTabSelect     = { viewModel.selectEventTab(it) },
                     )
@@ -159,7 +162,7 @@ fun ChecklistScreen(
             modifier           = Modifier.align(Alignment.BottomEnd),
         )
 
-        SnackbarHost(
+        AppSnackbar(
             hostState = snackbarHostState,
             modifier  = Modifier.align(Alignment.BottomCenter).padding(bottom = 88.dp),
         )
@@ -248,32 +251,39 @@ fun ChecklistScreen(
 @Composable
 private fun TaskEventTabsRow(
     events: List<Event>,
+    tasks: List<Task>,
     selectedEventId: String?,
     onTabSelect: (String?) -> Unit,
 ) {
+    val totalPaidAll = tasks.sumOf { it.totalAmountPaise }
     LazyRow(
-        contentPadding        = PaddingValues(horizontal = Spacing.sm),
+        contentPadding        = PaddingValues(horizontal = Spacing.lg),
         horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
     ) {
         item {
             val isSelected = selectedEventId == null
             Surface(
                 onClick  = { onTabSelect(null) },
-                shape    = RoundedCornerShape(Radius.chip),
+                shape    = RoundedCornerShape(Radius.pill),
                 color    = if (isSelected) AppColor.primaryContainer else AppColor.surfaceVariant,
                 modifier = Modifier.height(36.dp),
             ) {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(horizontal = Spacing.md)) {
-                    Text("All", style = labelM, color = if (isSelected) AppColor.primary else AppColor.text2)
+                    Text(
+                        text  = "All (${MoneyFormatter.format(totalPaidAll)})",
+                        style = labelM,
+                        color = if (isSelected) AppColor.onPrimaryContainer else AppColor.text2,
+                    )
                 }
             }
         }
 
         itemsIndexed(events) { _, event ->
             val isSelected = selectedEventId == event.id
+            val totalPaidForEvent = tasks.filter { it.eventId == event.id }.sumOf { it.totalAmountPaise }
             Surface(
                 onClick  = { onTabSelect(event.id) },
-                shape    = RoundedCornerShape(Radius.chip),
+                shape    = RoundedCornerShape(Radius.pill),
                 color    = if (isSelected) AppColor.primaryContainer else AppColor.surfaceVariant,
                 modifier = Modifier.height(36.dp),
             ) {
@@ -287,7 +297,11 @@ private fun TaskEventTabsRow(
                         modifier           = Modifier.size(18.dp),
                     )
                     Spacer(Modifier.width(Spacing.xs))
-                    Text(event.title, style = labelM, color = if (isSelected) AppColor.primary else AppColor.text2)
+                    Text(
+                        text  = "${event.title} (${MoneyFormatter.format(totalPaidForEvent)})",
+                        style = labelM,
+                        color = if (isSelected) AppColor.onPrimaryContainer else AppColor.text2,
+                    )
                 }
             }
         }
@@ -421,7 +435,7 @@ internal fun ItemListCard(
 
             Spacer(Modifier.height(2.dp))
 
-            // Row 2: [Task Icon 32dp flush left] | Total X item(s) • Remaining Y item(s)
+            // Row 2: [Task Icon 32dp flush left] | Total X item(s) • Collected Y item(s)
             //                                      Progress Bar (10dp)
             Row(
                 modifier          = Modifier.fillMaxWidth(),
@@ -469,12 +483,23 @@ internal fun ItemListCard(
 
             Spacer(Modifier.height(8.dp))
 
-            // Row 3 (Bottom Row): [All items collected? Pill] (left) | [Complete by Pill] (right)
+            // Row 3 (Bottom Row): [Event Name] (left) | [All items collected? Pill] (middle) | [Complete by / Completed on Pill] (right)
             Row(
                 modifier              = Modifier.fillMaxWidth(),
                 verticalAlignment     = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
+                // Left 1/3: Event Name (starting of 3rd row, same font as Total items line: bodyM)
+                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
+                    Text(
+                        text     = event?.title ?: "General",
+                        style    = bodyM,
+                        color    = AppColor.text2,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+
+                // Middle 1/3: Pending items / All collected Pill (Center aligned)
                 val isAllCollected = remItems == 0 || task.completed || progress >= 1f
                 val collectedText = if (isAllCollected) {
                     if (totalItems <= 1) "All item collected" else "All items collected"
@@ -482,15 +507,26 @@ internal fun ItemListCard(
                     if (remItems == 1) "1 item pending" else "$remItems items pending"
                 }
                 val collectedVariant = if (isAllCollected) PillVariant.Success else PillVariant.Warning
-                Pill(text = collectedText, variant = collectedVariant)
+                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                    Pill(text = collectedText, variant = collectedVariant)
+                }
 
-                if (!isAllCollected && task.dueDate != null) {
-                    val daysLeft = DateUtils.daysUntil(task.dueDate)
-                    val variant = if (daysLeft < 0L) PillVariant.Danger else PillVariant.Warning
-                    Pill(
-                        text    = "Complete by ${DateUtils.formatShort(task.dueDate)}",
-                        variant = variant,
-                    )
+                // Right 1/3: Complete by / Completed on Pill (Right aligned)
+                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+                    if (isAllCollected) {
+                        val dateText = task.dueDate?.let { DateUtils.formatShort(it) } ?: DateUtils.formatShort(task.updatedAt)
+                        Pill(
+                            text    = "Completed on $dateText",
+                            variant = PillVariant.Success,
+                        )
+                    } else if (task.dueDate != null) {
+                        val daysLeft = DateUtils.daysUntil(task.dueDate)
+                        val variant = if (daysLeft < 0L) PillVariant.Danger else PillVariant.Warning
+                        Pill(
+                            text    = "Complete by ${DateUtils.formatShort(task.dueDate)}",
+                            variant = variant,
+                        )
+                    }
                 }
             }
         }

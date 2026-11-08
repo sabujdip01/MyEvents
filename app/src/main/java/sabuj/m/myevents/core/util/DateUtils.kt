@@ -42,6 +42,13 @@ object DateUtils {
     /** "15 Jan" */
     fun formatShort(date: LocalDate): String = date.format(shortFormatter)
 
+    /** "15 Jan" from epoch milliseconds */
+    fun formatShort(epochMillis: Long): String =
+        java.time.Instant.ofEpochMilli(epochMillis)
+            .atZone(java.time.ZoneId.systemDefault())
+            .toLocalDate()
+            .format(shortFormatter)
+
     /** "January 2025" */
     fun formatMonth(yearMonth: YearMonth): String = yearMonth.format(monthFormatter)
 

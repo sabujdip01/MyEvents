@@ -1,9 +1,10 @@
 # Version History
 
-Current: V0.T.32
+Current: V0.T.33
 
 | Version  | Phase | Build | Commit    | Summary                                                                                             |
 | -------- |-------|-------|-----------|-----------------------------------------------------------------------------------------------------|
+| V0.T.33  | Test  | 33    | -         | fix(leftovers): theme undo toast, nav Guests rename, event undo, checklist paid sum & card row 3 |
 | V0.T.32  | Test  | 32    | f042d55   | fix(expenses): title gap +20%, 'Total' label under total col, card padding 4dp                      |
 | V0.T.31  | Test  | 31    | fa752d6   | fix(expenses): gap +20%, total col right, footer labels +25%, weights rebalanced                    |
 | V0.T.30  | Test  | 30    | 79f4343   | fix(expenses): pill colors, font +25%, footer text, gap +20%, due pill warning                      |
