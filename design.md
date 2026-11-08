@@ -581,41 +581,39 @@ Spacing: 12 dp between cards, 16 dp sides, 32 dp bottom padding.
 
 ### 6.7 Expenses
 ```
-+------------------------------+
-| (=)  Expenses                |
-| [Engagement][Wedding][Recep.>|
-| [search.....................]|
-| (All)(Due pending)(Items pend)|
-| +--------------------------+ |
-| |Purpose|Amount|Due|Items|v | |
-| |Photog.|25,000|  -|...|(o)| |
-| |Flowers| 8,000|2k |+2 |( )| |
-| |TOTAL  |33,000|2k |   |   | |
-| +--------------------------+ |
-|                      [del]   |
-|                      [edit]  |
-|                      [ + ]   |
-+------------------------------+
++----------------------------------------------+
+| (=)  Expenses                                |
+| [All Events][Engagement][Wedding ▶]          |
+| [search................................]      |
+| (All)(Bookings)(Item Lists)(Due)(Paid)        |
+|                                              |
+| [icon] Photography (Booking)   ₹25,000  ₹18k  ₹7k  [Due]  |
+|        Wedding                           paid   due         |
+| [icon] Flowers (Item List)     ₹8,000   ₹8,000      [Paid] |
+|        Engagement                        paid               |
+|                                              |
+| Total items 2    ₹33,000  ₹26,000  ₹7,000   |
+| Budget ₹50,000     Total    Total    Total   |
+|                             paid     due     |
++----------------------------------------------+
 ```
-- `.topbar` with title "Expenses". Under it: `.tabs` (one `.tab` per event, with event icon, selected = `primaryContainer`). Then `.searchbar` (margin 12 top), then a horizontally scrolling `.chip` row: All, Due pending, Items pending (single select).
-- **Table (`.table`)** with columns and widths: **Purpose 140** (sticky, `title-s`), **Amount 96** (right-aligned, tabular), **Due 96** (right-aligned; `danger` text when above 0, `text3` "—" when 0), **Items 168** (first item name `body-m`, then a `.pill` "+2" if more; tap opens a small popover list `surface`, radius 16), **Received 80** (centred: green `ic-check` in a 24 dp `success-container` circle when all received; empty 2 dp `outline` ring otherwise).
-- **Booking rows** use `.table-row--readonly`: Purpose shows the booking title with `ic-lock` 14 and a `.pill` "Booking"; Amount equals the booking's paid; Due equals the amount left; Items "—".
-- **Total row** (`.table-total`) is pinned to the table bottom: "Total" in the Purpose column, sums in Amount and Due (Due in `danger` if above 0).
-- Table card bottom margin 112 dp so the FAB stack never covers it.
-- **Empty (per tab):** compact `.empty-state` inside the table area with `ic-expenses`, "No expenses for this event", `.btn--primary` "Add expense".
-- **`.fab-stack`:** Delete (`.fab--danger`, `ic-delete`), Edit (`.fab--sm`, `ic-edit`), Add (`.fab`, `ic-add`).
-
-**Add Expense (`.sheet--form`)**
-- Fields: Purpose; **Events** (label, then wrapping `.chip--event` multi-select; at least one required; the current tab's event is preselected); Amount paid (`.field--money`); Amount due (`.field--money`, optional); **Items** (`.item-list`: first box has hint "Item name"; when the last box has text, a new empty one appears); **All items collected/bought** (a row with `.switch` and `body-l` label); Sticky `.btn-row` Cancel, Save.
-- A `.pill` under Events reads "Creates 2 separate rows" when two or more events are picked.
-
-**Edit mode** (tap the Edit FAB)
-- A banner `.card` (height 48, `primaryContainer`, `ic-edit`, "Editing: tap a cell to change") sits above the table. All non-booking cells become underline `.field` cells (height 44, `body-m`); the Received cell becomes a tappable `.checkbox--success`; Items opens a `.sheet` with `.item-list`. Booking rows stay locked.
-- FAB stack becomes: Done (`.fab` with `ic-check`) and Cancel (`.fab--sm` with `ic-close`). Only the current event's rows change.
-
-**Delete mode** (tap the Delete FAB)
-- A `.table-select` column slides in on the left with `.checkbox`; header checkbox selects all; booking rows have a disabled lock instead of a checkbox.
-- A bottom bar (height 72, `surface`, top border) replaces the FABs: Cancel (`.btn--tonal`) and "Delete (3)" (`.btn--danger`, count live). Confirm with a `.dialog`, then a `.snackbar` with UNDO.
+- `.topbar` with title "Expenses". Under it: `.tabs` (one pill per event with event icon + total amount, "All" pill first; `primaryContainer` when selected). Then `.searchbar` (height 48, `Radius.field`). Then a horizontally scrolling chip row: **All · Bookings · Item Lists · Due · Paid** (single-select, `primaryContainer` when active).
+- **Expense cards (`.expense-row-card`)** — full-width (`fillMaxWidth`, no outer padding, same as booking cards), `surface` background, 0.8 dp `outlineVariant` border, `shadowElevation = 1 dp`, duotone gradient overlay, `padding(vertical = 4 dp, horizontal = 4 dp)` inner. Four relative-weight columns:
+  - **9% Icon col** (`CenterStart`): 32 dp circle `primaryContainer` background containing the actual `BookingIcon` chosen for the booking/task (PNG via `Image` if `customRes != null`, else vector `fallback`); direct expenses show generic category icon.
+  - **35% Title col**: Booking/task title (`labelL`, `text`) on line 1; 1 dp spacer; event name (`bodyM` 12 sp, `text2`) on line 2; both `maxLines = 1, overflow = Ellipsis`.
+  - **44% Amounts col** (3 equal sub-cols, right-aligned):
+    - **Total**: amount (`bodyM` 17.5 sp Bold, `text`)
+    - **Paid**: amount (`bodyM` 13 sp SemiBold, `onSuccessContainer`) + 1 dp spacer + "paid" label (`bodyM` 12.5 sp, `onSuccessContainer`); blank when paid = 0
+    - **Due**: amount (`bodyM` 13 sp SemiBold, `onWarningContainer`) + 1 dp spacer + "due" label (`bodyM` 12.5 sp, `onWarningContainer`); `padding(end = 8 dp)` shifts column slightly left; blank when due = 0
+  - **12% Pill col** (`CenterEnd`): `Pill(Success)` "Paid" or `Pill(Warning)` "Due"
+- **Summary footer (`.summary-footer`)** — sticky at screen bottom above Android nav bar (`navigationBarsPadding + padding(bottom = 6 dp)`), full-width `primaryContainer` Surface with `Radius.field`. Two rows, same 4-column weight structure as card (9%+35% = 44% | 44% | 12%):
+  - **Row 1 (values):** "Total items N" (`labelL Bold`, `onPrimaryContainer`) spanning 44% | Total sum (`labelL Bold`) · Paid sum (`labelL`, `onSuccessContainer`) · Due sum (`labelL`, `onWarningContainer`) in 44% | 12% spacer. Due value has `padding(end = 8 dp)`.
+  - **4 dp spacer** between rows.
+  - **Row 2 (labels):** "Budget ₹X" (`labelL`, `onPrimaryContainer`) spanning 44% | "Total" · "Total paid" · "Total due" (`bodyM` 12.5 sp) in 44% | 12% spacer. Colors: Total = `text2`, Paid = `onSuccessContainer`, Due = `onWarningContainer`.
+  - Over-budget warning: "⚠️ Over Budget by ₹X" (`titleS`, `danger`) appears above Row 1 when `grandTotal > budget`.
+- **Empty state:** `titleL` "No expenses found" centred; shown when filtered list is empty.
+- **Read-only cards:** Bookings → `sourceIcon = booking.bookingIcon`; Item Lists → `sourceIcon = task.icon`; Direct expenses → `sourceIcon = null` (category icon fallback).
+- **No FABs / edit / delete modes** on this screen — all data is read-only, sourced from Bookings and Item Lists.
 
 ### 6.8 Invitees
 ```

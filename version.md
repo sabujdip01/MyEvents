@@ -4,12 +4,12 @@ Current: V0.T.32
 
 | Version  | Phase | Build | Commit    | Summary                                                                                             |
 | -------- |-------|-------|-----------|-----------------------------------------------------------------------------------------------------|
-| V0.T.32  | Test  | 32    | -         | fix(expenses): title gap +20%, 'Total' label under total col, card padding 4dp                      |
-| V0.T.31  | Test  | 31    | -         | fix(expenses): gap +20%, total col right, footer labels +25%, weights rebalanced                    |
-| V0.T.30  | Test  | 30    | -         | fix(expenses): pill colors, font +25%, footer text, gap +20%, due pill warning                      |
-| V0.T.29  | Test  | 29    | -         | fix(expenses): full-width cards, icon shift left, due col shift, footer 6dp, total card text        |
-| V0.T.28  | Test  | 28    | -         | feat(expenses): actual booking icons on cards, sticky footer, column-aligned totals row             |
-| V0.T.27  | Test  | 27    | -         | fix(expenses): read-only view, tabular Excel card layout, sum pills & footer position              |
+| V0.T.32  | Test  | 32    | f042d55   | fix(expenses): title gap +20%, 'Total' label under total col, card padding 4dp                      |
+| V0.T.31  | Test  | 31    | fa752d6   | fix(expenses): gap +20%, total col right, footer labels +25%, weights rebalanced                    |
+| V0.T.30  | Test  | 30    | 79f4343   | fix(expenses): pill colors, font +25%, footer text, gap +20%, due pill warning                      |
+| V0.T.29  | Test  | 29    | cc09521   | fix(expenses): full-width cards, icon shift left, due col shift, footer 6dp, total card text        |
+| V0.T.28  | Test  | 28    | a194b98   | feat(expenses): actual booking icons on cards, sticky footer, column-aligned totals row             |
+| V0.T.27  | Test  | 27    | b585ad4   | fix(expenses): read-only view, tabular Excel card layout, sum pills & footer position              |
 | V0.T.26  | Test  | 26    | 3044439   | fix(home): card reorder & rename, spent calc, guest card 2-col layout & 36dp view event icon       |
 | V0.T.25  | Test  | 25    | 51e709c   | fix(checklist): hide complete-by pill when all collected & ignore blank row deletions in save check |
 | V0.T.24  | Test  | 24    | f465f93   | fix(checklist): initial edit save state, exclude blank items from count & Room v7 migration          |
