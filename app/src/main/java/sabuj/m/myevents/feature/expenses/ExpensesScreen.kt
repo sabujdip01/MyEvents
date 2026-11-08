@@ -363,22 +363,22 @@ private fun SummaryFooter(
                 )
             }
 
-            // Row 1: values — columns match card weights (9% icon | 29% title | 50% amounts | 12% pill)
+            // Row 1: values — columns match card weights (9%+35% label | 44% amounts | 12% pill)
             Row(
                 modifier          = Modifier.fillMaxWidth().padding(horizontal = Spacing.xs),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // 9%+29% combined — "Total items N" as a single text spanning icon+title cols
+                // 44% combined — "Total items N" spanning icon+title cols
                 Text(
                     text       = "Total items $totalItemsCount",
                     style      = labelL,
                     fontWeight = FontWeight.Bold,
                     color      = AppColor.onPrimaryContainer,
                     maxLines   = 1,
-                    modifier   = Modifier.weight(0.38f),
+                    modifier   = Modifier.weight(0.44f),
                 )
-                // 50% — three equal sub-cols: Total | Paid | Due sums
-                Row(Modifier.weight(0.50f)) {
+                // 44% — three equal sub-cols: Total | Paid | Due sums
+                Row(Modifier.weight(0.44f)) {
                     Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
                         Text(
                             text       = MoneyFormatter.format(grandTotalPaise),
@@ -418,20 +418,20 @@ private fun SummaryFooter(
                 modifier          = Modifier.fillMaxWidth().padding(horizontal = Spacing.xs),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // 9%+29% combined — "Budget ₹X" in same labelL font as Row 1
+                // 44% combined — "Budget ₹X" in same labelL font as Row 1
                 Text(
                     text     = "Budget ${MoneyFormatter.format(totalBudgetPaise)}",
                     style    = labelL,
                     color    = AppColor.onPrimaryContainer,
                     maxLines = 1,
-                    modifier = Modifier.weight(0.38f),
+                    modifier = Modifier.weight(0.44f),
                 )
-                // 50% — three label sub-cols
-                Row(Modifier.weight(0.50f)) {
+                // 44% — three label sub-cols at +25% font (10sp → 12.5sp)
+                Row(Modifier.weight(0.44f)) {
                     Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
                         Text(
                             text     = "Total amount",
-                            style    = bodyM.copy(fontSize = 10.sp),
+                            style    = bodyM.copy(fontSize = 12.5.sp),
                             color    = AppColor.text2,
                             maxLines = 1,
                         )
@@ -439,7 +439,7 @@ private fun SummaryFooter(
                     Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
                         Text(
                             text     = "Total paid",
-                            style    = bodyM.copy(fontSize = 10.sp),
+                            style    = bodyM.copy(fontSize = 12.5.sp),
                             color    = AppColor.onSuccessContainer,
                             maxLines = 1,
                         )
@@ -447,7 +447,7 @@ private fun SummaryFooter(
                     Box(Modifier.weight(1f).padding(end = 8.dp), contentAlignment = Alignment.CenterEnd) {
                         Text(
                             text     = "Total due",
-                            style    = bodyM.copy(fontSize = 10.sp),
+                            style    = bodyM.copy(fontSize = 12.5.sp),
                             color    = AppColor.onWarningContainer,
                             maxLines = 1,
                         )
@@ -493,7 +493,7 @@ private fun ExpenseRowCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(gradient)
-                .padding(horizontal = Spacing.xs, vertical = 6.dp),
+                .padding(horizontal = Spacing.xs, vertical = 5.dp), // height kept same (1dp spacer inside paid/due col compensated)
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // 1. ~9% (was 13% — 30% narrower) Icon col: shifted left via CenterStart alignment
@@ -539,9 +539,9 @@ private fun ExpenseRowCard(
                 }
             }
 
-            // 2. 29% Title col (expanded from 25% since icon col is narrower now)
+            // 2. 35% Title col (expanded — amounts reduced to 44% to push them right, giving title room)
             Column(
-                modifier            = Modifier.weight(0.29f),
+                modifier            = Modifier.weight(0.35f),
                 verticalArrangement = Arrangement.Center,
             ) {
                 Text(
@@ -560,9 +560,9 @@ private fun ExpenseRowCard(
                 )
             }
 
-            // 3. 50% Relative Width: 3 Excel-like Tabular Columns (Right aligned with 15% increased amounts font & text as subtitle)
+            // 3. Amounts section — 44% (reduced from 50% to push columns right, giving title more space)
             Row(
-                modifier          = Modifier.weight(0.50f),
+                modifier          = Modifier.weight(0.44f),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 // Col 1: Total Amount (+25% font: 14sp → 17.5sp)
@@ -576,7 +576,7 @@ private fun ExpenseRowCard(
                     )
                 }
 
-                // Col 2: Paid Amount — Success pill text color for both value and label
+                // Col 2: Paid Amount — Success pill text color; +1dp gap between value and label
                 Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
                     if (expense.paidAmountPaise > 0L) {
                         Column(horizontalAlignment = Alignment.End) {
@@ -587,9 +587,10 @@ private fun ExpenseRowCard(
                                 maxLines  = 1,
                                 textAlign = TextAlign.End,
                             )
+                            Spacer(Modifier.height(1.dp)) // +20% gap (implicit → 1dp)
                             Text(
                                 text      = "paid",
-                                style     = bodyM.copy(fontSize = 12.5.sp),  // +25%
+                                style     = bodyM.copy(fontSize = 12.5.sp),
                                 color     = AppColor.onSuccessContainer,
                                 maxLines  = 1,
                                 textAlign = TextAlign.End,
@@ -609,9 +610,10 @@ private fun ExpenseRowCard(
                                 maxLines  = 1,
                                 textAlign = TextAlign.End,
                             )
+                            Spacer(Modifier.height(1.dp)) // +20% gap (implicit → 1dp)
                             Text(
                                 text      = "due",
-                                style     = bodyM.copy(fontSize = 12.5.sp),  // +25%
+                                style     = bodyM.copy(fontSize = 12.5.sp),
                                 color     = AppColor.onWarningContainer,
                                 maxLines  = 1,
                                 textAlign = TextAlign.End,

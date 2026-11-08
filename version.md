@@ -1,9 +1,10 @@
 # Version History
 
-Current: V0.T.30
+Current: V0.T.31
 
 | Version  | Phase | Build | Commit    | Summary                                                                                             |
 | -------- |-------|-------|-----------|-----------------------------------------------------------------------------------------------------|
+| V0.T.31  | Test  | 31    | -         | fix(expenses): gap +20%, total col right, footer labels +25%, weights rebalanced                    |
 | V0.T.30  | Test  | 30    | -         | fix(expenses): pill colors, font +25%, footer text, gap +20%, due pill warning                      |
 | V0.T.29  | Test  | 29    | -         | fix(expenses): full-width cards, icon shift left, due col shift, footer 6dp, total card text        |
 | V0.T.28  | Test  | 28    | -         | feat(expenses): actual booking icons on cards, sticky footer, column-aligned totals row             |
