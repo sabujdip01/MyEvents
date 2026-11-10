@@ -144,17 +144,17 @@ fun AddEditInviteeSheet(
             InviteeTextField(
                 value          = name,
                 onValueChange  = onNameChange,
-                label          = "Relative / Family Name",
+                label          = "Relative / Family name",
                 placeholder    = "e.g. Sharma Family",
                 isError        = nameError != null,
                 supportingText = nameError,
             )
 
-            Spacer(Modifier.height(10.dp)) // field → multi-select section
+            Spacer(Modifier.height(10.dp)) // field → single-select section
 
-            // For events multi-select
+            // For event single-select
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(text = "For Events (Invitees Required)", style = labelM, color = AppColor.text2)
+                Text(text = "For event", style = labelM, color = AppColor.text2)
                 if (eventsError != null) {
                     Text(text = eventsError, style = bodyM, color = AppColor.danger)
                 }
@@ -173,7 +173,12 @@ fun AddEditInviteeSheet(
                                 .clip(RoundedCornerShape(Radius.chip))
                                 .background(chipBg)
                                 .border(1.dp, chipBorder, RoundedCornerShape(Radius.chip))
-                                .clickable { if (!isEdit) onToggleEventSelection(event.id) }
+                                .clickable {
+                                    if (!isEdit) {
+                                        // Single-select: selecting another event deselects the previous one
+                                        onToggleEventSelection(event.id)
+                                    }
+                                }
                                 .padding(horizontal = 12.dp, vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
@@ -196,16 +201,17 @@ fun AddEditInviteeSheet(
 
             // Expected guests count stepper (Item H3)
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(text = "Expected Guests Count", style = labelM, color = AppColor.text2)
+                Text(text = "Expected no. of guests", style = labelM, color = AppColor.text2)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
+                    // Minus button — 25% smaller than original 40dp = 30dp
                     Surface(
                         onClick  = { if (expectedCount > 1) onExpectedCountChange(expectedCount - 1) },
                         shape    = CircleShape,
                         color    = AppColor.primaryContainer,
-                        modifier = Modifier.size(40.dp),
+                        modifier = Modifier.size(30.dp),
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Text("-", style = titleL, color = AppColor.primary)
@@ -218,11 +224,12 @@ fun AddEditInviteeSheet(
                         color = AppColor.text,
                     )
 
+                    // Plus button — 25% smaller than original 40dp = 30dp
                     Surface(
                         onClick  = { onExpectedCountChange(expectedCount + 1) },
                         shape    = CircleShape,
                         color    = AppColor.primaryContainer,
-                        modifier = Modifier.size(40.dp),
+                        modifier = Modifier.size(30.dp),
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Text("+", style = titleL, color = AppColor.primary)
@@ -247,7 +254,7 @@ fun AddEditInviteeSheet(
             InviteeTextField(
                 value         = note,
                 onValueChange = onNoteChange,
-                label         = "Note / Comments (Optional)",
+                label         = "Note",
                 placeholder   = "e.g. Needs accommodation",
             )
 
@@ -259,7 +266,7 @@ fun AddEditInviteeSheet(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text     = "Invited / Card sent",
+                    text     = "Invited ?",
                     style    = labelL,
                     color    = AppColor.text,
                     modifier = Modifier.weight(1f),
@@ -279,11 +286,11 @@ fun AddEditInviteeSheet(
 
             Spacer(Modifier.height(10.dp))
 
-            // Invitation Type picker (None / Call / Card)
+            // Invitation type picker — Call and Card only (None excluded)
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(text = "Invitation Type", style = labelM, color = AppColor.text2)
+                Text(text = "Invitation through", style = labelM, color = AppColor.text2)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    InvitationType.entries.forEach { type ->
+                    listOf(InvitationType.Call, InvitationType.Card).forEach { type ->
                         val isSelected = invitationType == type
                         val chipBg     = if (isSelected) AppColor.primaryContainer else AppColor.surfaceVariant
                         val chipBorder = if (isSelected) AppColor.primary else AppColor.outline

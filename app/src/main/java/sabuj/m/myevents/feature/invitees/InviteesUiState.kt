@@ -105,6 +105,9 @@ data class InviteesUiState(
     /** Number of unique family rows in filtered list. */
     val totalFamilies: Int get() = filteredInvitees.size
 
+    /** Number of invited family rows in filtered list (invited = true). */
+    val totalInvitedFamilies: Int get() = filteredInvitees.count { it.invited }
+
     /** Filtered list of gifts according to selected event. */
     val filteredGifts: List<Gift>
         get() = if (selectedEventId == null) gifts else gifts.filter { it.eventId == selectedEventId }

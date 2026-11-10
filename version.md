@@ -1,9 +1,10 @@
 # Version History
 
-Current: V0.T.38
+Current: V0.T.39
 
 | Version  | Phase | Build | Commit    | Summary                                                                                             |
 | -------- |-------|-------|-----------|-----------------------------------------------------------------------------------------------------|
+| V0.T.39  | Test  | 39    | -         | feat(guests): footer redesign, top bar icons, sheet labels, single-select, extra cards dialog       |
 | V0.T.38  | Test  | 38    | -         | feat(guests): excel-style 5-col card, 1-line layout, home card shows X/Y guests and families        |
 | V0.T.37  | Test  | 37    | -         | docs(guests): add screen previews, testcases GT-01..GT-39, update design.md 6.8                     |
 | V0.T.36  | Test  | 36    | -         | feat(guests): rewrite guests screen with expense-style layout and invitation type                   |
