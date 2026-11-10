@@ -5,6 +5,8 @@ import sabuj.m.myevents.core.icons.EventIcon
 import sabuj.m.myevents.domain.model.Booking
 import sabuj.m.myevents.domain.model.BookingPayment
 import sabuj.m.myevents.domain.model.Event
+import sabuj.m.myevents.domain.model.Invitee
+import sabuj.m.myevents.domain.model.InvitationType
 import sabuj.m.myevents.domain.model.SyncState
 import java.time.LocalDate
 import java.util.UUID
@@ -123,5 +125,48 @@ object PreviewData {
         updatedAt        = System.currentTimeMillis(),
         syncState        = SyncState.PENDING,
         deleted          = false,
+    )
+
+    /** Sample [Invitee] list for preview composables. */
+    val sampleInvitees: List<Invitee> = listOf(
+        Invitee(
+            id             = "inv-preview-1",
+            eventId        = "evt-preview-2",
+            groupId        = "grp-preview-1",
+            name           = "Sharma Family",
+            expectedCount  = 4,
+            address        = "123 MG Road, Bengaluru",
+            invited        = true,
+            note           = "VIP guests",
+            invitationType = InvitationType.Card,
+            createdAt      = System.currentTimeMillis(),
+            updatedAt      = System.currentTimeMillis(),
+        ),
+        Invitee(
+            id             = "inv-preview-2",
+            eventId        = "evt-preview-2",
+            groupId        = "grp-preview-2",
+            name           = "Verma Uncle",
+            expectedCount  = 2,
+            address        = "45 Park Street, Mumbai",
+            invited        = false,
+            note           = "",
+            invitationType = InvitationType.Call,
+            createdAt      = System.currentTimeMillis(),
+            updatedAt      = System.currentTimeMillis(),
+        ),
+        Invitee(
+            id             = "inv-preview-3",
+            eventId        = "evt-preview-1",
+            groupId        = "grp-preview-3",
+            name           = "Gupta Family",
+            expectedCount  = 6,
+            address        = "78 Civil Lines, Delhi",
+            invited        = true,
+            note           = "",
+            invitationType = InvitationType.Card,
+            createdAt      = System.currentTimeMillis(),
+            updatedAt      = System.currentTimeMillis(),
+        ),
     )
 }

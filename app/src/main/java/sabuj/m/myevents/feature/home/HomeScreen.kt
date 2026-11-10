@@ -187,10 +187,11 @@ private fun HomeContent(
 
                 // 7. Guests
                 InviteesCard(
-                    totalGuests     = state.totalGuests,
-                    invitedGuests   = state.invitedGuests,
-                    totalFamilies   = state.totalFamilies,
-                    invitedFamilies = state.invitedFamilies,
+                    totalGuests      = state.totalGuests,
+                    invitedGuests    = state.invitedGuests,
+                    totalFamilies    = state.totalFamilies,
+                    invitedFamilies  = state.invitedFamilies,
+                    invitationCards  = state.invitationCards,
                 )
 
                 // Navigation bar padding prevents overlap with Android system nav bar
@@ -536,6 +537,7 @@ private fun InviteesCard(
     invitedGuests: Int,
     totalFamilies: Int,
     invitedFamilies: Int,
+    invitationCards: Int,
     modifier: Modifier = Modifier,
 ) {
     HomeCard(modifier = modifier) {
@@ -589,7 +591,7 @@ private fun InviteesCard(
                         Text(
                             text = buildAnnotatedString {
                                 withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
-                                    append("$invitedFamilies")
+                                    append("$invitationCards")
                                 }
                             },
                             textAlign = TextAlign.Center,
@@ -697,6 +699,7 @@ private fun HomeScreenFilledPreview() {
                 invitedGuests      = 120,
                 totalFamilies      = 42,
                 invitedFamilies    = 30,
+                invitationCards    = 35,
                 itemsPending       = 8,
             ),
             onMenuClick        = {},

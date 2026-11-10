@@ -53,6 +53,7 @@ import sabuj.m.myevents.core.theme.labelM
 import sabuj.m.myevents.core.theme.titleL
 import sabuj.m.myevents.core.ui.AppButtonRow
 import sabuj.m.myevents.domain.model.Event
+import sabuj.m.myevents.domain.model.InvitationType
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -65,6 +66,7 @@ fun AddEditInviteeSheet(
     onExpectedCountChange: (Int) -> Unit,
     onAddressChange: (String) -> Unit,
     onInvitedChange: (Boolean) -> Unit,
+    onInvitationTypeChange: (InvitationType) -> Unit,
     onNoteChange: (String) -> Unit,
     onSave: () -> Unit,
 ) {
@@ -77,6 +79,7 @@ fun AddEditInviteeSheet(
     val note: String
     val nameError: String?
     val eventsError: String?
+    val invitationType: InvitationType
 
     val inviteeEvents = events.filter { it.inviteesRequired }
 
@@ -90,6 +93,7 @@ fun AddEditInviteeSheet(
             note = sheetState.note
             nameError = sheetState.nameError
             eventsError = sheetState.eventsError
+            invitationType = sheetState.invitationType
         }
         is InviteeSheetState.EditInvitee -> {
             name = sheetState.name
@@ -100,6 +104,7 @@ fun AddEditInviteeSheet(
             note = sheetState.note
             nameError = sheetState.nameError
             eventsError = null
+            invitationType = sheetState.invitationType
         }
         else -> return
     }
@@ -272,6 +277,44 @@ fun AddEditInviteeSheet(
                 )
             }
 
+            Spacer(Modifier.height(10.dp))
+
+            // Invitation Type picker (None / Call / Card)
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(text = "Invitation Type", style = labelM, color = AppColor.text2)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    InvitationType.entries.forEach { type ->
+                        val isSelected = invitationType == type
+                        val chipBg     = if (isSelected) AppColor.primaryContainer else AppColor.surfaceVariant
+                        val chipBorder = if (isSelected) AppColor.primary else AppColor.outline
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(Radius.chip))
+                                .background(chipBg)
+                                .border(1.dp, chipBorder, RoundedCornerShape(Radius.chip))
+                                .clickable { onInvitationTypeChange(type) }
+                                .padding(horizontal = 12.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            if (isSelected) {
+                                Icon(
+                                    imageVector        = Icons.Rounded.Check,
+                                    contentDescription = null,
+                                    tint               = AppColor.primary,
+                                    modifier           = Modifier.size(16.dp),
+                                )
+                                Spacer(Modifier.width(4.dp))
+                            }
+                            Text(
+                                text  = type.name,
+                                style = labelL,
+                                color = if (isSelected) AppColor.primary else AppColor.text,
+                            )
+                        }
+                    }
+                }
+            }
+
             Spacer(Modifier.height(16.dp)) // before buttons
 
             val isSaveEnabled = name.isNotBlank() && (isEdit || selectedEventIds.isNotEmpty())
@@ -338,6 +381,7 @@ private fun AddInviteeSheetPreview() {
             onExpectedCountChange  = {},
             onAddressChange        = {},
             onInvitedChange        = {},
+            onInvitationTypeChange = {},
             onNoteChange           = {},
             onSave                 = {},
         )
@@ -365,6 +409,7 @@ private fun EditInviteeSheetPreview() {
             onExpectedCountChange  = {},
             onAddressChange        = {},
             onInvitedChange        = {},
+            onInvitationTypeChange = {},
             onNoteChange           = {},
             onSave                 = {},
         )
