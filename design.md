@@ -615,30 +615,63 @@ Spacing: 12 dp between cards, 16 dp sides, 32 dp bottom padding.
 - **Read-only cards:** Bookings → `sourceIcon = booking.bookingIcon`; Item Lists → `sourceIcon = task.icon`; Direct expenses → `sourceIcon = null` (category icon fallback).
 - **No FABs / edit / delete modes** on this screen — all data is read-only, sourced from Bookings and Item Lists.
 
-### 6.8 Invitees
+### 6.8 Guests (Invitees)
 ```
-+------------------------------+
-| (=)  Invitees                |
-| [Engagement][Wedding]        |
-| [ Guests | Gifts ]           |
-| [search.....................]|
-| (All)(Invited)(Not invited)  |
-| +--------------------------+ |
-| |Name  |Count|Address |Inv| |
-| |Sharma|  4  |Delhi...|(o)| |
-| |FOOTER 185 guests 42 fam  | |
-| +--------------------------+ |
-|                      [fab x3]|
-+------------------------------+
++-------------------------------------------+
+| (=)  Guests                          [Add] |
+| [Engagement (45)][Wedding (120)]           |
+| [search..................................] |
+| (All)(Invited)(Not invited)                |
+| +---------------------------------------+ |
+| | Guest Name   | Count | Invite | Status | |
+| | Sharma Family| 4     |  Card  |Invited | |
+| |  Wedding      |       | Invit. |        | |
+| +---------------------------------------+ |
+| | Total        | 185   |   42   |   38   | |
+| | (label)      |Guests | Cards  |Families| |
++-------------------------------------------+
 ```
-- Tabs only for events where Invitees required is Yes. Under the tabs, a full-width `.segmented` with "Guests" and "Gifts" (height 44).
-- **Guests table columns:** **Relative name 150** (sticky, `title-s`), **Expected count 88** (centred, tabular), **Address 190** (`body-m`, 2 lines max, ellipsis; `ic-note` 14 dp at the end when a note exists, tap shows the note), **Invited 80** (centred): invited = 24 dp `success` filled circle with a white check that draws in 250 ms; not invited = 2 dp `outline` ring. Tapping the circle in normal mode toggles it with a light haptic.
-- **Footer (`.table-total`):** two `.pill` blocks inside: "185 guests" (`ic-invitees`) and "42 families" (`ic-home`); guests = sum of expected counts, families = number of rows.
-- Search matches name and address. Filters: All / Invited / Not invited.
-- **FABs, add, edit and delete modes:** same as Expenses (6.7).
-- **Add Invitee (`.sheet--form`):** Relative name; Events (`.chip--event` multi-select, only events needing invitees); Expected attendee count (numeric stepper `.field` with minus and plus buttons 40 dp); Address (`.field`, multi-line, 3 lines, plain text); Invited (`.switch`, success colour when on); Note (`.field`, multi-line); Cancel, Save. "Creates 2 separate rows" pill as in Expenses.
-- **Gifts tab:** table columns: **Giver 150**, **Gift / Amount 140** (amount in `number-m`, or text with `ic-gift`), **Event 110** (`.pill` with icon), **Invitee 120** (linked name or "—"). Footer: "Total received ₹X" in `success` with `ic-gift`. Add Gift sheet: Giver name, Type (`.segmented` Cash / Gift), Amount or Description, Event (`.field--dropdown`), Link to invitee (optional `.field--dropdown`), Cancel, Save.
-- **Empty:** "No invitees yet" with `ic-invitees` and "Add invitee" button. If no event requires invitees: "No events need guests. Turn on Invitees required for an event."
+- **Top bar:** Title "Guests", right-side "Add" text button. **Tap Add** → Add Guest popup. **Long-press Add** → Extra Cards popup.
+- **Event filter tabs:** One tab per event with `inviteesRequired = true`. Each tab shows `Event name (N)` where N = total expected guest count for that event. "All" tab at the left sums all events.
+- **Search bar:** Matches guest name or address.
+- **Filter chips row:** All / Invited / Not Invited.
+
+#### Card columns (weight-based, full width, no icon column)
+| Column        | Weight | Content                                                                   |
+|---------------|--------|---------------------------------------------------------------------------|
+| Name / Event  | 0.35   | Title = guest name (`labelL`); subtitle = event name (`bodyM`, `text2`)   |
+| Guest count   | 0.35   | Value = `expectedCount` (`bodyM` semibold); subtitle = "guest"/"guests"   |
+| Invite type   | 0.18   | Value = 1 if Card, 0 otherwise; subtitle = "Invitation"                   |
+| Status pill   | 0.12   | `Pill(Success)` = Invited; `Pill(Warning)` = Pending (not yet invited)    |
+
+- **Tap card** → Edit Guest popup (same fields as Add).
+- **Long-press card** → Delete confirmation dialog for that single guest.
+
+#### GuestSummaryFooter (sticky above nav bar)
+Two rows, same column weights as the card:
+
+| Column        | Row 1 (value)       | Row 2 (label)   |
+|---------------|---------------------|-----------------|
+| 0.35          | "Total"             | *(spacer)*      |
+| 0.35          | sum of guest counts | "Guests"        |
+| 0.18          | card-invite count   | "Cards"         |
+| 0.12          | total family rows   | "Families"      |
+
+- Font: values `bodyM` semibold 13 sp; labels `bodyM` 12.5 sp `text2`.
+- Background: `surface` with 1 dp top divider.
+
+#### Extra Cards popup (long-press Add)
+- `AlertDialog` with popup header "Extra Invitation Cards".
+- Body: − / count / + counter, count clamped to 0..999.
+- Footer: Cancel and Save buttons. On Save: persisted to DataStore `extra_invitation_cards`.
+- **Home screen card count** = card-type invitations from Guests + extra cards.
+
+#### Add / Edit Guest popup
+- Fields: Name, Events (multi-select chips, only `inviteesRequired` events), Expected count (stepper), Address, Invited toggle, Invitation type chips (None / Call / Card), Note.
+- Validation: name required; at least one event required.
+
+#### InvitationType enum
+`None` (default) · `Call` (verbal/phone) · `Card` (physical card, counted in Home screen and Extra Cards total).
 
 ### 6.9 Checklist
 ```

@@ -728,3 +728,50 @@ private fun EmptyListNotice(text: String) {
         Text(text, style = titleL, color = AppColor.text2)
     }
 }
+
+// ---------------------------------------------------------------------------
+// Screen-level previews (rule 3: light + dark, filled + empty state)
+// ---------------------------------------------------------------------------
+
+@sabuj.m.myevents.core.preview.LightDarkPreviews
+@Composable
+private fun GuestRowCardFilledPreview() {
+    sabuj.m.myevents.core.theme.AppTheme {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            sabuj.m.myevents.core.preview.PreviewData.sampleInvitees.forEachIndexed { idx, inv ->
+                GuestRowCard(
+                    invitee     = inv,
+                    event       = sabuj.m.myevents.core.preview.PreviewData.sampleEvents.firstOrNull(),
+                    slot        = idx,
+                    onTap       = {},
+                    onLongPress = {},
+                )
+                Spacer(Modifier.height(4.dp))
+            }
+        }
+    }
+}
+
+@sabuj.m.myevents.core.preview.LightDarkPreviews
+@Composable
+private fun GuestSummaryFooterFilledPreview() {
+    sabuj.m.myevents.core.theme.AppTheme {
+        GuestSummaryFooter(totalGuests = 185, totalCards = 42, totalFamilies = 38)
+    }
+}
+
+@sabuj.m.myevents.core.preview.LightDarkPreviews
+@Composable
+private fun GuestSummaryFooterEmptyPreview() {
+    sabuj.m.myevents.core.theme.AppTheme {
+        GuestSummaryFooter(totalGuests = 0, totalCards = 0, totalFamilies = 0)
+    }
+}
+
+@sabuj.m.myevents.core.preview.LightDarkPreviews
+@Composable
+private fun ExtraCardsDialogPreview() {
+    sabuj.m.myevents.core.theme.AppTheme {
+        ExtraCardsDialog(current = 10, onDismiss = {}, onSave = {})
+    }
+}
