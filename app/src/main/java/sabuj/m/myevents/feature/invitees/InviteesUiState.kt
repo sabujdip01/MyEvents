@@ -3,6 +3,7 @@ package sabuj.m.myevents.feature.invitees
 import sabuj.m.myevents.domain.model.Event
 import sabuj.m.myevents.domain.model.Gift
 import sabuj.m.myevents.domain.model.Invitee
+import sabuj.m.myevents.domain.model.InvitationType
 
 enum class InviteeMainTab { Invitees, Gifts }
 
@@ -18,6 +19,7 @@ sealed class InviteeSheetState {
         val address: String = "",
         val invited: Boolean = false,
         val note: String = "",
+        val invitationType: InvitationType = InvitationType.None,
         val nameError: String? = null,
         val eventsError: String? = null,
     ) : InviteeSheetState()
@@ -30,6 +32,7 @@ sealed class InviteeSheetState {
         val address: String,
         val invited: Boolean,
         val note: String,
+        val invitationType: InvitationType = InvitationType.None,
         val nameError: String? = null,
     ) : InviteeSheetState()
 
@@ -58,6 +61,12 @@ data class InviteesUiState(
     val isDeleteMode: Boolean = false,
     val selectedForDelete: Set<String> = emptySet(),
     val snackbarMessage: String? = null,
+    /** Extra invitation cards ordered via the Extra Cards popup. */
+    val extraCards: Int = 0,
+    /** Whether the Extra Cards popup is visible. */
+    val showExtraCardsDialog: Boolean = false,
+    /** Invitee pending long-press single-delete confirmation. */
+    val pendingDeleteInvitee: Invitee? = null,
 ) {
     /** Filtered events that have invitees required == true (for the Invitees top tab row). */
     val inviteeRequiredEvents: List<Event>
@@ -76,13 +85,22 @@ data class InviteesUiState(
             }
 
             result = when (filter) {
-                InviteeFilter.All -> result
-                InviteeFilter.Invited -> result.filter { it.invited }
+                InviteeFilter.All        -> result
+                InviteeFilter.Invited    -> result.filter { it.invited }
                 InviteeFilter.NotInvited -> result.filter { !it.invited }
             }
 
             return result
         }
+
+    /** Total guest count across all filtered invitees. */
+    val totalGuestCount: Int get() = filteredInvitees.sumOf { it.expectedCount }
+
+    /** Number of card-type invitations in filtered list (not counting extra cards). */
+    val totalCardInvitations: Int get() = filteredInvitees.count { it.invitationType == InvitationType.Card }
+
+    /** Number of unique family rows in filtered list. */
+    val totalFamilies: Int get() = filteredInvitees.size
 
     /** Filtered list of gifts according to selected event. */
     val filteredGifts: List<Gift>

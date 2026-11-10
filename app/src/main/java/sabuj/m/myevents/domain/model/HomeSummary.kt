@@ -21,6 +21,8 @@ data class HomeSummary(
     /** Number of invitee rows (families). */
     val totalFamilies: Int = 0,
     val invitedFamilies: Int = 0,
+    /** Total invitation cards (Card invitations + extra cards). */
+    val invitationCards: Int = 0,
     /** Number of expense/checklist items still pending. */
     val itemsPending: Int = 0,
     /** Bookings completed vs total. */

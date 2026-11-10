@@ -38,6 +38,7 @@ class HomeViewModel @Inject constructor(
                     invitedGuests      = summary.invitedGuests,
                     totalFamilies      = summary.totalFamilies,
                     invitedFamilies    = summary.invitedFamilies,
+                    invitationCards    = summary.invitationCards,
                     itemsPending       = summary.itemsPending,
                 )
             }

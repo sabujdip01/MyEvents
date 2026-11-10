@@ -18,5 +18,7 @@ data class HomeUiState(
     val invitedGuests: Int       = 0,
     val totalFamilies: Int       = 0,
     val invitedFamilies: Int     = 0,
+    /** Total invitation cards = Card-type invitees + extra cards from popup. */
+    val invitationCards: Int     = 0,
     val itemsPending: Int        = 0,
 )
