@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.map
 import sabuj.m.myevents.data.db.dao.InviteeDao
 import sabuj.m.myevents.data.db.entity.InviteeEntity
 import sabuj.m.myevents.domain.model.Invitee
+import sabuj.m.myevents.domain.model.InvitationType
 import sabuj.m.myevents.domain.model.SyncState
 import sabuj.m.myevents.domain.repository.InviteeRepository
 import javax.inject.Inject
@@ -36,32 +37,34 @@ class InviteeRepositoryImpl @Inject constructor(
     }
 
     private fun InviteeEntity.toDomain(): Invitee = Invitee(
-        id            = id,
-        eventId       = eventId,
-        groupId       = groupId,
-        name          = name,
-        expectedCount = expectedCount,
-        address       = address,
-        invited       = invited == 1,
-        note          = note,
-        createdAt     = createdAt,
-        updatedAt     = updatedAt,
-        syncState     = try { SyncState.valueOf(syncState) } catch (e: Exception) { SyncState.PENDING },
-        deleted       = deleted == 1,
+        id             = id,
+        eventId        = eventId,
+        groupId        = groupId,
+        name           = name,
+        expectedCount  = expectedCount,
+        address        = address,
+        invited        = invited == 1,
+        note           = note,
+        createdAt      = createdAt,
+        updatedAt      = updatedAt,
+        syncState      = try { SyncState.valueOf(syncState) } catch (e: Exception) { SyncState.PENDING },
+        deleted        = deleted == 1,
+        invitationType = try { InvitationType.valueOf(invitationType) } catch (e: Exception) { InvitationType.None },
     )
 
     private fun Invitee.toEntity(): InviteeEntity = InviteeEntity(
-        id            = id,
-        eventId       = eventId,
-        groupId       = groupId,
-        name          = name,
-        expectedCount = expectedCount,
-        address       = address,
-        invited       = if (invited) 1 else 0,
-        note          = note,
-        createdAt     = createdAt,
-        updatedAt     = updatedAt,
-        syncState     = syncState.name,
-        deleted       = if (deleted) 1 else 0,
+        id             = id,
+        eventId        = eventId,
+        groupId        = groupId,
+        name           = name,
+        expectedCount  = expectedCount,
+        address        = address,
+        invited        = if (invited) 1 else 0,
+        note           = note,
+        createdAt      = createdAt,
+        updatedAt      = updatedAt,
+        syncState      = syncState.name,
+        deleted        = if (deleted) 1 else 0,
+        invitationType = invitationType.name,
     )
 }

@@ -3,6 +3,7 @@ package sabuj.m.myevents.data.settings
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -42,6 +43,8 @@ class SettingsDataStore @Inject constructor(
     private val keyBudgetNotif = booleanPreferencesKey("notif_budget")
     private val keyBiometric = booleanPreferencesKey("biometric_enabled")
     private val keyLastSync = longPreferencesKey("last_sync_ts")
+    /** Extra invitation cards ordered beyond those tracked per-invitee. */
+    private val keyExtraCards = intPreferencesKey("extra_invitation_cards")
 
     val userSettingsFlow: Flow<UserSettings> = context.dataStore.data.map { prefs ->
         UserSettings(
@@ -91,5 +94,13 @@ class SettingsDataStore @Inject constructor(
 
     suspend fun saveLastSyncTimestamp(epochMs: Long) {
         context.dataStore.edit { it[keyLastSync] = epochMs }
+    }
+
+    /** Flow of extra invitation cards count (not tied to any specific invitee). */
+    val extraCardsFlow: kotlinx.coroutines.flow.Flow<Int> =
+        context.dataStore.data.map { prefs -> prefs[keyExtraCards] ?: 0 }
+
+    suspend fun setExtraCards(count: Int) {
+        context.dataStore.edit { it[keyExtraCards] = count.coerceAtLeast(0) }
     }
 }

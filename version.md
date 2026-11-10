@@ -1,9 +1,12 @@
 # Version History
 
-Current: V0.T.33
+Current: V0.T.36
 
 | Version  | Phase | Build | Commit    | Summary                                                                                             |
 | -------- |-------|-------|-----------|-----------------------------------------------------------------------------------------------------|
+| V0.T.36  | Test  | 36    | -         | feat(guests): rewrite guests screen with expense-style layout and invitation type                   |
+| V0.T.35  | Test  | 35    | -         | feat(guests): update state, viewmodel, home summary with invitation cards                           |
+| V0.T.34  | Test  | 34    | -         | feat(guests): add InvitationType enum, DB v8 migration, extraCards DataStore                        |
 | V0.T.33  | Test  | 33    | -         | fix(leftovers): theme undo toast, nav Guests rename, event undo, checklist paid sum & card row 3 |
 | V0.T.32  | Test  | 32    | f042d55   | fix(expenses): title gap +20%, 'Total' label under total col, card padding 4dp                      |
 | V0.T.31  | Test  | 31    | fa752d6   | fix(expenses): gap +20%, total col right, footer labels +25%, weights rebalanced                    |

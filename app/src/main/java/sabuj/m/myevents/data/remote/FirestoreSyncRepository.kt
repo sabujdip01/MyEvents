@@ -161,9 +161,10 @@ class FirestoreSyncRepository @Inject constructor(
                 "address"       to inv.address,
                 "invited"       to inv.invited,
                 "note"          to inv.note,
-                "createdAt"     to inv.createdAt,
-                "updatedAt"     to inv.updatedAt,
-                "deleted"       to inv.deleted,
+                "createdAt"      to inv.createdAt,
+                "updatedAt"      to inv.updatedAt,
+                "deleted"        to inv.deleted,
+                "invitationType" to inv.invitationType.name,
             )
             col.document(inv.id).set(data).await()
             inviteeRepo.upsertInvitee(inv.copy(syncState = SyncState.SYNCED))

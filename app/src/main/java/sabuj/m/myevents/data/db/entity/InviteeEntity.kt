@@ -38,4 +38,6 @@ data class InviteeEntity(
     val updatedAt: Long,
     @ColumnInfo(defaultValue = "PENDING") val syncState: String = "PENDING",
     @ColumnInfo(defaultValue = "0") val deleted: Int = 0,
+    /** Invitation delivery type: "None", "Call", or "Card". */
+    @ColumnInfo(defaultValue = "None") val invitationType: String = "None",
 )

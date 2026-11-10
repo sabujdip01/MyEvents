@@ -21,7 +21,7 @@ import sabuj.m.myevents.data.db.entity.TaskEntity
 
 /**
  * Single Room database for the app.
- * Version 7 — adds icon column to tasks.
+ * Version 8 — adds invitationType column to invitees.
  */
 @Database(
     entities = [
@@ -33,7 +33,7 @@ import sabuj.m.myevents.data.db.entity.TaskEntity
         GiftEntity::class,
         TaskEntity::class,
     ],
-    version = 7,
+    version = 8,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -198,6 +198,12 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_6_7 = object : Migration(6, 7) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE `tasks` ADD COLUMN `icon` TEXT NOT NULL DEFAULT 'Cake'")
+            }
+        }
+
+        val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `invitees` ADD COLUMN `invitationType` TEXT NOT NULL DEFAULT 'None'")
             }
         }
     }

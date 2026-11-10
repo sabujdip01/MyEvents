@@ -1,6 +1,7 @@
 package sabuj.m.myevents.domain.usecase
 
 import sabuj.m.myevents.domain.model.Invitee
+import sabuj.m.myevents.domain.model.InvitationType
 import sabuj.m.myevents.domain.model.SyncState
 import sabuj.m.myevents.domain.repository.InviteeRepository
 import java.util.UUID
@@ -23,6 +24,7 @@ class AddInviteeUseCase @Inject constructor(
         address: String,
         invited: Boolean,
         note: String,
+        invitationType: InvitationType = InvitationType.None,
     ): InviteeSaveResult {
         if (name.isBlank()) return InviteeSaveResult.NameBlank
         if (eventIds.isEmpty()) return InviteeSaveResult.EventsEmpty
@@ -32,18 +34,19 @@ class AddInviteeUseCase @Inject constructor(
 
         val list = eventIds.map { eventId ->
             Invitee(
-                id            = UUID.randomUUID().toString(),
-                eventId       = eventId,
-                groupId       = groupId,
-                name          = name.trim(),
-                expectedCount = expectedCount.coerceAtLeast(1),
-                address       = address.trim(),
-                invited       = invited,
-                note          = note.trim(),
-                createdAt     = now,
-                updatedAt     = now,
-                syncState     = SyncState.PENDING,
-                deleted       = false,
+                id             = UUID.randomUUID().toString(),
+                eventId        = eventId,
+                groupId        = groupId,
+                name           = name.trim(),
+                expectedCount  = expectedCount.coerceAtLeast(1),
+                address        = address.trim(),
+                invited        = invited,
+                note           = note.trim(),
+                createdAt      = now,
+                updatedAt      = now,
+                syncState      = SyncState.PENDING,
+                deleted        = false,
+                invitationType = invitationType,
             )
         }
 
