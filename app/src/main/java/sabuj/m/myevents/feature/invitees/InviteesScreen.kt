@@ -22,7 +22,9 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.MailOutline
 import androidx.compose.material.icons.rounded.Remove
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AlertDialog
@@ -133,14 +135,15 @@ fun InviteesScreen(
                     EmptyListNotice(text = "No guests added yet")
                 } else {
                     GuestsTableContent(
-                        invitees          = list,
-                        events            = uiState.events,
-                        totalGuestCount   = uiState.totalGuestCount,
-                        totalCardCount    = uiState.totalCardInvitations,
-                        totalFamilies     = uiState.totalFamilies,
-                        onEditInvitee     = { viewModel.showEditInviteeSheet(it.id) },
-                        onLongPressInvitee = { viewModel.requestDeleteSingleInvitee(it) },
-                        modifier          = Modifier.weight(1f),
+                        invitees              = list,
+                        events                = uiState.events,
+                        totalGuestCount       = uiState.totalGuestCount,
+                        totalInvitedGuestCount = uiState.totalInvitedGuestCount,
+                        totalCardCount        = uiState.totalCardInvitations,
+                        totalFamilies         = uiState.totalFamilies,
+                        onEditInvitee         = { viewModel.showEditInviteeSheet(it.id) },
+                        onLongPressInvitee    = { viewModel.requestDeleteSingleInvitee(it) },
+                        modifier              = Modifier.weight(1f),
                     )
                 }
             }
@@ -388,6 +391,7 @@ private fun GuestsTableContent(
     invitees: List<Invitee>,
     events: List<Event>,
     totalGuestCount: Int,
+    totalInvitedGuestCount: Int,
     totalCardCount: Int,
     totalFamilies: Int,
     onEditInvitee: (Invitee) -> Unit,
@@ -415,10 +419,11 @@ private fun GuestsTableContent(
 
         // Sticky footer above nav bar
         GuestSummaryFooter(
-            totalGuests  = totalGuestCount,
-            totalCards   = totalCardCount,
-            totalFamilies = totalFamilies,
-            modifier     = Modifier.navigationBarsPadding().padding(bottom = 6.dp),
+            totalGuests        = totalGuestCount,
+            totalInvitedGuests = totalInvitedGuestCount,
+            totalCards         = totalCardCount,
+            totalFamilies      = totalFamilies,
+            modifier           = Modifier.navigationBarsPadding().padding(bottom = 6.dp),
         )
     }
 }
@@ -428,13 +433,16 @@ private fun GuestsTableContent(
 // ---------------------------------------------------------------------------
 
 /**
- * Tabular guest card — same column-weight structure as ExpenseRowCard but without an icon column.
+ * Single-line tabular guest row — Excel-style without cell borders.
  *
- * Layout (weights sum to 1):
- * - 35% Title col: Guest name + 1dp gap + Event name
- * - 35% Guest count col: count value + "guest"/"guests" subtitle (right-aligned)
- * - 18% Invitation col: 1 if Card type, 0 otherwise + "Invitation" subtitle (right-aligned)
- * - 12% Pill col: Invited (Success) or Pending (Warning)
+ * Columns (left to right, same widths as [GuestSummaryFooter]):
+ *  1. 0.26f  Guest Name  — text, left-aligned, 4 dp start padding
+ *  2. 0.22f  Event Name  — text, left-aligned
+ *  3. 0.14f  Guest count — number, right-aligned
+ *  4. 0.14f  Invite Via  — Call/Card icon, center-aligned (blank for None)
+ *  5. 0.20f  Status pill — Invited (Success) or Pending (Warning), center-aligned
+ *
+ * Tap = edit; Long-press = delete dialog.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -450,7 +458,7 @@ private fun GuestRowCard(
     val gradient: Brush = remember(slot, isDark) { gradientFor(slot, palette, isDark) }
 
     Surface(
-        modifier        = Modifier.fillMaxWidth(), // full-width matching booking cards
+        modifier        = Modifier.fillMaxWidth(),
         shape           = RoundedCornerShape(Radius.field),
         color           = AppColor.surface,
         shadowElevation = 1.dp,
@@ -467,10 +475,10 @@ private fun GuestRowCard(
                 .padding(horizontal = Spacing.xs, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // 1. 35% Title col: guest name + gap + event name
-            Column(
-                modifier            = Modifier.weight(0.35f),
-                verticalArrangement = Arrangement.Center,
+            // Col 1 — Guest Name (26%, left, 4dp start inset)
+            Box(
+                modifier         = Modifier.weight(0.26f).padding(start = 4.dp),
+                contentAlignment = Alignment.CenterStart,
             ) {
                 Text(
                     text     = invitee.name,
@@ -479,7 +487,13 @@ private fun GuestRowCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                Spacer(Modifier.height(1.dp)) // +20% gap
+            }
+
+            // Col 2 — Event Name (22%, left)
+            Box(
+                modifier         = Modifier.weight(0.22f),
+                contentAlignment = Alignment.CenterStart,
+            ) {
                 Text(
                     text     = event?.title ?: "General",
                     style    = bodyM.copy(fontSize = 12.sp),
@@ -489,48 +503,45 @@ private fun GuestRowCard(
                 )
             }
 
-            // 2. 35% Guest count col: value + "guest"/"guests" label (right-aligned)
-            Box(modifier = Modifier.weight(0.35f), contentAlignment = Alignment.CenterEnd) {
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text       = "${invitee.expectedCount}",
-                        style      = bodyM.copy(fontSize = 13.sp, fontWeight = FontWeight.SemiBold),
-                        color      = AppColor.text,
-                        maxLines   = 1,
-                    )
-                    Spacer(Modifier.height(1.dp)) // +20% gap
-                    Text(
-                        text     = if (invitee.expectedCount == 1) "guest" else "guests",
-                        style    = bodyM.copy(fontSize = 12.5.sp),
-                        color    = AppColor.text2,
-                        maxLines = 1,
-                    )
-                }
-            }
-
-            // 3. 18% Invitation col: 1 if Card, 0 otherwise + "Invitation" label (right-aligned)
-            Box(modifier = Modifier.weight(0.18f), contentAlignment = Alignment.CenterEnd) {
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text     = if (invitee.invitationType == InvitationType.Card) "1" else "0",
-                        style    = bodyM.copy(fontSize = 13.sp, fontWeight = FontWeight.SemiBold),
-                        color    = AppColor.text,
-                        maxLines = 1,
-                    )
-                    Spacer(Modifier.height(1.dp)) // +20% gap
-                    Text(
-                        text     = "Invitation",
-                        style    = bodyM.copy(fontSize = 12.5.sp),
-                        color    = AppColor.text2,
-                        maxLines = 1,
-                    )
-                }
-            }
-
-            // 4. 12% Pill col: Invited (Success) or Pending (Warning)
+            // Col 3 — Guest count (14%, right)
             Box(
-                modifier         = Modifier.weight(0.12f),
+                modifier         = Modifier.weight(0.14f),
                 contentAlignment = Alignment.CenterEnd,
+            ) {
+                Text(
+                    text     = "${invitee.expectedCount}",
+                    style    = bodyM.copy(fontSize = 13.sp, fontWeight = FontWeight.SemiBold),
+                    color    = AppColor.text,
+                    maxLines = 1,
+                )
+            }
+
+            // Col 4 — Invitation Via icon (14%, center): Call or Card icon; blank for None
+            Box(
+                modifier         = Modifier.weight(0.14f),
+                contentAlignment = Alignment.Center,
+            ) {
+                when (invitee.invitationType) {
+                    InvitationType.Call -> Icon(
+                        imageVector        = Icons.Rounded.Call,
+                        contentDescription = "Call",
+                        tint               = AppColor.text2,
+                        modifier           = Modifier.size(16.dp),
+                    )
+                    InvitationType.Card -> Icon(
+                        imageVector        = Icons.Rounded.MailOutline,
+                        contentDescription = "Card",
+                        tint               = AppColor.text2,
+                        modifier           = Modifier.size(16.dp),
+                    )
+                    InvitationType.None -> { /* blank cell */ }
+                }
+            }
+
+            // Col 5 — Status pill (20%, center)
+            Box(
+                modifier         = Modifier.weight(0.20f),
+                contentAlignment = Alignment.Center,
             ) {
                 Pill(
                     text    = if (invitee.invited) "Invited" else "Pending",
@@ -546,104 +557,100 @@ private fun GuestRowCard(
 // ---------------------------------------------------------------------------
 
 /**
- * Sticky footer matching the Expense SummaryFooter structure but with Guest columns:
- * - 35% → "Total" label (Row 1) | empty (Row 2)
- * - 35% → total guest count (Row 1) | "Guests" (Row 2)
- * - 18% → total card invitations (Row 1) | "Cards" (Row 2)
- * - 12% → total families (Row 1) | "Families" (Row 2)
+ * Sticky total row — same column widths as [GuestRowCard], Excel-style.
+ *
+ * Col 1 (0.26f) "Total"            — left, under Guest Name
+ * Col 2 (0.22f) "N Families"       — left, under Event Name
+ * Col 3 (0.14f) "N Guests"         — right, under Guest count
+ * Col 4 (0.14f) "N Cards"          — right, under Invite Via icon
+ * Col 5 (0.20f) "N Guests"         — center, under Status pill (invited guests only)
  */
 @Composable
 private fun GuestSummaryFooter(
     totalGuests: Int,
+    totalInvitedGuests: Int,
     totalCards: Int,
     totalFamilies: Int,
     modifier: Modifier = Modifier,
 ) {
+    val labelStyle = bodyM.copy(fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+    val color      = AppColor.onPrimaryContainer
+
     Surface(
         modifier = Modifier.fillMaxWidth().then(modifier),
         shape    = RoundedCornerShape(Radius.field),
         color    = AppColor.primaryContainer,
     ) {
-        Column(modifier = Modifier.padding(vertical = Spacing.sm)) {
-            // Row 1: values
-            Row(
-                modifier          = Modifier.fillMaxWidth().padding(horizontal = Spacing.xs),
-                verticalAlignment = Alignment.CenterVertically,
+        Row(
+            modifier          = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Spacing.xs, vertical = Spacing.sm),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            // Col 1 — "Total" (left, 4dp inset matching card name column)
+            Box(
+                modifier         = Modifier.weight(0.26f).padding(start = 4.dp),
+                contentAlignment = Alignment.CenterStart,
             ) {
-                // 35% — "Total" label (aligns with title column)
                 Text(
-                    text       = "Total",
-                    style      = labelL,
-                    fontWeight = FontWeight.Bold,
-                    color      = AppColor.onPrimaryContainer,
-                    modifier   = Modifier.weight(0.35f),
+                    text     = "Total",
+                    style    = labelStyle.copy(fontWeight = FontWeight.Bold),
+                    color    = color,
+                    maxLines = 1,
                 )
-                // 35% — total guest count (right-aligned, matches guest col)
-                Box(Modifier.weight(0.35f), contentAlignment = Alignment.CenterEnd) {
-                    Text(
-                        text       = "$totalGuests",
-                        style      = labelL,
-                        fontWeight = FontWeight.Bold,
-                        color      = AppColor.onPrimaryContainer,
-                        maxLines   = 1,
-                    )
-                }
-                // 18% — total card invitations (right-aligned, matches invitation col)
-                Box(Modifier.weight(0.18f), contentAlignment = Alignment.CenterEnd) {
-                    Text(
-                        text     = "$totalCards",
-                        style    = labelL,
-                        color    = AppColor.onPrimaryContainer,
-                        maxLines = 1,
-                    )
-                }
-                // 12% — total families (right-aligned, matches pill col)
-                Box(Modifier.weight(0.12f), contentAlignment = Alignment.CenterEnd) {
-                    Text(
-                        text     = "$totalFamilies",
-                        style    = labelL,
-                        color    = AppColor.onPrimaryContainer,
-                        maxLines = 1,
-                    )
-                }
             }
 
-            Spacer(Modifier.height(4.dp)) // +20% gap between value and label rows
-
-            // Row 2: labels
-            Row(
-                modifier          = Modifier.fillMaxWidth().padding(horizontal = Spacing.xs),
-                verticalAlignment = Alignment.CenterVertically,
+            // Col 2 — "N Families" (left, under Event Name)
+            Box(
+                modifier         = Modifier.weight(0.22f),
+                contentAlignment = Alignment.CenterStart,
             ) {
-                // 35% — empty (aligns with title column)
-                Spacer(Modifier.weight(0.35f))
-                // 35% — "Guests" label
-                Box(Modifier.weight(0.35f), contentAlignment = Alignment.CenterEnd) {
-                    Text(
-                        text     = "Guests",
-                        style    = bodyM.copy(fontSize = 12.5.sp),
-                        color    = AppColor.onPrimaryContainer,
-                        maxLines = 1,
-                    )
-                }
-                // 18% — "Cards" label
-                Box(Modifier.weight(0.18f), contentAlignment = Alignment.CenterEnd) {
-                    Text(
-                        text     = "Cards",
-                        style    = bodyM.copy(fontSize = 12.5.sp),
-                        color    = AppColor.onPrimaryContainer,
-                        maxLines = 1,
-                    )
-                }
-                // 12% — "Families" label
-                Box(Modifier.weight(0.12f), contentAlignment = Alignment.CenterEnd) {
-                    Text(
-                        text     = "Families",
-                        style    = bodyM.copy(fontSize = 12.5.sp),
-                        color    = AppColor.onPrimaryContainer,
-                        maxLines = 1,
-                    )
-                }
+                Text(
+                    text     = "$totalFamilies Families",
+                    style    = labelStyle,
+                    color    = color,
+                    maxLines = 1,
+                )
+            }
+
+            // Col 3 — "N Guests" (right, under Guest count)
+            Box(
+                modifier         = Modifier.weight(0.14f),
+                contentAlignment = Alignment.CenterEnd,
+            ) {
+                Text(
+                    text     = "$totalGuests Guests",
+                    style    = labelStyle,
+                    color    = color,
+                    maxLines = 1,
+                )
+            }
+
+            // Col 4 — "N Cards" (right, under Invite Via icon)
+            Box(
+                modifier         = Modifier.weight(0.14f),
+                contentAlignment = Alignment.CenterEnd,
+            ) {
+                Text(
+                    text     = "$totalCards Cards",
+                    style    = labelStyle,
+                    color    = color,
+                    maxLines = 1,
+                )
+            }
+
+            // Col 5 — "N Guests" invited (center, under Status pill)
+            Box(
+                modifier         = Modifier.weight(0.20f),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text      = "$totalInvitedGuests Guests",
+                    style     = labelStyle,
+                    color     = color,
+                    maxLines  = 1,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                )
             }
         }
     }
@@ -756,7 +763,7 @@ private fun GuestRowCardFilledPreview() {
 @Composable
 private fun GuestSummaryFooterFilledPreview() {
     sabuj.m.myevents.core.theme.AppTheme {
-        GuestSummaryFooter(totalGuests = 185, totalCards = 42, totalFamilies = 38)
+        GuestSummaryFooter(totalGuests = 185, totalInvitedGuests = 120, totalCards = 42, totalFamilies = 38)
     }
 }
 
@@ -764,7 +771,7 @@ private fun GuestSummaryFooterFilledPreview() {
 @Composable
 private fun GuestSummaryFooterEmptyPreview() {
     sabuj.m.myevents.core.theme.AppTheme {
-        GuestSummaryFooter(totalGuests = 0, totalCards = 0, totalFamilies = 0)
+        GuestSummaryFooter(totalGuests = 0, totalInvitedGuests = 0, totalCards = 0, totalFamilies = 0)
     }
 }
 

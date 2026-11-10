@@ -96,6 +96,9 @@ data class InviteesUiState(
     /** Total guest count across all filtered invitees. */
     val totalGuestCount: Int get() = filteredInvitees.sumOf { it.expectedCount }
 
+    /** Sum of expectedCount for invitees where invited = true. */
+    val totalInvitedGuestCount: Int get() = filteredInvitees.filter { it.invited }.sumOf { it.expectedCount }
+
     /** Number of card-type invitations in filtered list (not counting extra cards). */
     val totalCardInvitations: Int get() = filteredInvitees.count { it.invitationType == InvitationType.Card }
 

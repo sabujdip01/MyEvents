@@ -93,7 +93,7 @@ class ObserveHomeSummaryUseCase @Inject constructor(
                 totalGuests        = totalGuestsCount,
                 invitedGuests      = invitedGuestsCount,
                 totalFamilies      = totalFamiliesCount,
-                invitedFamilies    = cardInvitationsCount, // kept for legacy compat; Home shows invitationCards
+                invitedFamilies    = invitedFamiliesCount,
                 invitationCards    = totalInvitationCards,
                 itemsPending       = totalPendingItems,
                 bookingsDone       = completedBookings,

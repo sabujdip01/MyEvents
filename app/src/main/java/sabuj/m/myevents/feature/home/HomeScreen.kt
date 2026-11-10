@@ -1,4 +1,4 @@
-﻿package sabuj.m.myevents.feature.home
+package sabuj.m.myevents.feature.home
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -555,7 +555,7 @@ private fun InviteesCard(
                 ) {
                     Spacer(Modifier.width(44.dp + Spacing.md - Spacing.sm))
 
-                    // Column 1 (35% width): X of Y as callout, "guests invited" as subtitle (center aligned)
+                    // Column 1: "X of Y Guests" invited
                     Column(
                         modifier            = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -583,7 +583,7 @@ private fun InviteesCard(
                         )
                     }
 
-                    // Column 2 (35% width): Z as callout, "invitation cards" as subtitle (center aligned)
+                    // Column 2: "X of Y Families" invited
                     Column(
                         modifier            = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -591,14 +591,20 @@ private fun InviteesCard(
                         Text(
                             text = buildAnnotatedString {
                                 withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
-                                    append("$invitationCards")
+                                    append("$invitedFamilies")
+                                }
+                                withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
+                                    append(" of ")
+                                }
+                                withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
+                                    append("$totalFamilies")
                                 }
                             },
                             textAlign = TextAlign.Center,
                         )
                         Spacer(Modifier.height(2.dp))
                         Text(
-                            text      = "invitation cards",
+                            text      = "families invited",
                             style     = bodyM,
                             color     = AppColor.text2,
                             textAlign = TextAlign.Center,
