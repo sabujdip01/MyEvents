@@ -22,6 +22,7 @@ import javax.inject.Singleton
 @Singleton
 class BookingRepositoryImpl @Inject constructor(
     private val dao: BookingDao,
+    @param:dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context,
 ) : BookingRepository {
 
     override fun observeAll(): Flow<List<Booking>> =
@@ -38,29 +39,43 @@ class BookingRepositoryImpl @Inject constructor(
     override fun observeCountByEvent(eventId: String): Flow<Int> =
         dao.countByEvent(eventId)
 
-    override suspend fun upsertBooking(booking: Booking) =
+    override suspend fun upsertBooking(booking: Booking) {
         dao.upsertBooking(booking.toEntity())
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
+    }
 
-    override suspend fun updateBookingAndPayments(booking: Booking, payments: List<BookingPayment>) =
+    override suspend fun updateBookingAndPayments(booking: Booking, payments: List<BookingPayment>) {
         dao.updateBookingAndPayments(
             booking  = booking.toEntity(),
             payments = payments.map { it.toEntity() },
         )
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
+    }
 
-    override suspend fun softDelete(id: String) =
+    override suspend fun softDelete(id: String) {
         dao.softDeleteBooking(id, System.currentTimeMillis())
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
+    }
 
-    override suspend fun restoreDeleted(id: String) =
+    override suspend fun restoreDeleted(id: String) {
         dao.restoreBooking(id, System.currentTimeMillis())
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
+    }
 
-    override suspend fun hardDelete(id: String) =
+    override suspend fun hardDelete(id: String) {
         dao.hardDeleteBooking(id)
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
+    }
 
-    override suspend fun addPayment(payment: BookingPayment) =
+    override suspend fun addPayment(payment: BookingPayment) {
         dao.upsertPayment(payment.toEntity())
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
+    }
 
-    override suspend fun deletePayment(id: String) =
+    override suspend fun deletePayment(id: String) {
         dao.deletePayment(id)
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
+    }
 
     // ── Mappers ─────────────────────────────────────────────────────────────
 

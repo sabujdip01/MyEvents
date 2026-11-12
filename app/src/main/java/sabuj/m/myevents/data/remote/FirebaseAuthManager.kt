@@ -16,15 +16,11 @@ class FirebaseAuthManager @Inject constructor() {
 
     val currentUid: String? get() = auth.currentUser?.uid
 
-    suspend fun ensureSignedIn(): String? {
+    suspend fun ensureSignedIn(): String {
         val user = auth.currentUser
         if (user != null) return user.uid
 
-        return try {
-            val result = auth.signInAnonymously().await()
-            result.user?.uid
-        } catch (e: Exception) {
-            null
-        }
+        val result = auth.signInAnonymously().await()
+        return result.user?.uid ?: throw IllegalStateException("Firebase user is null after anonymous sign-in")
     }
 }

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -129,166 +130,171 @@ fun SettingsScreenContent(
 
     Box(modifier = Modifier.fillMaxSize()) {
         ScreenScaffold(modifier = modifier, onMenuClick = null) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
-            ) {
-                // Top bar
+            Column(modifier = Modifier.fillMaxSize()) {
+                // Fixed top bar (does not move while scrolling)
                 AppTopBar(
                     titleText   = "Settings",
                     onMenuClick = onMenuClick,
                 )
-                Spacer(Modifier.height(Spacing.md))
+                Spacer(Modifier.height(Spacing.sm))
 
-                // APPEARANCE
-                SettingsSection("APPEARANCE") {
-                    Text("Theme Mode", style = bodyM, color = AppColor.text2)
-                    Spacer(Modifier.height(Spacing.xs))
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        ThemeOptionChip(
-                            label      = "System",
-                            isSelected = uiState.settings.themeMode == ThemeMode.System,
-                            onClick    = { onThemeMode(ThemeMode.System) },
-                            modifier   = Modifier.weight(1f),
-                        )
-                        ThemeOptionChip(
-                            label      = "Light",
-                            isSelected = uiState.settings.themeMode == ThemeMode.Light,
-                            onClick    = { onThemeMode(ThemeMode.Light) },
-                            modifier   = Modifier.weight(1f),
-                        )
-                        ThemeOptionChip(
-                            label      = "Dark",
-                            isSelected = uiState.settings.themeMode == ThemeMode.Dark,
-                            onClick    = { onThemeMode(ThemeMode.Dark) },
-                            modifier   = Modifier.weight(1f),
-                        )
-                    }
-
-                    Spacer(Modifier.height(Spacing.md))
-                    HorizontalDivider(color = AppColor.outlineVariant)
-                    Spacer(Modifier.height(Spacing.md))
-
-                    Text("Colour Scheme", style = bodyM, color = AppColor.text2)
-                    Spacer(Modifier.height(Spacing.xs))
-
-                    // Item I2: 56 dp 50%-50% circular swatches with 135 degree split
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        PaletteCircleSwatch(
-                            name           = "Toxic Violet",
-                            primaryColor   = paletteColors(PaletteId.A, isDark = false).primary,
-                            containerColor = paletteColors(PaletteId.A, isDark = false).primaryContainer,
-                            isSelected     = uiState.settings.paletteId == PaletteId.A,
-                            onClick        = { onPaletteId(PaletteId.A) },
-                            modifier       = Modifier.weight(1f),
-                        )
-                        PaletteCircleSwatch(
-                            name           = "Machine Red",
-                            primaryColor   = paletteColors(PaletteId.B, isDark = false).primary,
-                            containerColor = paletteColors(PaletteId.B, isDark = false).primaryContainer,
-                            isSelected     = uiState.settings.paletteId == PaletteId.B,
-                            onClick        = { onPaletteId(PaletteId.B) },
-                            modifier       = Modifier.weight(1f),
-                        )
-                        PaletteCircleSwatch(
-                            name           = "Hyper Cobalt",
-                            primaryColor   = paletteColors(PaletteId.C, isDark = false).primary,
-                            containerColor = paletteColors(PaletteId.C, isDark = false).primaryContainer,
-                            isSelected     = uiState.settings.paletteId == PaletteId.C,
-                            onClick        = { onPaletteId(PaletteId.C) },
-                            modifier       = Modifier.weight(1f),
-                        )
-                        PaletteCircleSwatch(
-                            name           = "Dark Aubergine",
-                            primaryColor   = paletteColors(PaletteId.D, isDark = false).primary,
-                            containerColor = paletteColors(PaletteId.D, isDark = false).primaryContainer,
-                            isSelected     = uiState.settings.paletteId == PaletteId.D,
-                            onClick        = { onPaletteId(PaletteId.D) },
-                            modifier       = Modifier.weight(1f),
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(Spacing.lg))
-
-                // SECURITY
-                SettingsSection("SECURITY") {
-                    // Item I3: Change PIN title color is universal (AppColor.text)
-                    SettingsActionRow("Change PIN", "Update your 4-digit security PIN") {
-                        onShowChangePin()
-                    }
-                    HorizontalDivider(color = AppColor.outlineVariant)
-                    SettingsToggleRow(
-                        label     = "Fingerprint Unlock",
-                        subtext   = "Use biometric authentication if available",
-                        isChecked = uiState.settings.fingerprintEnabled,
-                        onToggle  = onFingerprint,
-                    )
-                }
-
-                Spacer(Modifier.height(Spacing.lg))
-
-                // NOTIFICATIONS
-                SettingsSection("NOTIFICATIONS") {
-                    SettingsToggleRow(
-                        label     = "Enable Notifications",
-                        subtext   = "Master switch for all reminders",
-                        isChecked = uiState.settings.notificationsMaster,
-                        onToggle  = onNotificationsMaster,
-                    )
-                    if (uiState.settings.notificationsMaster) {
-                        HorizontalDivider(color = AppColor.outlineVariant)
-                        SettingsToggleRow("Event Countdowns", "30, 7, and 1 day reminders", uiState.settings.notifyEventCountdowns, onNotifyCountdowns)
-                        HorizontalDivider(color = AppColor.outlineVariant)
-                        SettingsToggleRow("Payment Dues", "Booking and expense due alerts", uiState.settings.notifyPaymentDues, onNotifyPaymentDues)
-                        HorizontalDivider(color = AppColor.outlineVariant)
-                        SettingsToggleRow("Task Reminders", "Item list due date reminders", uiState.settings.notifyTasks, onNotifyTasks)
-                        HorizontalDivider(color = AppColor.outlineVariant)
-                        SettingsToggleRow("Budget Warnings", "Alerts at 80% and 100% budget spent", uiState.settings.notifyBudgetAlerts, onNotifyBudgetAlerts)
-                    }
-                }
-
-                Spacer(Modifier.height(Spacing.lg))
-
-                // SYNC AND EXPORT (Items I5, I6, I7)
-                SettingsSection("SYNC AND EXPORT") {
-                    val lastSync = uiState.settings.lastSyncTimestamp
-                    val syncText = if (lastSync == 0L) "Never synced" else formatSyncTime(lastSync)
-
-                    Column(modifier = Modifier.padding(vertical = Spacing.xs)) {
-                        Text(text = "Last synced on $syncText", style = bodyM, color = AppColor.text2)
-                        Spacer(Modifier.height(Spacing.md))
+                // Scrollable content
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .navigationBarsPadding(),
+                ) {
+                    // APPEARANCE
+                    SettingsSection("APPEARANCE") {
+                        Text("Theme Mode", style = bodyM, color = AppColor.text2)
+                        Spacer(Modifier.height(Spacing.xs))
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
                             modifier = Modifier.fillMaxWidth(),
                         ) {
-                            AppButtonTonal("Sync Now", onClick = onSyncNow, modifier = Modifier.weight(1f))
-                            AppButton("Export Data (CSV)", onClick = onShowExport, modifier = Modifier.weight(1f))
+                            ThemeOptionChip(
+                                label      = "System",
+                                isSelected = uiState.settings.themeMode == ThemeMode.System,
+                                onClick    = { onThemeMode(ThemeMode.System) },
+                                modifier   = Modifier.weight(1f),
+                            )
+                            ThemeOptionChip(
+                                label      = "Light",
+                                isSelected = uiState.settings.themeMode == ThemeMode.Light,
+                                onClick    = { onThemeMode(ThemeMode.Light) },
+                                modifier   = Modifier.weight(1f),
+                            )
+                            ThemeOptionChip(
+                                label      = "Dark",
+                                isSelected = uiState.settings.themeMode == ThemeMode.Dark,
+                                onClick    = { onThemeMode(ThemeMode.Dark) },
+                                modifier   = Modifier.weight(1f),
+                            )
+                        }
+
+                        Spacer(Modifier.height(Spacing.md))
+                        HorizontalDivider(color = AppColor.outlineVariant)
+                        Spacer(Modifier.height(Spacing.md))
+
+                        Text("Colour Scheme", style = bodyM, color = AppColor.text2)
+                        Spacer(Modifier.height(Spacing.xs))
+
+                        // Item I2: 56 dp 50%-50% circular swatches with 135 degree sharp split (no gradient)
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            PaletteCircleSwatch(
+                                name           = "Toxic Violet",
+                                primaryColor   = paletteColors(PaletteId.A, isDark = false).primary,
+                                containerColor = paletteColors(PaletteId.A, isDark = false).primaryContainer,
+                                isSelected     = uiState.settings.paletteId == PaletteId.A,
+                                onClick        = { onPaletteId(PaletteId.A) },
+                                modifier       = Modifier.weight(1f),
+                            )
+                            PaletteCircleSwatch(
+                                name           = "Machine Red",
+                                primaryColor   = paletteColors(PaletteId.B, isDark = false).primary,
+                                containerColor = paletteColors(PaletteId.B, isDark = false).primaryContainer,
+                                isSelected     = uiState.settings.paletteId == PaletteId.B,
+                                onClick        = { onPaletteId(PaletteId.B) },
+                                modifier       = Modifier.weight(1f),
+                            )
+                            PaletteCircleSwatch(
+                                name           = "Hyper Cobalt",
+                                primaryColor   = paletteColors(PaletteId.C, isDark = false).primary,
+                                containerColor = paletteColors(PaletteId.C, isDark = false).primaryContainer,
+                                isSelected     = uiState.settings.paletteId == PaletteId.C,
+                                onClick        = { onPaletteId(PaletteId.C) },
+                                modifier       = Modifier.weight(1f),
+                            )
+                            PaletteCircleSwatch(
+                                name           = "Dark Aubergine",
+                                primaryColor   = paletteColors(PaletteId.D, isDark = false).primary,
+                                containerColor = paletteColors(PaletteId.D, isDark = false).primaryContainer,
+                                isSelected     = uiState.settings.paletteId == PaletteId.D,
+                                onClick        = { onPaletteId(PaletteId.D) },
+                                modifier       = Modifier.weight(1f),
+                            )
                         }
                     }
+
+                    Spacer(Modifier.height(Spacing.lg))
+
+                    // SECURITY
+                    SettingsSection("SECURITY") {
+                        SettingsActionRow("Change PIN", "Update your 4-digit security PIN") {
+                            onShowChangePin()
+                        }
+                        HorizontalDivider(color = AppColor.outlineVariant)
+                        SettingsToggleRow(
+                            label     = "Fingerprint Unlock",
+                            subtext   = "Use biometric authentication if available",
+                            isChecked = uiState.settings.fingerprintEnabled,
+                            onToggle  = onFingerprint,
+                        )
+                    }
+
+                    Spacer(Modifier.height(Spacing.lg))
+
+                    // NOTIFICATIONS
+                    SettingsSection("NOTIFICATIONS") {
+                        SettingsToggleRow(
+                            label     = "Enable Notifications",
+                            subtext   = "Master switch for all reminders",
+                            isChecked = uiState.settings.notificationsMaster,
+                            onToggle  = onNotificationsMaster,
+                        )
+                        if (uiState.settings.notificationsMaster) {
+                            HorizontalDivider(color = AppColor.outlineVariant)
+                            SettingsToggleRow("Event Countdowns", "30, 7, and 1 day reminders", uiState.settings.notifyEventCountdowns, onNotifyCountdowns)
+                            HorizontalDivider(color = AppColor.outlineVariant)
+                            SettingsToggleRow("Payment Dues", "Booking and expense due alerts", uiState.settings.notifyPaymentDues, onNotifyPaymentDues)
+                            HorizontalDivider(color = AppColor.outlineVariant)
+                            SettingsToggleRow("Task Reminders", "Item list due date reminders", uiState.settings.notifyTasks, onNotifyTasks)
+                            HorizontalDivider(color = AppColor.outlineVariant)
+                            SettingsToggleRow("Budget Warnings", "Alerts at 80% and 100% budget spent", uiState.settings.notifyBudgetAlerts, onNotifyBudgetAlerts)
+                        }
+                    }
+
+                    Spacer(Modifier.height(Spacing.lg))
+
+                    // SYNC AND EXPORT (Items I5, I6, I7)
+                    SettingsSection("SYNC AND EXPORT") {
+                        val lastSync = uiState.settings.lastSyncTimestamp
+                        val syncText = if (lastSync == 0L) "Never synced" else formatSyncTime(lastSync)
+
+                        Column(modifier = Modifier.padding(vertical = Spacing.xs)) {
+                            Text(text = "Last synced on $syncText", style = bodyM, color = AppColor.text2)
+                            Spacer(Modifier.height(Spacing.md))
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                AppButtonTonal("Sync Now", onClick = onSyncNow, modifier = Modifier.weight(1f))
+                                AppButton("Export Data (CSV)", onClick = onShowExport, modifier = Modifier.weight(1f))
+                            }
+                        }
+                    }
+
+                    Spacer(Modifier.height(Spacing.lg))
+
+                    // ABOUT
+                    SettingsSection("ABOUT") {
+                        SettingsRow("Version", sabuj.m.myevents.BuildConfig.APP_VERSION)
+                    }
+
+                    // Item 5: 8 dp gap after the end of the settings page
+                    Spacer(Modifier.height(8.dp))
                 }
-
-                Spacer(Modifier.height(Spacing.lg))
-
-                // ABOUT
-                SettingsSection("ABOUT") {
-                    SettingsRow("Version", sabuj.m.myevents.BuildConfig.APP_VERSION)
-                }
-
-                Spacer(Modifier.height(Spacing.xl2))
             }
         }
 
+        // Item 3: Sync toast positioned and designed same as the Undo toast
         AppSnackbar(
             hostState = snackbarHostState,
-            modifier  = Modifier.align(Alignment.BottomCenter),
+            modifier  = Modifier.align(Alignment.BottomCenter).padding(bottom = 88.dp),
         )
     }
 
@@ -343,9 +349,10 @@ private fun PaletteCircleSwatch(
                 .drawBehind {
                     drawRect(
                         brush = Brush.linearGradient(
-                            colors = listOf(primaryColor, primaryColor, containerColor, containerColor),
-                            start  = Offset(0f, 0f),
-                            end    = Offset(size.width, size.height),
+                            0.5f to primaryColor,
+                            0.5f to containerColor,
+                            start = Offset(0f, 0f),
+                            end   = Offset(size.width, size.height),
                         ),
                     )
                 },

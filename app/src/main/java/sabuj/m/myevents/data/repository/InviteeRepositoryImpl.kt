@@ -12,6 +12,7 @@ import javax.inject.Inject
 
 class InviteeRepositoryImpl @Inject constructor(
     private val dao: InviteeDao,
+    @param:dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context,
 ) : InviteeRepository {
 
     override fun observeAllInvitees(): Flow<List<Invitee>> =
@@ -22,18 +23,22 @@ class InviteeRepositoryImpl @Inject constructor(
 
     override suspend fun upsertInvitee(invitee: Invitee) {
         dao.upsertInvitee(invitee.toEntity())
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
     }
 
     override suspend fun upsertInvitees(invitees: List<Invitee>) {
         dao.upsertInvitees(invitees.map { it.toEntity() })
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
     }
 
     override suspend fun deleteInvitee(id: String) {
         dao.softDeleteInvitee(id, System.currentTimeMillis())
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
     }
 
     override suspend fun deleteInvitees(ids: List<String>) {
         dao.softDeleteInvitees(ids, System.currentTimeMillis())
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
     }
 
     private fun InviteeEntity.toDomain(): Invitee = Invitee(

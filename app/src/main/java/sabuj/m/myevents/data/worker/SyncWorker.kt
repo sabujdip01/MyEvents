@@ -22,12 +22,13 @@ class SyncWorker @AssistedInject constructor(
 ) : CoroutineWorker(appContext, params) {
 
     override suspend fun doWork(): Result {
-        val success = syncRepo.performSync()
-        return if (success) Result.success() else Result.retry()
+        val result = syncRepo.performSync()
+        return if (result.isSuccess) Result.success() else Result.retry()
     }
 
     companion object {
         private const val WORK_NAME = "MyEventsFirestoreSyncWorker"
+        private const val IMMEDIATE_WORK_NAME = "MyEventsImmediateSyncWorker"
 
         fun scheduleSync(context: Context) {
             val constraints = Constraints.Builder()
@@ -44,6 +45,22 @@ class SyncWorker @AssistedInject constructor(
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 WORK_NAME,
                 ExistingPeriodicWorkPolicy.KEEP,
+                request,
+            )
+        }
+
+        fun enqueueImmediateSync(context: Context) {
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+
+            val request = androidx.work.OneTimeWorkRequestBuilder<SyncWorker>()
+                .setConstraints(constraints)
+                .build()
+
+            WorkManager.getInstance(context).enqueueUniqueWork(
+                IMMEDIATE_WORK_NAME,
+                androidx.work.ExistingWorkPolicy.REPLACE,
                 request,
             )
         }

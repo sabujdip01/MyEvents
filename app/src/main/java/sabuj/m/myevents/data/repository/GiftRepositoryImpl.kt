@@ -11,6 +11,7 @@ import javax.inject.Inject
 
 class GiftRepositoryImpl @Inject constructor(
     private val dao: GiftDao,
+    @param:dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context,
 ) : GiftRepository {
 
     override fun observeAllGifts(): Flow<List<Gift>> =
@@ -21,10 +22,12 @@ class GiftRepositoryImpl @Inject constructor(
 
     override suspend fun upsertGift(gift: Gift) {
         dao.upsertGift(gift.toEntity())
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
     }
 
     override suspend fun deleteGift(id: String) {
         dao.softDeleteGift(id, System.currentTimeMillis())
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
     }
 
     private fun GiftEntity.toDomain(): Gift = Gift(

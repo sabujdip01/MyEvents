@@ -13,6 +13,7 @@ import javax.inject.Inject
 /** Implementation of [ExpenseRepository] backed by Room [ExpenseDao]. */
 class ExpenseRepositoryImpl @Inject constructor(
     private val dao: ExpenseDao,
+    @param:dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context,
 ) : ExpenseRepository {
 
     private val converters = Converters()
@@ -25,18 +26,22 @@ class ExpenseRepositoryImpl @Inject constructor(
 
     override suspend fun upsertExpense(expense: Expense) {
         dao.upsertExpense(expense.toEntity())
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
     }
 
     override suspend fun upsertExpenses(expenses: List<Expense>) {
         dao.upsertExpenses(expenses.map { it.toEntity() })
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
     }
 
     override suspend fun deleteExpense(id: String) {
         dao.softDeleteExpense(id, System.currentTimeMillis())
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
     }
 
     override suspend fun deleteExpenses(ids: List<String>) {
         dao.softDeleteExpenses(ids, System.currentTimeMillis())
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
     }
 
     private fun ExpenseEntity.toDomain(): Expense = Expense(

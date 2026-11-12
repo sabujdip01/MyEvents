@@ -88,6 +88,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun setFingerprintEnabled(enabled: Boolean) {
+        pinStore.isBiometricEnabled = enabled
         viewModelScope.launch { settingsDataStore.setFingerprintEnabled(enabled) }
     }
 
@@ -111,12 +112,13 @@ class SettingsViewModel @Inject constructor(
 
     fun syncNow() {
         viewModelScope.launch {
-            _uiState.update { it.copy(snackbarMessage = "Syncing with cloud...") }
-            val success = syncRepo.performSync()
-            if (success) {
+            _uiState.update { it.copy(snackbarMessage = "Syncing with cloud ...") }
+            val result = syncRepo.performSync()
+            if (result.isSuccess) {
                 _uiState.update { it.copy(snackbarMessage = "Sync completed successfully") }
             } else {
-                _uiState.update { it.copy(snackbarMessage = "Sync failed. Check connection.") }
+                val err = result.exceptionOrNull()?.localizedMessage ?: "Check connection"
+                _uiState.update { it.copy(snackbarMessage = "Sync failed: $err") }
             }
         }
     }

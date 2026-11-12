@@ -34,21 +34,35 @@ class FirestoreSyncRepository @Inject constructor(
 ) {
     private val db: FirebaseFirestore get() = FirebaseFirestore.getInstance()
 
-    /** Runs a full push-sync of all pending data. Returns true on success. */
-    suspend fun performSync(): Boolean {
-        val uid = authManager.ensureSignedIn() ?: return false
-
+    /** Runs a full push-sync of all pending data. Returns Result.success or Result.failure with error details. */
+    suspend fun performSync(): Result<Unit> {
         return try {
+            val uid = authManager.ensureSignedIn()
+            val timestamp = System.currentTimeMillis()
+
+            // Write user heartbeat document to verify auth & network permissions
+            db.collection("users").document(uid).set(
+                mapOf(
+                    "uid" to uid,
+                    "lastSyncTimestamp" to timestamp,
+                    "lastSyncFormatted" to java.util.Date(timestamp).toString(),
+                ),
+                com.google.firebase.firestore.SetOptions.merge()
+            ).await()
+
             syncEvents(uid)
             syncBookings(uid)
             syncExpenses(uid)
             syncInvitees(uid)
             syncGifts(uid)
             syncTasks(uid)
-            settingsDataStore.saveLastSyncTimestamp(System.currentTimeMillis())
-            true
+
+            settingsDataStore.saveLastSyncTimestamp(timestamp)
+            android.util.Log.d("SyncWorker", "Firebase sync completed successfully at ${java.util.Date(timestamp)} (uid: $uid)")
+            Result.success(Unit)
         } catch (e: Exception) {
-            false
+            android.util.Log.e("SyncWorker", "Firebase sync failed: ${e.message}", e)
+            Result.failure(e)
         }
     }
 

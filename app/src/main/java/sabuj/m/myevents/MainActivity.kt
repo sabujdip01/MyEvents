@@ -121,25 +121,26 @@ class MainActivity : FragmentActivity() {
                             )
                         }
                         else -> {
-                            // Unlock screen — automatically trigger fingerprint prompt on launch
-                            androidx.compose.runtime.LaunchedEffect(Unit) {
-                                if (lockViewModel.isBiometricEnabled && isBiometricAvailable()) {
+                            // Unlock screen — automatically trigger fingerprint prompt ONLY if biometric is enabled
+                            val bioEnabled = pinStore.isBiometricEnabled && settings.fingerprintEnabled
+                            androidx.compose.runtime.LaunchedEffect(bioEnabled) {
+                                if (bioEnabled && isBiometricAvailable()) {
                                     showBiometricPrompt()
                                 }
                             }
 
                             PinScreen(
                                 title    = "Enter PIN",
-                                subtitle = "Use your PIN or fingerprint to unlock",
+                                subtitle = if (bioEnabled) "Use your PIN or fingerprint to unlock" else "Enter your 4-digit PIN to unlock",
                                 pinLength        = state.pin.length,
                                 hasError         = state.error != null,
                                 errorMessage     = state.error,
                                 isLockedOut      = state.isLockedOut,
                                 lockedOutMessage = "Too many attempts. Try again in ${state.lockoutSecondsLeft}s.",
-                                showFingerprint  = lockViewModel.isBiometricEnabled && isBiometricAvailable(),
+                                showFingerprint  = bioEnabled && isBiometricAvailable(),
                                 onDigit          = { lockViewModel.onEvent(LockEvent.DigitPressed(it)) },
                                 onBackspace      = { lockViewModel.onEvent(LockEvent.BackspacePressed) },
-                                onFingerprint    = { showBiometricPrompt() },
+                                onFingerprint    = { if (bioEnabled && isBiometricAvailable()) showBiometricPrompt() },
                             )
                         }
                     }

@@ -19,6 +19,7 @@ import javax.inject.Singleton
 @Singleton
 class EventRepositoryImpl @Inject constructor(
     private val dao: EventDao,
+    @param:dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context,
 ) : EventRepository {
 
     override fun observeAll(): Flow<List<Event>> =
@@ -27,17 +28,25 @@ class EventRepositoryImpl @Inject constructor(
     override fun observeById(id: String): Flow<Event?> =
         dao.observeById(id).map { it?.toDomain() }
 
-    override suspend fun upsert(event: Event) =
+    override suspend fun upsert(event: Event) {
         dao.upsert(event.toEntity())
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
+    }
 
-    override suspend fun softDelete(id: String) =
+    override suspend fun softDelete(id: String) {
         dao.softDelete(id, System.currentTimeMillis())
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
+    }
 
-    override suspend fun restoreDeleted(id: String) =
+    override suspend fun restoreDeleted(id: String) {
         dao.restore(id, System.currentTimeMillis())
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
+    }
 
-    override suspend fun hardDelete(id: String) =
+    override suspend fun hardDelete(id: String) {
         dao.hardDelete(id)
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
+    }
 
     override suspend fun isDateTaken(date: LocalDate, excludeId: String?): Boolean =
         dao.countByDate(date.toEpochDay(), excludeId) > 0

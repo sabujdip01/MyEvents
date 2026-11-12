@@ -14,6 +14,7 @@ import javax.inject.Inject
 
 class TaskRepositoryImpl @Inject constructor(
     private val dao: TaskDao,
+    @param:dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context,
 ) : TaskRepository {
 
     private val converters = Converters()
@@ -26,18 +27,22 @@ class TaskRepositoryImpl @Inject constructor(
 
     override suspend fun upsertTask(task: Task) {
         dao.upsertTask(task.toEntity())
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
     }
 
     override suspend fun deleteTask(id: String) {
         dao.softDeleteTask(id, System.currentTimeMillis())
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
     }
 
     override suspend fun restoreTask(id: String) {
         dao.restoreTask(id, System.currentTimeMillis())
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
     }
 
     override suspend fun deleteTasks(ids: List<String>) {
         dao.softDeleteTasks(ids, System.currentTimeMillis())
+        sabuj.m.myevents.data.worker.SyncWorker.enqueueImmediateSync(context)
     }
 
     private fun TaskEntity.toDomain(): Task = Task(

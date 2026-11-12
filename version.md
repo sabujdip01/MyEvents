@@ -1,9 +1,10 @@
 # Version History
 
-Current: V0.T.45
+Current: V0.T.46
 
 | Version  | Phase | Build | Commit    | Summary                                                                                             |
 | -------- |-------|-------|-----------|-----------------------------------------------------------------------------------------------------|
+| V0.T.46  | Test  | 46    | -         | fix(settings): 50-50 sharp color swatch split, fixed top bar, bio toggle check, real-time firestore sync |
 | V0.T.45  | Test  | 45    | -         | fix(bookings): replace unresolved DeleteBookingDialog with AppDeleteDialog in BookingsPreviews      |
 | V0.T.44  | Test  | 44    | -         | refactor(ui): consolidate all deletion popups to use AppDeleteDialog directly                       |
 | V0.T.43  | Test  | 43    | -         | refactor(guests): safely rename Invitees feature package to Guests in codebase and docs            |
