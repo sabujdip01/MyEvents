@@ -45,6 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import sabuj.m.myevents.core.icons.AppIcon
 import sabuj.m.myevents.core.icons.EventIconDisplay
@@ -55,7 +56,6 @@ import sabuj.m.myevents.core.theme.Radius
 import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
-import sabuj.m.myevents.core.theme.numberL
 import sabuj.m.myevents.core.theme.numberXl
 import sabuj.m.myevents.core.theme.titleL
 import sabuj.m.myevents.core.theme.titleM
@@ -345,7 +345,7 @@ private fun BookingsDoneCard(done: Int, total: Int, modifier: Modifier) {
                             withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
                                 append("$done")
                             }
-                            withStyle(numberL.toSpanStyle().copy(color = AppColor.text2)) {
+                            withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
                                 append(" of ")
                             }
                             withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
@@ -447,13 +447,13 @@ private fun BudgetCard(spentPaise: Long, totalPaise: Long) {
                             withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
                                 append(MoneyFormatter.format(spentPaise))
                             }
-                            withStyle(numberL.toSpanStyle().copy(color = AppColor.text2)) {
+                            withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
                                 append(" of ")
                             }
                             withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
                                 append(MoneyFormatter.format(totalPaise))
                             }
-                            withStyle(numberL.toSpanStyle().copy(color = AppColor.text2)) {
+                            withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
                                 append(" spent")
                             }
                         },
@@ -564,7 +564,7 @@ private fun InviteesCard(
                                 withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
                                     append("$invitedGuests")
                                 }
-                                withStyle(numberL.toSpanStyle().copy(color = AppColor.text2)) {
+                                withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
                                     append(" of ")
                                 }
                                 withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
@@ -592,7 +592,7 @@ private fun InviteesCard(
                                 withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
                                     append("$invitedFamilies")
                                 }
-                                withStyle(numberL.toSpanStyle().copy(color = AppColor.text2)) {
+                                withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
                                     append(" of ")
                                 }
                                 withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {

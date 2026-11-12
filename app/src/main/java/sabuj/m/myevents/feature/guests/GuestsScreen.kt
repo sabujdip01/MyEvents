@@ -609,12 +609,7 @@ private fun GuestRowCard(
 // ---------------------------------------------------------------------------
 
 /**
- * Guest Summary Footer — 5-column layout matching GuestRowCard column widths exactly.
- * Col 1 (26%): "Total" + "N Families" + "N invited families" stacked, left-aligned, 4dp start inset.
- * Col 2 (22%): empty spacer (family info already in col 1).
- * Col 3 (14%): Total guest count value + "Guests" label, right-aligned.
- * Col 4 (14%): Total cards count + "Cards" label, center-aligned.
- * Col 5 (20%): Total invited guests + "Invited guests" label, right-aligned (success colour).
+ * 2-Row Guest Summary Footer with values on top and subtext/labels placed exactly under text, center aligned.
  */
 @Composable
 fun GuestSummaryFooter(
@@ -636,15 +631,15 @@ fun GuestSummaryFooter(
             modifier          = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = Spacing.xs, vertical = Spacing.sm),
-            verticalAlignment = Alignment.Top,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Col 1 (26%) — "Total" + "N Families" + "N invited families", left, 4dp start inset
+            // Left 48% — "Total N Guests" + "N Families" stacked
             Column(
-                modifier            = Modifier.weight(0.26f).padding(start = 4.dp),
+                modifier            = Modifier.weight(0.48f).padding(start = 4.dp),
                 horizontalAlignment = Alignment.Start,
             ) {
                 Text(
-                    text       = "Total",
+                    text       = "Total $totalGuests Guests",
                     style      = labelL,
                     fontWeight = FontWeight.Bold,
                     color      = AppColor.onPrimaryContainer,
@@ -653,89 +648,85 @@ fun GuestSummaryFooter(
                 Spacer(Modifier.height(2.dp))
                 Text(
                     text     = "$totalFamilies Families",
-                    style    = bodyM.copy(fontSize = 12.sp),
+                    style    = labelL,
                     color    = AppColor.onPrimaryContainer,
                     maxLines = 1,
                 )
-                Spacer(Modifier.height(2.dp))
-                Text(
-                    text     = "$totalInvitedFamilies invited families",
-                    style    = bodyM.copy(fontSize = 12.sp),
-                    color    = AppColor.text2,
-                    maxLines = 1,
-                )
             }
 
-            // Col 2 (22%) — empty, family info is in col 1
-            Spacer(Modifier.weight(0.22f))
-
-            // Col 3 (14%) — Total guests, right-aligned with 20dp start inset
-            Column(
-                modifier            = Modifier.weight(0.14f).padding(start = 20.dp),
-                horizontalAlignment = Alignment.End,
+            // Right 52% — 3 sub-columns with subtext placed exactly under text, center aligned
+            Row(
+                modifier          = Modifier.weight(0.52f),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(
-                    text       = "$totalGuests",
-                    style      = labelL,
-                    fontWeight = FontWeight.Bold,
-                    color      = AppColor.onPrimaryContainer,
-                    maxLines   = 1,
-                    textAlign  = TextAlign.End,
-                )
-                Spacer(Modifier.height(2.dp))
-                Text(
-                    text      = "Guests",
-                    style     = bodyM.copy(fontSize = 12.sp),
-                    color     = AppColor.text2,
-                    maxLines  = 1,
-                    textAlign = TextAlign.End,
-                )
-            }
+                // Sub-col 1: Invited Guests
+                Column(
+                    modifier            = Modifier.weight(0.16f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text       = "$totalInvitedGuests",
+                        style      = labelL,
+                        fontWeight = FontWeight.Bold,
+                        color      = AppColor.onSuccessContainer,
+                        maxLines   = 1,
+                        textAlign  = TextAlign.Center,
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text      = "Invited guests",
+                        style     = bodyM.copy(fontSize = 12.5.sp),
+                        color     = AppColor.onSuccessContainer,
+                        maxLines  = 1,
+                        textAlign = TextAlign.Center,
+                    )
+                }
 
-            // Col 4 (14%) — Cards count, center-aligned
-            Column(
-                modifier            = Modifier.weight(0.14f),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    text       = "$totalCards",
-                    style      = labelL,
-                    fontWeight = FontWeight.Bold,
-                    color      = AppColor.onPrimaryContainer,
-                    maxLines   = 1,
-                    textAlign  = TextAlign.Center,
-                )
-                Spacer(Modifier.height(2.dp))
-                Text(
-                    text      = "Cards",
-                    style     = bodyM.copy(fontSize = 12.sp),
-                    color     = AppColor.text2,
-                    maxLines  = 1,
-                    textAlign = TextAlign.Center,
-                )
-            }
+                // Sub-col 2: Cards
+                Column(
+                    modifier            = Modifier.weight(0.12f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text       = "$totalCards",
+                        style      = labelL,
+                        fontWeight = FontWeight.Bold,
+                        color      = AppColor.onPrimaryContainer,
+                        maxLines   = 1,
+                        textAlign  = TextAlign.Center,
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text      = "Cards",
+                        style     = bodyM.copy(fontSize = 12.5.sp),
+                        color     = AppColor.text2,
+                        maxLines  = 1,
+                        textAlign = TextAlign.Center,
+                    )
+                }
 
-            // Col 5 (20%) — Invited guests, right-aligned (success colour)
-            Column(
-                modifier            = Modifier.weight(0.20f),
-                horizontalAlignment = Alignment.End,
-            ) {
-                Text(
-                    text       = "$totalInvitedGuests",
-                    style      = labelL,
-                    fontWeight = FontWeight.Bold,
-                    color      = AppColor.onSuccessContainer,
-                    maxLines   = 1,
-                    textAlign  = TextAlign.End,
-                )
-                Spacer(Modifier.height(2.dp))
-                Text(
-                    text      = "Invited guests",
-                    style     = bodyM.copy(fontSize = 12.sp),
-                    color     = AppColor.onSuccessContainer,
-                    maxLines  = 1,
-                    textAlign = TextAlign.End,
-                )
+                // Sub-col 3: Invited Families
+                Column(
+                    modifier            = Modifier.weight(0.24f).padding(end = 4.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text       = "$totalInvitedFamilies",
+                        style      = labelL,
+                        fontWeight = FontWeight.Bold,
+                        color      = AppColor.onPrimaryContainer,
+                        maxLines   = 1,
+                        textAlign  = TextAlign.Center,
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text      = "Invited families",
+                        style     = bodyM.copy(fontSize = 12.5.sp),
+                        color     = AppColor.text2,
+                        maxLines  = 1,
+                        textAlign = TextAlign.Center,
+                    )
+                }
             }
         }
     }
