@@ -1,6 +1,8 @@
 package sabuj.m.myevents.feature.bookings
 
 import androidx.compose.runtime.Composable
+import sabuj.m.myevents.core.preview.LightDarkPreviews
+import sabuj.m.myevents.core.theme.AppTheme
 import sabuj.m.myevents.core.ui.AppDeleteDialog
 
 /**
@@ -19,4 +21,16 @@ fun DeleteBookingDialog(
         onDismiss = onDismiss,
         onConfirm = onConfirm,
     )
+}
+
+@LightDarkPreviews
+@Composable
+private fun DeleteBookingDialogPreview() {
+    AppTheme {
+        DeleteBookingDialog(
+            bookingTitle = "Photography",
+            onDismiss    = {},
+            onConfirm    = {},
+        )
+    }
 }

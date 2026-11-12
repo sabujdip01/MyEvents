@@ -902,3 +902,15 @@ private fun EditBookingSheetPreview() {
         )
     }
 }
+
+@LightDarkPreviews
+@Composable
+private fun BookingIconPickerDialogPreview() {
+    AppTheme {
+        BookingIconPickerDialog(
+            selectedIcon = BookingIcon.Camera,
+            onSelect     = {},
+            onDismiss    = {},
+        )
+    }
+}

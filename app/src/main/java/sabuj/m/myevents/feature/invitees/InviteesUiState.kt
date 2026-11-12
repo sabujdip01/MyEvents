@@ -35,16 +35,6 @@ sealed class InviteeSheetState {
         val invitationType: InvitationType = InvitationType.None,
         val nameError: String? = null,
     ) : InviteeSheetState()
-
-    data class AddGift(
-        val giverName: String = "",
-        val eventId: String = "",
-        val amountPaise: Long = 0L,
-        val description: String = "",
-        val inviteeId: String? = null,
-        val giverError: String? = null,
-        val eventError: String? = null,
-    ) : InviteeSheetState()
 }
 
 /** UI state for Invitees & Gifts screen. */

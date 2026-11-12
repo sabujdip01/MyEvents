@@ -37,27 +37,3 @@ private fun AddInviteeSheetPreview() {
         )
     }
 }
-
-@LightDarkPreviews
-@Composable
-private fun AddGiftSheetPreview() {
-    AppTheme {
-        AddGiftSheet(
-            sheetState          = InviteeSheetState.AddGift(
-                giverName   = "Ramesh Sharma",
-                eventId     = PreviewData.sampleEvents.first().id,
-                amountPaise = 11_000_00L,
-                description = "Silver Bowl set",
-            ),
-            events              = PreviewData.sampleEvents,
-            invitees            = emptyList(),
-            onDismiss           = {},
-            onGiverNameChange   = {},
-            onEventChange       = {},
-            onAmountChange      = {},
-            onDescriptionChange = {},
-            onInviteeChange     = {},
-            onSave              = {},
-        )
-    }
-}

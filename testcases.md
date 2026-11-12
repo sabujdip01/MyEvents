@@ -190,6 +190,25 @@
 | ET-23  | Over-budget warning   | Set budget lower than total expenses for an event; select that event tab                  | "⚠️ Over Budget by ₹X" warning appears above footer Row 1 in danger color                             | [ ]   | [ ]  | Pending |
 | ET-24  | Dark theme            | Repeat ET-01 through ET-23 in dark theme                                                  | All colors, gradients, pill variants, and footer surface render correctly in dark palette              | [ ]   | [ ]  | Pending |
 
+## Test: Guests Screen UI Polish & Refactor (V0.T.40)
+
+| ID     | Area                  | Steps                                                                                     | Expected result                                                                                        | Light | Dark | Status  |
+| ------ | --------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ----- | ---- | ------- |
+| GT-01  | Tabular row layout    | Open Guests screen with guests added                                                      | Guest rows display in a 5-column Excel-style tabular card without vertical borders                     | [Works] | [Works] | Pass ✅ |
+| GT-02  | Guest count 20dp left | Inspect 'Number of guests' column in guest card                                           | Guest count text is shifted 20 dp to the left relative to its column right boundary                    | [Works] | [Works] | Pass ✅ |
+| GT-03  | Status pill position  | Inspect 'Status' column in guest card                                                     | Pill ("Invited" / "Pending") is right-aligned (`CenterEnd`), matching Expenses payment status pill      | [Works] | [Works] | Pass ✅ |
+| GT-04  | Single-line footer    | View sticky footer at bottom of Guests screen                                             | Footer renders as a single horizontal line (`Row`)                                                     | [Works] | [Works] | Pass ✅ |
+| GT-05  | Footer Col 1          | Check footer Col 1 (under Guest name)                                                     | Displays `"<Count of Rows> Families"` (e.g. "38 Families")                                             | [Works] | [Works] | Pass ✅ |
+| GT-06  | Footer Col 2          | Check footer Col 2 (under Event name)                                                     | Displays `"<Count of Rows where invited> Invited families"` (e.g. "30 Invited families")               | [Works] | [Works] | Pass ✅ |
+| GT-07  | Footer Col 3          | Check footer Col 3 (under Number of guests)                                               | Displays `"<Sum of Guests> Guests"` (e.g. "185 Guests"), aligned 20 dp left                            | [Works] | [Works] | Pass ✅ |
+| GT-08  | Footer Col 4          | Check footer Col 4 (under Invite Via icon)                                                | Displays `"<Count where invitation through = card> Cards"` (e.g. "42 Cards")                           | [Works] | [Works] | Pass ✅ |
+| GT-09  | Footer Col 5          | Check footer Col 5 (under Status pill)                                                    | Displays `"<Sum of Guests where invited> Invited guests"` (e.g. "120 Invited guests"), right-aligned  | [Works] | [Works] | Pass ✅ |
+| GT-10  | Extra cards icon badge| Inspect top bar Extra Cards icon                                                          | Displays extra cards count text directly below card icon if > 0; blank if count is 0                   | [Works] | [Works] | Pass ✅ |
+| GT-11  | Extra cards dialog    | Tap Extra Cards icon in top bar                                                           | Opens dialog with 12 dp whitespace before and after Cancel/Save button row                             | [Works] | [Works] | Pass ✅ |
+| GT-12  | Delete top-right icon | Inspect top-right bar actions                                                             | Delete trash icon removed; long-pressing any guest card opens single-guest delete dialog               | [Works] | [Works] | Pass ✅ |
+| GT-13  | Single-select event   | Tap Add -> select event in Add Guest sheet                                                | Tapping an event selects that event and unselects previous (single-select choice)                      | [Works] | [Works] | Pass ✅ |
+| GT-14  | Dark theme            | Switch to dark theme in Settings; open Guests screen                                      | Tabular cards, single-line footer, extra cards badge, and dialogs render cleanly in dark theme          | [Works] | [Works] | Pass ✅ |
+
 ## Sprint T: Guests Screen (V0.T.36)
 
 | ID     | Area                    | Steps                                                                                     | Expected result                                                                                           | Light | Dark | Status  |

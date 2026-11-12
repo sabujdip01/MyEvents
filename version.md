@@ -1,9 +1,10 @@
 # Version History
 
-Current: V0.T.40
+Current: V0.T.41
 
 | Version  | Phase | Build | Commit    | Summary                                                                                             |
 | -------- |-------|-------|-----------|-----------------------------------------------------------------------------------------------------|
+| V0.T.41  | Test  | 41    | -         | docs(md): move AddGiftSheet to .bin, update ui_inventory.md, design.md and testcases.md |
 | V0.T.40  | Test  | 40    | -         | fix(guests): shift guest count 20dp left, right-align status pill, 1-line total row, top-bar extra cards count |
 | V0.T.39  | Test  | 39    | -         | feat(guests): footer redesign, top bar icons, sheet labels, single-select, extra cards dialog       |
 | V0.T.38  | Test  | 38    | -         | feat(guests): excel-style 5-col card, 1-line layout, home card shows X/Y guests and families        |

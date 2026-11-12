@@ -77,25 +77,13 @@ class InviteesViewModel @Inject constructor(
     }
 
     fun showAddSheet() {
-        val currentTab = uiState.value.mainTab
-        if (currentTab == InviteeMainTab.Invitees) {
-            val preselected = uiState.value.selectedEventId?.let { setOf(it) } ?: emptySet()
-            _uiState.update {
-                it.copy(
-                    sheetState = InviteeSheetState.AddInvitee(
-                        selectedEventIds = preselected,
-                    )
+        val preselected = uiState.value.selectedEventId?.let { setOf(it) } ?: emptySet()
+        _uiState.update {
+            it.copy(
+                sheetState = InviteeSheetState.AddInvitee(
+                    selectedEventIds = preselected,
                 )
-            }
-        } else {
-            val defaultEvent = uiState.value.selectedEventId ?: uiState.value.events.firstOrNull()?.id ?: ""
-            _uiState.update {
-                it.copy(
-                    sheetState = InviteeSheetState.AddGift(
-                        eventId = defaultEvent,
-                    )
-                )
-            }
+            )
         }
     }
 
@@ -128,11 +116,6 @@ class InviteesViewModel @Inject constructor(
 
     fun updateEditInviteeSheet(update: (InviteeSheetState.EditInvitee) -> InviteeSheetState.EditInvitee) {
         val current = _uiState.value.sheetState as? InviteeSheetState.EditInvitee ?: return
-        _uiState.update { it.copy(sheetState = update(current)) }
-    }
-
-    fun updateAddGiftSheet(update: (InviteeSheetState.AddGift) -> InviteeSheetState.AddGift) {
-        val current = _uiState.value.sheetState as? InviteeSheetState.AddGift ?: return
         _uiState.update { it.copy(sheetState = update(current)) }
     }
 
@@ -177,24 +160,6 @@ class InviteesViewModel @Inject constructor(
         }
     }
 
-    fun saveGift() {
-        viewModelScope.launch {
-            val sheet = _uiState.value.sheetState as? InviteeSheetState.AddGift ?: return@launch
-            val result = addGift(
-                giverName   = sheet.giverName,
-                eventId     = sheet.eventId,
-                amountPaise = sheet.amountPaise,
-                description = sheet.description,
-                inviteeId   = sheet.inviteeId,
-            )
-            when (result) {
-                GiftSaveResult.Success    -> hideSheet()
-                GiftSaveResult.GiverBlank -> applyGiftError(sheet, giverError = "Enter giver name")
-                GiftSaveResult.EventBlank -> applyGiftError(sheet, eventError = "Select an event")
-            }
-        }
-    }
-
     private fun applyInviteeError(
         sheet: InviteeSheetState,
         nameError: String? = null,
@@ -211,18 +176,6 @@ class InviteesViewModel @Inject constructor(
         }
     }
 
-    private fun applyGiftError(
-        sheet: InviteeSheetState.AddGift,
-        giverError: String? = null,
-        eventError: String? = null,
-    ) {
-        _uiState.update {
-            it.copy(
-                sheetState = sheet.copy(giverError = giverError, eventError = eventError)
-            )
-        }
-    }
-
     fun toggleInvited(invitee: sabuj.m.myevents.domain.model.Invitee) {
         viewModelScope.launch {
             editInvitee(
@@ -233,12 +186,6 @@ class InviteesViewModel @Inject constructor(
                 invited       = !invitee.invited,
                 note          = invitee.note,
             )
-        }
-    }
-
-    fun deleteGift(giftId: String) {
-        viewModelScope.launch {
-            deleteGifts(giftId)
         }
     }
 

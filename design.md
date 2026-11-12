@@ -617,61 +617,62 @@ Spacing: 12 dp between cards, 16 dp sides, 32 dp bottom padding.
 
 ### 6.8 Guests (Invitees)
 ```
-+-------------------------------------------+
-| (=)  Guests                          [Add] |
-| [Engagement (45)][Wedding (120)]           |
-| [search..................................] |
-| (All)(Invited)(Not invited)                |
-| +---------------------------------------+ |
-| | Guest Name   | Count | Invite | Status | |
-| | Sharma Family| 4     |  Card  |Invited | |
-| |  Wedding      |       | Invit. |        | |
-| +---------------------------------------+ |
-| | Total        | 185   |   42   |   38   | |
-| | (label)      |Guests | Cards  |Families| |
-+-------------------------------------------+
++-----------------------------------------------------------+
+| (=)  Guests                                [🃏 10]  [Add] |
+| [All (185)][Engagement (45)][Wedding (140)]               |
+| [search guest or address................................] |
+| (All)(Invited)(Not invited)                               |
+| +-------------------------------------------------------+ |
+| | Sharma Family  | Engagement |  4  | ✉ | [Invited]     | |
+| | Verma Uncle    | Engagement |  2  | 📞| [Pending]     | |
+| +-------------------------------------------------------+ |
+| | 38 Families | 30 Invited families | 185 Guests | 42 Cards | 120 Invited guests |
++-----------------------------------------------------------+
 ```
-- **Top bar:** Title "Guests", right-side "Add" text button. **Tap Add** → Add Guest popup. **Long-press Add** → Extra Cards popup.
-- **Event filter tabs:** One tab per event with `inviteesRequired = true`. Each tab shows `Event name (N)` where N = total expected guest count for that event. "All" tab at the left sums all events.
-- **Search bar:** Matches guest name or address.
-- **Filter chips row:** All / Invited / Not Invited.
+- **Top bar:** Title "Guests". Actions: **Extra Cards icon** (`ic-mail` with small `extraCards` count badge text underneath if > 0, blank if 0; tap opens `ExtraCardsDialog`) + **"Add" text button** (tap opens `AddEditInviteeSheet`).
+- **Event filter tabs:** One tab per event where `inviteesRequired = true`. Each tab shows `Event name (N)` where N = total expected guest count for that event. "All (Total)" tab at the left sums all events.
+- **Search bar:** `OutlinedTextField` filtering guest name or address.
+- **Filter chips row:** All / Invited / Not invited (single-select).
 
-#### Card columns (weight-based, full width, no icon column)
-| Column        | Weight | Content                                                                   |
-|---------------|--------|---------------------------------------------------------------------------|
-| Name / Event  | 0.35   | Title = guest name (`labelL`); subtitle = event name (`bodyM`, `text2`)   |
-| Guest count   | 0.35   | Value = `expectedCount` (`bodyM` semibold); subtitle = "guest"/"guests"   |
-| Invite type   | 0.18   | Value = 1 if Card, 0 otherwise; subtitle = "Invitation"                   |
-| Status pill   | 0.12   | `Pill(Success)` = Invited; `Pill(Warning)` = Pending (not yet invited)    |
+#### Tabular Excel-style Guest Row Card (`GuestRowCard`)
+Single-line full-width card with 5 weight-based columns (`horizontal = Spacing.xs, vertical = 4 dp`):
 
-- **Tap card** → Edit Guest popup (same fields as Add).
-- **Long-press card** → Delete confirmation dialog for that single guest.
+| Column | Weight | Content & Alignment |
+|---|---|---|
+| **Col 1: Guest Name** | 0.26 | Guest family/person name (`labelL`, `text`, left-aligned, 4 dp start padding) |
+| **Col 2: Event Name** | 0.22 | Event title (`bodyM` 12 sp, `text2`, left-aligned) |
+| **Col 3: Guest Count** | 0.14 | Expected guests number (`bodyM` 13 sp SemiBold, right-aligned, 20 dp end padding inset) |
+| **Col 4: Invite Via** | 0.14 | Call icon (`ic-phone`), Card icon (`ic-mail`), or blank cell for None (center-aligned) |
+| **Col 5: Status Pill** | 0.20 | `Pill(Success)` = "Invited"; `Pill(Warning)` = "Pending" (right-aligned, `CenterEnd`) |
 
-#### GuestSummaryFooter (sticky above nav bar)
-Two rows, same column weights as the card:
+- **Tap card** → Opens `AddEditInviteeSheet` for editing.
+- **Long-press card** → Triggers `AppDeleteDialog` to confirm single-guest deletion.
 
-| Column        | Row 1 (value)       | Row 2 (label)   |
-|---------------|---------------------|-----------------|
-| 0.35          | "Total"             | *(spacer)*      |
-| 0.35          | sum of guest counts | "Guests"        |
-| 0.18          | card-invite count   | "Cards"         |
-| 0.12          | total family rows   | "Families"      |
+#### Sticky Single-Line Summary Footer (`GuestSummaryFooter`)
+Sticky full-width `primaryContainer` card positioned above the Android navigation bar (`navigationBarsPadding + padding(bottom = 6 dp)`). Layout is a **single horizontal line** matching card column alignment:
 
-- Font: values `bodyM` semibold 13 sp; labels `bodyM` 12.5 sp `text2`.
-- Background: `surface` with 1 dp top divider.
+| Column | Weight | Content & Alignment |
+|---|---|---|
+| **Col 1** | 0.22 | `"<Count of Rows> Families"` (e.g. "38 Families", left-aligned, 2 dp start inset) |
+| **Col 2** | 0.26 | `"<Count of Rows where invited> Invited families"` (e.g. "30 Invited families", left-aligned) |
+| **Col 3** | 0.15 | `"<Sum of Guests> Guests"` (e.g. "185 Guests", right-aligned, 20 dp end padding inset) |
+| **Col 4** | 0.13 | `"<Count where invitation through = card> Cards"` (e.g. "42 Cards", center-aligned) |
+| **Col 5** | 0.24 | `"<Sum of Guests where invited> Invited guests"` (e.g. "120 Invited guests", right-aligned, `CenterEnd`) |
 
-#### Extra Cards popup (long-press Add)
-- `AlertDialog` with popup header "Extra Invitation Cards".
-- Body: − / count / + counter, count clamped to 0..999.
-- Footer: Cancel and Save buttons. On Save: persisted to DataStore `extra_invitation_cards`.
-- **Home screen card count** = card-type invitations from Guests + extra cards.
+- Font: `bodyM` 10 sp SemiBold, `onPrimaryContainer` color.
 
-#### Add / Edit Guest popup
-- Fields: Name, Events (multi-select chips, only `inviteesRequired` events), Expected count (stepper), Address, Invited toggle, Invitation type chips (None / Call / Card), Note.
-- Validation: name required; at least one event required.
+#### Extra Cards popup (`ExtraCardsDialog`)
+- `AlertDialog` with title "Extra invitation cards".
+- Body: `OutlinedTextField` for entering number of extra (non-tracked) physical invitation cards.
+- Layout: Exactly **12 dp whitespace** before and after `AppButtonRow` (Cancel / Save).
+- Persisted to DataStore `extra_invitation_cards`.
+
+#### Add / Edit Guest Sheet (`AddEditInviteeSheet`)
+- Fields: Guest Name, Event Selection (single-select event choice), Expected Guest Count (stepper/number), Address, Invited toggle, Invitation Type chips (None / Call / Card), Note.
+- Validation: Name required.
 
 #### InvitationType enum
-`None` (default) · `Call` (verbal/phone) · `Card` (physical card, counted in Home screen and Extra Cards total).
+`None` (default) · `Call` (verbal/phone) · `Card` (physical card, counted in total Cards).
 
 ### 6.9 Checklist
 ```
