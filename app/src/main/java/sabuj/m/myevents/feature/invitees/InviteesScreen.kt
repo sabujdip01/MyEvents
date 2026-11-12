@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
@@ -99,12 +100,12 @@ fun InviteesScreen(
             }
 
             Column(modifier = Modifier.fillMaxSize()) {
-                // Top bar: [🗑 delete] [🃏 extra cards] [Add]
+                // Top bar: [🃏 extra cards with count] [Add]
                 InviteesTopBar(
                     onMenuClick        = onMenuClick,
+                    extraCards         = uiState.extraCards,
                     onAddClick         = { viewModel.showAddSheet() },
                     onExtraCardsClick  = { viewModel.showExtraCardsDialog() },
-                    onDeleteClick      = { viewModel.toggleDeleteMode() },
                 )
 
                 Spacer(Modifier.height(Spacing.sm))
@@ -222,37 +223,41 @@ fun InviteesScreen(
 // ---------------------------------------------------------------------------
 
 /**
- * Guests top bar with "Add" text action (tap = add guest, long-press = extra cards popup).
+ * Guests top bar with Extra Cards icon (with count text below if > 0) and "Add" button.
  */
 @Composable
 private fun InviteesTopBar(
     onMenuClick: () -> Unit,
+    extraCards: Int,
     onAddClick: () -> Unit,
     onExtraCardsClick: () -> Unit,
-    onDeleteClick: () -> Unit,
 ) {
     AppTopBar(
         titleText   = "Guests",
         onMenuClick = onMenuClick,
         actions     = {
-            // Delete icon — tap to enter delete mode
-            IconButton(onClick = onDeleteClick) {
-                Icon(
-                    imageVector        = Icons.Rounded.Delete,
-                    contentDescription = "Delete guest",
-                    tint               = AppColor.primary,
-                    modifier           = Modifier.size(20.dp),
-                )
-            }
-            // Extra Cards icon — tap to open Extra Cards popup
-            IconButton(onClick = onExtraCardsClick) {
+            // Extra Cards icon — tap to open Extra Cards popup (with count text if > 0)
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier            = Modifier
+                    .clip(CircleShape)
+                    .clickable(onClick = onExtraCardsClick)
+                    .padding(horizontal = 6.dp, vertical = 2.dp),
+            ) {
                 Icon(
                     imageVector        = Icons.Rounded.MailOutline,
                     contentDescription = "Extra invitation cards",
                     tint               = AppColor.primary,
                     modifier           = Modifier.size(20.dp),
                 )
+                Text(
+                    text  = if (extraCards > 0) "$extraCards" else "",
+                    style = labelM.copy(fontSize = 10.sp, fontWeight = FontWeight.Bold),
+                    color = AppColor.primary,
+                )
             }
+            Spacer(Modifier.width(Spacing.xs))
             // Add text button
             Text(
                 text     = "Add",
@@ -458,9 +463,9 @@ private fun GuestsTableContent(
  * Columns (left to right, same widths as [GuestSummaryFooter]):
  *  1. 0.26f  Guest Name  — text, left-aligned, 4 dp start padding
  *  2. 0.22f  Event Name  — text, left-aligned
- *  3. 0.14f  Guest count — number, right-aligned
+ *  3. 0.14f  Guest count — number, right-aligned, 20dp left padding inset
  *  4. 0.14f  Invite Via  — Call/Card icon, center-aligned (blank for None)
- *  5. 0.20f  Status pill — Invited (Success) or Pending (Warning), center-aligned
+ *  5. 0.20f  Status pill — Invited (Success) or Pending (Warning), right-aligned
  *
  * Tap = edit; Long-press = delete dialog.
  */
@@ -523,9 +528,9 @@ private fun GuestRowCard(
                 )
             }
 
-            // Col 3 — Guest count (14%, right)
+            // Col 3 — Guest count (14%, right, moved 20dp left)
             Box(
-                modifier         = Modifier.weight(0.14f),
+                modifier         = Modifier.weight(0.14f).padding(end = 20.dp),
                 contentAlignment = Alignment.CenterEnd,
             ) {
                 Text(
@@ -558,10 +563,10 @@ private fun GuestRowCard(
                 }
             }
 
-            // Col 5 — Status pill (20%, center)
+            // Col 5 — Status pill (20%, right-aligned)
             Box(
                 modifier         = Modifier.weight(0.20f),
-                contentAlignment = Alignment.Center,
+                contentAlignment = Alignment.CenterEnd,
             ) {
                 Pill(
                     text    = if (invitee.invited) "Invited" else "Pending",
@@ -577,16 +582,13 @@ private fun GuestRowCard(
 // ---------------------------------------------------------------------------
 
 /**
- * Sticky Excel-style total row. Layout mirrors [GuestRowCard] column widths.
+ * Single-line Excel-style total row. Layout mirrors [GuestRowCard] column widths.
  *
- * Left block (col1 0.26f + col2 0.22f = 0.48f combined):
- *   - "Total"               — col1 only (left), bold, under Guest Name
- *   - "N Families"          — spans col1+col2 width, under Guest Name + Event Name
- *   - "N invited families"  — spans col1+col2 width, under Guest Name + Event Name
- *
- * Col3 (0.14f): "N Guests"          right, under Guest count
- * Col4 (0.14f): "N Cards"           right, under Invite Via icon
- * Col5 (0.20f): "N Invited guests"  center, under Status pill
+ * Col1 (0.26f): "<Count of Rows> Families"                      under Guest name
+ * Col2 (0.22f): "<Count of Rows where invited> invited families" under Event name
+ * Col3 (0.14f): "<Sum of Guests> Guests"                       under Guest count (20dp left)
+ * Col4 (0.14f): "<Count where invitation through = card> Cards" under Invitation Via icon
+ * Col5 (0.20f): "<Sum of Guests where invited> Invited guests"   under Status pill (right-aligned)
  */
 @Composable
 private fun GuestSummaryFooter(
@@ -597,8 +599,7 @@ private fun GuestSummaryFooter(
     totalInvitedFamilies: Int,
     modifier: Modifier = Modifier,
 ) {
-    val valueStyle = bodyM.copy(fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
-    val subStyle   = bodyM.copy(fontSize = 11.5.sp)
+    val valueStyle = bodyM.copy(fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
     val color      = AppColor.onPrimaryContainer
 
     Surface(
@@ -610,78 +611,75 @@ private fun GuestSummaryFooter(
             modifier          = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = Spacing.xs, vertical = Spacing.sm),
-            verticalAlignment = Alignment.Top,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            // ── Left block: col1 (0.26f) + col2 (0.22f) = 0.48f ────────────
-            Column(
-                modifier = Modifier.weight(0.48f).padding(start = 4.dp),
+            // Col 1 (0.22f): "<Count of Rows> Families" under Guest name
+            Box(
+                modifier         = Modifier.weight(0.22f).padding(start = 2.dp),
+                contentAlignment = Alignment.CenterStart,
             ) {
-                // "Total" — pinned to col1 width only (0.26/0.48 = 54% of block)
-                Row {
-                    Text(
-                        text     = "Total",
-                        style    = valueStyle.copy(fontWeight = FontWeight.Bold),
-                        color    = color,
-                        maxLines = 1,
-                        modifier = Modifier.weight(0.26f / 0.48f),
-                    )
-                    Spacer(Modifier.weight(0.22f / 0.48f))
-                }
-                Spacer(Modifier.height(3.dp))
-                // "N Families" — full col1+col2 width
                 Text(
                     text     = "$totalFamilies Families",
                     style    = valueStyle,
                     color    = color,
                     maxLines = 1,
-                )
-                Spacer(Modifier.height(2.dp))
-                // "N invited families" — full col1+col2 width
-                Text(
-                    text     = "$totalInvitedFamilies invited families",
-                    style    = subStyle,
-                    color    = color.copy(alpha = 0.8f),
-                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
 
-            // ── Col3: "N Guests" (right, under Guest count) ─────────────────
+            // Col 2 (0.26f): "<Count of Rows where invited> invited families" under Event name
             Box(
-                modifier         = Modifier.weight(0.14f),
-                contentAlignment = Alignment.TopEnd,
+                modifier         = Modifier.weight(0.26f),
+                contentAlignment = Alignment.CenterStart,
+            ) {
+                Text(
+                    text     = "$totalInvitedFamilies Invited families",
+                    style    = valueStyle,
+                    color    = color,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+
+            // Col 3 (0.15f): "<Sum of Guests> Guests" under Guest count (20dp left)
+            Box(
+                modifier         = Modifier.weight(0.15f).padding(end = 20.dp),
+                contentAlignment = Alignment.CenterEnd,
             ) {
                 Text(
                     text     = "$totalGuests Guests",
                     style    = valueStyle,
                     color    = color,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
 
-            // ── Col4: "N Cards" (right, under Invite Via icon) ──────────────
+            // Col 4 (0.13f): "<Count where invitation through = card> Cards" under Invitation Via icon
             Box(
-                modifier         = Modifier.weight(0.14f),
-                contentAlignment = Alignment.TopEnd,
+                modifier         = Modifier.weight(0.13f),
+                contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text     = "$totalCards Cards",
                     style    = valueStyle,
                     color    = color,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
 
-            // ── Col5: "N Invited guests" (center, under Status pill) ─────────
+            // Col 5 (0.24f): "<Sum of Guests where invited> Invited guests" under Status pill
             Box(
-                modifier         = Modifier.weight(0.20f),
-                contentAlignment = Alignment.TopCenter,
+                modifier         = Modifier.weight(0.24f),
+                contentAlignment = Alignment.CenterEnd,
             ) {
                 Text(
-                    text      = "$totalInvitedGuests Invited guests",
-                    style     = valueStyle,
-                    color     = color,
-                    maxLines  = 2,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    text     = "$totalInvitedGuests Invited guests",
+                    style    = valueStyle,
+                    color    = color,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -718,7 +716,7 @@ private fun ExtraCardsDialog(
             )
         },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
+            Column {
                 // Count input field
                 OutlinedTextField(
                     value         = countText,
@@ -741,7 +739,7 @@ private fun ExtraCardsDialog(
                     ),
                 )
 
-                Spacer(Modifier.height(Spacing.sm))
+                Spacer(Modifier.height(12.dp))
 
                 AppButtonRow(
                     positiveText    = "Save",
@@ -750,6 +748,8 @@ private fun ExtraCardsDialog(
                     onNegative      = onDismiss,
                     positiveEnabled = true,
                 )
+
+                Spacer(Modifier.height(12.dp))
             }
         },
         confirmButton = {},
