@@ -1,6 +1,7 @@
 package sabuj.m.myevents.feature.itemlists
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -84,17 +85,29 @@ fun ItemListsScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // Automatically clear snackbar if user navigates away
+    androidx.compose.runtime.DisposableEffect(Unit) {
+        onDispose {
+            viewModel.snackbarDismissed()
+        }
+    }
+
     LaunchedEffect(uiState.snackbarMessage) {
         val msg = uiState.snackbarMessage ?: return@LaunchedEffect
-        val result = snackbarHostState.showSnackbar(
-            message     = msg,
-            actionLabel = "UNDO",
-            duration    = SnackbarDuration.Long,
-        )
-        if (result == SnackbarResult.ActionPerformed) {
-            viewModel.undoDelete()
+        try {
+            kotlinx.coroutines.withTimeoutOrNull(5000L) {
+                val result = snackbarHostState.showSnackbar(
+                    message     = msg,
+                    actionLabel = "UNDO",
+                    duration    = SnackbarDuration.Indefinite,
+                )
+                if (result == SnackbarResult.ActionPerformed) {
+                    viewModel.undoDelete()
+                }
+            }
+        } finally {
+            viewModel.snackbarDismissed()
         }
-        viewModel.snackbarDismissed()
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -164,7 +177,7 @@ fun ItemListsScreen(
 
         AppSnackbar(
             hostState = snackbarHostState,
-            modifier  = Modifier.align(Alignment.BottomCenter).padding(bottom = 88.dp),
+            modifier  = Modifier.align(Alignment.Center),
         )
     }
 
@@ -383,19 +396,29 @@ internal fun ItemListCard(
     val remItems = task.remainingItems
     val progress = if (totalItems > 0) ((totalItems - remItems).toFloat() / totalItems.toFloat()).coerceIn(0f, 1f) else (if (task.completed) 1f else 0f)
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(Radius.card))
-            .background(gradient)
-            .padding(Spacing.md),
+    Surface(
+        modifier        = Modifier.fillMaxWidth(),
+        shape           = RoundedCornerShape(Radius.card),
+        color           = AppColor.surface.copy(alpha = 0f),
+        shadowElevation = 1.dp,
+        border          = BorderStroke(
+            0.8.dp,
+            if (AppColor.isDark) AppColor.outlineVariant else AppColor.outlineVariant.copy(alpha = 0.5f),
+        ),
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            // Row 1: [Title] (left) | [Total Amount] (middle) | <Edit/Delete Icon> (right)
-            Row(
-                modifier          = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(Radius.card))
+                .background(gradient)
+                .padding(Spacing.md),
+        ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                // Row 1: [Title] (left) | [Total Amount] (middle) | <Edit/Delete Icon> (right)
+                Row(
+                    modifier          = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                 Text(
                     text      = task.title,
                     style     = titleS,
@@ -531,4 +554,5 @@ internal fun ItemListCard(
             }
         }
     }
+}
 }

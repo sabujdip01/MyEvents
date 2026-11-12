@@ -7,13 +7,14 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+    import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -28,7 +29,10 @@ import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.MailOutline
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.ui.window.Dialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.foundation.text.KeyboardOptions
@@ -49,6 +53,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -64,6 +69,7 @@ import sabuj.m.myevents.core.theme.gradientFor
 import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.labelM
 import sabuj.m.myevents.core.theme.titleL
+import sabuj.m.myevents.core.theme.titleM
 import sabuj.m.myevents.core.ui.AppButtonRow
 import sabuj.m.myevents.core.ui.AppDeleteDialog
 import sabuj.m.myevents.core.ui.AppSnackbar
@@ -83,17 +89,29 @@ fun GuestsScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // Automatically clear snackbar if user navigates away
+    androidx.compose.runtime.DisposableEffect(Unit) {
+        onDispose {
+            viewModel.snackbarDismissed()
+        }
+    }
+
     LaunchedEffect(uiState.snackbarMessage) {
         val msg = uiState.snackbarMessage ?: return@LaunchedEffect
-        val result = snackbarHostState.showSnackbar(
-            message     = msg,
-            actionLabel = "UNDO",
-            duration    = androidx.compose.material3.SnackbarDuration.Long,
-        )
-        if (result == androidx.compose.material3.SnackbarResult.ActionPerformed) {
-            viewModel.undoDelete()
+        try {
+            kotlinx.coroutines.withTimeoutOrNull(5000L) {
+                val result = snackbarHostState.showSnackbar(
+                    message     = msg,
+                    actionLabel = "UNDO",
+                    duration    = androidx.compose.material3.SnackbarDuration.Indefinite,
+                )
+                if (result == androidx.compose.material3.SnackbarResult.ActionPerformed) {
+                    viewModel.undoDelete()
+                }
+            }
+        } finally {
+            viewModel.snackbarDismissed()
         }
-        viewModel.snackbarDismissed()
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -161,7 +179,7 @@ fun GuestsScreen(
 
         AppSnackbar(
             hostState = snackbarHostState,
-            modifier  = Modifier.align(Alignment.BottomCenter).padding(bottom = 88.dp),
+            modifier  = Modifier.align(Alignment.Center),
         )
     }
 
@@ -300,7 +318,7 @@ private fun GuestEventTabs(
             val isSelected = selectedEventId == null
             Surface(
                 onClick  = { onTabSelect(null) },
-                shape    = RoundedCornerShape(Radius.chip),
+                shape    = RoundedCornerShape(Radius.pill),
                 color    = if (isSelected) AppColor.primaryContainer else AppColor.surfaceVariant,
                 modifier = Modifier.height(36.dp),
             ) {
@@ -319,7 +337,7 @@ private fun GuestEventTabs(
             val countForEvent = invitees.filter { it.eventId == event.id }.sumOf { it.expectedCount }
             Surface(
                 onClick  = { onTabSelect(event.id) },
-                shape    = RoundedCornerShape(Radius.chip),
+                shape    = RoundedCornerShape(Radius.pill),
                 color    = if (isSelected) AppColor.primaryContainer else AppColor.surfaceVariant,
                 modifier = Modifier.height(36.dp),
             ) {
@@ -447,6 +465,9 @@ private fun GuestsTableContent(
             }
         }
 
+        // 6 dp gap before the total row
+        Spacer(Modifier.height(6.dp))
+
         // Sticky footer above nav bar
         GuestSummaryFooter(
             totalGuests         = totalGuestCount,
@@ -536,7 +557,7 @@ private fun GuestRowCard(
 
             // Col 3 — Guest count (14%, right, moved 20dp left)
             Box(
-                modifier         = Modifier.weight(0.14f).padding(end = 20.dp),
+                modifier         = Modifier.weight(0.14f).padding(start = 20.dp),
                 contentAlignment = Alignment.CenterEnd,
             ) {
                 Text(
@@ -588,16 +609,10 @@ private fun GuestRowCard(
 // ---------------------------------------------------------------------------
 
 /**
- * Single-line Excel-style total row. Layout mirrors [GuestRowCard] column widths.
- *
- * Col1 (0.26f): "<Count of Rows> Families"                      under Guest name
- * Col2 (0.22f): "<Count of Rows where invited> invited families" under Event name
- * Col3 (0.14f): "<Sum of Guests> Guests"                       under Guest count (20dp left)
- * Col4 (0.14f): "<Count where invitation through = card> Cards" under Invitation Via icon
- * Col5 (0.20f): "<Sum of Guests where invited> Invited guests"   under Status pill (right-aligned)
+ * 2-Row Guest Summary Footer with values on top and subtext/labels placed exactly under text, center aligned.
  */
 @Composable
-private fun GuestSummaryFooter(
+fun GuestSummaryFooter(
     totalGuests: Int,
     totalInvitedGuests: Int,
     totalCards: Int,
@@ -605,11 +620,10 @@ private fun GuestSummaryFooter(
     totalInvitedFamilies: Int,
     modifier: Modifier = Modifier,
 ) {
-    val valueStyle = bodyM.copy(fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
-    val color      = AppColor.onPrimaryContainer
-
     Surface(
-        modifier = Modifier.fillMaxWidth().then(modifier),
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(modifier),
         shape    = RoundedCornerShape(Radius.field),
         color    = AppColor.primaryContainer,
     ) {
@@ -619,74 +633,100 @@ private fun GuestSummaryFooter(
                 .padding(horizontal = Spacing.xs, vertical = Spacing.sm),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Col 1 (0.22f): "<Count of Rows> Families" under Guest name
-            Box(
-                modifier         = Modifier.weight(0.22f).padding(start = 2.dp),
-                contentAlignment = Alignment.CenterStart,
+            // Left 48% — "Total N Guests" + "N Families" stacked
+            Column(
+                modifier            = Modifier.weight(0.48f).padding(start = 4.dp),
+                horizontalAlignment = Alignment.Start,
             ) {
+                Text(
+                    text       = "Total $totalGuests Guests",
+                    style      = labelL,
+                    fontWeight = FontWeight.Bold,
+                    color      = AppColor.onPrimaryContainer,
+                    maxLines   = 1,
+                )
+                Spacer(Modifier.height(2.dp))
                 Text(
                     text     = "$totalFamilies Families",
-                    style    = valueStyle,
-                    color    = color,
+                    style    = labelL,
+                    color    = AppColor.onPrimaryContainer,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
                 )
             }
 
-            // Col 2 (0.26f): "<Count of Rows where invited> invited families" under Event name
-            Box(
-                modifier         = Modifier.weight(0.26f),
-                contentAlignment = Alignment.CenterStart,
+            // Right 52% — 3 sub-columns with subtext placed exactly under text, center aligned
+            Row(
+                modifier          = Modifier.weight(0.52f),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(
-                    text     = "$totalInvitedFamilies Invited families",
-                    style    = valueStyle,
-                    color    = color,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
+                // Sub-col 1: Invited Guests
+                Column(
+                    modifier            = Modifier.weight(0.16f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text       = "$totalInvitedGuests",
+                        style      = labelL,
+                        fontWeight = FontWeight.Bold,
+                        color      = AppColor.onSuccessContainer,
+                        maxLines   = 1,
+                        textAlign  = TextAlign.Center,
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text      = "Invited guests",
+                        style     = bodyM.copy(fontSize = 12.5.sp),
+                        color     = AppColor.onSuccessContainer,
+                        maxLines  = 1,
+                        textAlign = TextAlign.Center,
+                    )
+                }
 
-            // Col 3 (0.15f): "<Sum of Guests> Guests" under Guest count (20dp left)
-            Box(
-                modifier         = Modifier.weight(0.15f).padding(end = 20.dp),
-                contentAlignment = Alignment.CenterEnd,
-            ) {
-                Text(
-                    text     = "$totalGuests Guests",
-                    style    = valueStyle,
-                    color    = color,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
+                // Sub-col 2: Cards
+                Column(
+                    modifier            = Modifier.weight(0.12f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text       = "$totalCards",
+                        style      = labelL,
+                        fontWeight = FontWeight.Bold,
+                        color      = AppColor.onPrimaryContainer,
+                        maxLines   = 1,
+                        textAlign  = TextAlign.Center,
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text      = "Cards",
+                        style     = bodyM.copy(fontSize = 12.5.sp),
+                        color     = AppColor.text2,
+                        maxLines  = 1,
+                        textAlign = TextAlign.Center,
+                    )
+                }
 
-            // Col 4 (0.13f): "<Count where invitation through = card> Cards" under Invitation Via icon
-            Box(
-                modifier         = Modifier.weight(0.13f),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text     = "$totalCards Cards",
-                    style    = valueStyle,
-                    color    = color,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-
-            // Col 5 (0.24f): "<Sum of Guests where invited> Invited guests" under Status pill
-            Box(
-                modifier         = Modifier.weight(0.24f),
-                contentAlignment = Alignment.CenterEnd,
-            ) {
-                Text(
-                    text     = "$totalInvitedGuests Invited guests",
-                    style    = valueStyle,
-                    color    = color,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                // Sub-col 3: Invited Families
+                Column(
+                    modifier            = Modifier.weight(0.24f).padding(end = 4.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text       = "$totalInvitedFamilies",
+                        style      = labelL,
+                        fontWeight = FontWeight.Bold,
+                        color      = AppColor.onPrimaryContainer,
+                        maxLines   = 1,
+                        textAlign  = TextAlign.Center,
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text      = "Invited families",
+                        style     = bodyM.copy(fontSize = 12.5.sp),
+                        color     = AppColor.text2,
+                        maxLines  = 1,
+                        textAlign = TextAlign.Center,
+                    )
+                }
             }
         }
     }
@@ -710,19 +750,22 @@ private fun ExtraCardsDialog(
     var count by remember(current) { mutableStateOf(current) }
     var countText by remember(current) { mutableStateOf(if (current == 0) "" else current.toString()) }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor   = AppColor.surface,
-        shape            = RoundedCornerShape(Radius.dialog),
-        title = {
-            Text(
-                text  = "Extra invitation cards",
-                style = titleL,
-                color = AppColor.text,
-            )
-        },
-        text = {
-            Column {
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            shape    = RoundedCornerShape(Radius.dialog),
+            colors   = CardDefaults.cardColors(containerColor = AppColor.surface),
+            modifier = Modifier.width(374.dp).padding(Spacing.sm),
+        ) {
+            Column(
+                modifier = Modifier.padding(Spacing.lg),
+                verticalArrangement = Arrangement.spacedBy(Spacing.md),
+            ) {
+                Text(
+                    text  = "Extra invitation cards",
+                    style = titleM,
+                    color = AppColor.text,
+                )
+
                 // Count input field
                 OutlinedTextField(
                     value         = countText,
@@ -745,7 +788,7 @@ private fun ExtraCardsDialog(
                     ),
                 )
 
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(Spacing.xs))
 
                 AppButtonRow(
                     positiveText    = "Save",
@@ -754,13 +797,9 @@ private fun ExtraCardsDialog(
                     onNegative      = onDismiss,
                     positiveEnabled = true,
                 )
-
-                Spacer(Modifier.height(12.dp))
             }
-        },
-        confirmButton = {},
-        dismissButton = {},
-    )
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------

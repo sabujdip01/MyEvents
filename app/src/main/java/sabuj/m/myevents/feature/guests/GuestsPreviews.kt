@@ -33,3 +33,17 @@ private fun AddGuestSheetPreview() {
         )
     }
 }
+
+@LightDarkPreviews
+@Composable
+private fun GuestSummaryFooterPreview() {
+    AppTheme {
+        GuestSummaryFooter(
+            totalGuests          = 185,
+            totalInvitedGuests   = 120,
+            totalCards           = 42,
+            totalFamilies        = 38,
+            totalInvitedFamilies = 30,
+        )
+    }
+}

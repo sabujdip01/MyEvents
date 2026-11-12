@@ -33,13 +33,25 @@ interface BookingDao {
     @Query("UPDATE bookings SET deleted = 1, syncState = 'PENDING', updatedAt = :now WHERE id = :id")
     suspend fun softDeleteBooking(id: String, now: Long)
 
+    /** Soft-delete all bookings for an event. */
+    @Query("UPDATE bookings SET deleted = 1, syncState = 'PENDING', updatedAt = :now WHERE eventId = :eventId")
+    suspend fun softDeleteByEvent(eventId: String, now: Long)
+
     /** Restore a soft-deleted booking (sets deleted = 0). */
     @Query("UPDATE bookings SET deleted = 0, syncState = 'PENDING', updatedAt = :now WHERE id = :id")
     suspend fun restoreBooking(id: String, now: Long)
 
+    /** Restore all soft-deleted bookings for an event. */
+    @Query("UPDATE bookings SET deleted = 0, syncState = 'PENDING', updatedAt = :now WHERE eventId = :eventId")
+    suspend fun restoreByEvent(eventId: String, now: Long)
+
     /** Hard-delete a booking row permanently. */
     @Query("DELETE FROM bookings WHERE id = :id")
     suspend fun hardDeleteBooking(id: String)
+
+    /** Hard-delete all bookings for an event. */
+    @Query("DELETE FROM bookings WHERE eventId = :eventId")
+    suspend fun hardDeleteByEvent(eventId: String)
 
     /** Insert or update a payment row. */
     @Upsert

@@ -15,7 +15,6 @@ import sabuj.m.myevents.domain.usecase.DeleteInviteesUseCase
 import sabuj.m.myevents.domain.usecase.EditInviteeUseCase
 import sabuj.m.myevents.domain.usecase.InviteeSaveResult
 import sabuj.m.myevents.domain.usecase.ObserveEventsUseCase
-import sabuj.m.myevents.domain.usecase.ObserveGiftsUseCase
 import sabuj.m.myevents.domain.usecase.ObserveInviteesUseCase
 import javax.inject.Inject
 
@@ -23,7 +22,6 @@ import javax.inject.Inject
 class GuestsViewModel @Inject constructor(
     private val observeEvents: ObserveEventsUseCase,
     private val observeInvitees: ObserveInviteesUseCase,
-    private val observeGifts: ObserveGiftsUseCase,
     private val addInvitee: AddInviteeUseCase,
     private val editInvitee: EditInviteeUseCase,
     private val deleteInvitees: DeleteInviteesUseCase,
@@ -41,24 +39,18 @@ class GuestsViewModel @Inject constructor(
             combine(
                 observeEvents(),
                 observeInvitees(),
-                observeGifts(),
                 settingsDataStore.extraCardsFlow,
-            ) { events, invitees, gifts, extraCards ->
+            ) { events, invitees, extraCards ->
                 _uiState.value.copy(
                     isLoading  = false,
                     events     = events,
                     invitees   = invitees,
-                    gifts      = gifts,
                     extraCards = extraCards,
                 )
             }.collect { newState ->
                 _uiState.value = newState
             }
         }
-    }
-
-    fun setMainTab(tab: GuestMainTab) {
-        _uiState.update { it.copy(mainTab = tab, selectedEventId = null) }
     }
 
     fun selectEventTab(eventId: String?) {

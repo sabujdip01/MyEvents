@@ -8,20 +8,18 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import sabuj.m.myevents.data.db.dao.BookingDao
 import sabuj.m.myevents.data.db.dao.EventDao
 import sabuj.m.myevents.data.db.dao.ExpenseDao
-import sabuj.m.myevents.data.db.dao.GiftDao
 import sabuj.m.myevents.data.db.dao.InviteeDao
 import sabuj.m.myevents.data.db.dao.TaskDao
 import sabuj.m.myevents.data.db.entity.BookingEntity
 import sabuj.m.myevents.data.db.entity.BookingPaymentEntity
 import sabuj.m.myevents.data.db.entity.EventEntity
 import sabuj.m.myevents.data.db.entity.ExpenseEntity
-import sabuj.m.myevents.data.db.entity.GiftEntity
 import sabuj.m.myevents.data.db.entity.InviteeEntity
 import sabuj.m.myevents.data.db.entity.TaskEntity
 
 /**
  * Single Room database for the app.
- * Version 8 — adds invitationType column to invitees.
+ * Version 9 — removes obsolete gifts table.
  */
 @Database(
     entities = [
@@ -30,10 +28,9 @@ import sabuj.m.myevents.data.db.entity.TaskEntity
         BookingPaymentEntity::class,
         ExpenseEntity::class,
         InviteeEntity::class,
-        GiftEntity::class,
         TaskEntity::class,
     ],
-    version = 8,
+    version = 9,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -42,7 +39,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun bookingDao(): BookingDao
     abstract fun expenseDao(): ExpenseDao
     abstract fun inviteeDao(): InviteeDao
-    abstract fun giftDao(): GiftDao
     abstract fun taskDao(): TaskDao
 
     companion object {
@@ -204,6 +200,12 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_7_8 = object : Migration(7, 8) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE `invitees` ADD COLUMN `invitationType` TEXT NOT NULL DEFAULT 'None'")
+            }
+        }
+
+        val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS `gifts`")
             }
         }
     }

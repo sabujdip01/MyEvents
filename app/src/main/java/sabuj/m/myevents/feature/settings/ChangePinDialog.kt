@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
@@ -31,6 +32,7 @@ import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.titleM
+import sabuj.m.myevents.core.ui.AppButtonRow
 
 @Composable
 fun ChangePinDialog(
@@ -47,7 +49,7 @@ fun ChangePinDialog(
         Card(
             shape          = RoundedCornerShape(Radius.dialog),
             colors         = CardDefaults.cardColors(containerColor = AppColor.surface),
-            modifier       = Modifier.fillMaxWidth().padding(Spacing.md),
+            modifier       = Modifier.width(374.dp).padding(Spacing.sm),
         ) {
             Column(
                 modifier = Modifier.padding(Spacing.lg),
@@ -101,36 +103,30 @@ fun ChangePinDialog(
                     Text(text = errorMessage!!, style = bodyM, color = AppColor.danger)
                 }
 
-                Row(
-                    modifier              = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                ) {
-                    TextButton(onClick = onDismiss) {
-                        Text("Cancel", style = labelL, color = AppColor.text2)
-                    }
-                    Spacer(Modifier.height(Spacing.xs))
-                    TextButton(
-                        onClick = {
-                            if (currentPin.length != 4 || newPin.length != 4 || confirmPin.length != 4) {
-                                errorMessage = "PINs must be 4 digits"
-                            } else if (newPin != confirmPin) {
-                                errorMessage = "New PINs do not match"
-                            } else {
-                                val success = onConfirm(currentPin, newPin)
-                                if (!success) {
-                                    failedAttempts++
-                                    if (failedAttempts >= 3) {
-                                        onDismiss()
-                                    } else {
-                                        errorMessage = "Current PIN is incorrect (${3 - failedAttempts} attempts left)"
-                                    }
+                Spacer(Modifier.height(Spacing.xs))
+
+                AppButtonRow(
+                    positiveText = "Save PIN",
+                    onPositive   = {
+                        if (currentPin.length != 4 || newPin.length != 4 || confirmPin.length != 4) {
+                            errorMessage = "PINs must be 4 digits"
+                        } else if (newPin != confirmPin) {
+                            errorMessage = "New PINs do not match"
+                        } else {
+                            val success = onConfirm(currentPin, newPin)
+                            if (!success) {
+                                failedAttempts++
+                                if (failedAttempts >= 3) {
+                                    onDismiss()
+                                } else {
+                                    errorMessage = "Current PIN is incorrect (${3 - failedAttempts} attempts left)"
                                 }
                             }
-                        },
-                    ) {
-                        Text("Save PIN", style = labelL, color = AppColor.primary)
-                    }
-                }
+                        }
+                    },
+                    negativeText = "Cancel",
+                    onNegative   = onDismiss,
+                )
             }
         }
     }

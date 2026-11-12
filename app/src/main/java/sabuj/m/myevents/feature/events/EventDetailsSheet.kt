@@ -48,6 +48,8 @@ import sabuj.m.myevents.core.preview.LightDarkPreviews
 import sabuj.m.myevents.core.preview.PreviewData
 import sabuj.m.myevents.core.theme.AppColor
 import sabuj.m.myevents.core.theme.AppTheme
+import sabuj.m.myevents.core.ui.AppButtonDanger
+import sabuj.m.myevents.core.ui.AppButtonTonal
 import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.labelM
@@ -246,32 +248,18 @@ fun EventDetailsContent(
                 modifier              = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Button(
-                    onClick  = onEdit,
-                    modifier = Modifier.weight(1f).height(52.dp),
-                    colors   = ButtonDefaults.buttonColors(
-                        containerColor = AppColor.primaryContainer,
-                        contentColor   = AppColor.onPrimaryContainer,
-                    ),
-                    shape    = RoundedCornerShape(16.dp),
-                ) {
-                    Icon(Icons.Rounded.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text("Edit Event", style = labelL)
-                }
-                Button(
-                    onClick  = onDelete,
-                    modifier = Modifier.weight(1f).height(52.dp),
-                    colors   = ButtonDefaults.buttonColors(
-                        containerColor = AppColor.dangerContainer,
-                        contentColor   = AppColor.danger,
-                    ),
-                    shape    = RoundedCornerShape(16.dp),
-                ) {
-                    Icon(Icons.Rounded.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text("Delete Event", style = labelL)
-                }
+                AppButtonTonal(
+                    text        = "Edit Event",
+                    onClick     = onEdit,
+                    leadingIcon = Icons.Rounded.Edit,
+                    modifier    = Modifier.weight(1f),
+                )
+                AppButtonDanger(
+                    text        = "Delete Event",
+                    onClick     = onDelete,
+                    leadingIcon = Icons.Rounded.Delete,
+                    modifier    = Modifier.weight(1f),
+                )
             }
         }
 

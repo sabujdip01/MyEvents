@@ -713,6 +713,69 @@ Sticky full-width `primaryContainer` card positioned above the Android navigatio
 - **Appearance:** a `.segmented` for Light / Dark / System. Below it "Colour scheme": a row of 4 circular swatches (56 dp): 50%-50% split with 135 degree linear gradient (brand primary top-left, soft primaryContainer bottom-right). Selected swatch has 2.5 dp primary ring and checkmark badge.
 - **Security:** Change PIN (title color `AppColor.text`), Fingerprint unlock (`.switch`).
 - **Sync and Export:** Last synced on timestamp, "Sync Now" button (triggers Firebase background sync worker, periodic 1 hr schedule), "Export Data (CSV)" button.
+
+#### Data Export CSV Specification (`CsvWriter.kt`)
+- **File Name**: `$EventName_Export_<Timestamp>.csv` (e.g. `Nilu's_Shaadi_Export_12_Nov_2026_03-45-30_PM.csv`).
+- **Date & Number Format**: All dates in `DD MMM YYYY` (e.g. `26 Nov 2026`); money amounts in Indian locale format `₹x,yy,zzz` (e.g. `₹45,000`); zero amounts formatted as `₹0`.
+- **Structure**:
+  ```csv
+  === Event Details ===
+  Event Name: $event_name
+  Event ID: $event_ID
+  Added On: $event_added_date
+  Event Date: $event_date
+  Budget: ₹$event_budget
+  Invite Guest?: $yes/no
+  Booking Count: $booking_count
+  Guests Count: $guest_count
+  Event Icon: $event_icon_unique_name
+
+  === Bookings ===
+  Serial No: #1
+  Booking Name: $booking_name
+  Booking ID: $booking_ID
+  Contact Person: $contact_person_name
+  Phone Number: $contact_person_number
+  Total Amount: ₹$contract_amount
+  Advance Amount: ₹$booking_advance
+  Due Amount: ₹$due_amount
+  Booking Confirmed?: $yes/no
+  Next Due: $due_date
+  Booking Icon: $booking_icon_unique_name
+
+  === Item List ===
+  Serial No: #1
+  Item List Name: $item_list_name
+  Item List ID: $item_list_ID
+  Complete By: $complete_by_date
+  Total Items in This List: $item_counts
+   ---
+  Item Number: #1
+  Item Name: $item_name
+  Item Price: ₹$item_price
+  Item Collected?: $yes/no
+   ---
+  Total Amount: ₹$items_total_amount
+  All Items Collected?: $yes/no
+  Item List Icon: $booking_icon_unique_name
+
+  === Expenses ===
+  Expense Name,Expense Type,Total Amount,Paid Amount,Remaining Amount,Payment Status
+  $booking_name,Booking,₹$contract_amount,₹$booking_advance,₹$due_amount,$status
+  $item_list_name,Item List,₹$items_total_amount,₹$items_total_amount,₹0,Paid
+     ---------------------    
+  Budget: ₹$event_budget,Total Items: $total_items,Total Spending: ₹$total_spending,Total Paid: ₹$total_paid_amount,Total Due: ₹$total_due_amount
+
+  === Guests ===
+  Extra Cards: $extra_cards_count
+  Relative / Family Name,Guests Count,Address,Note,Invitation Mode,Invitation Status
+  $relative_name,$guest_count,$guest_address,$notes,$invitation_mode,$invitation_status
+     ---------------------    
+  $family_count Total Families,$invited_families_count Invited Families,$guests_count Total Guests,$cards Cards,$invited_guest_count Already Invited Guests
+
+  ===== Generated on <Timestamp> =====
+  ```
+
 - **About:** Version row with the version number right-aligned `body-m` `text2`.
 
 ### 6.11 Cross-screen feedback
@@ -771,3 +834,105 @@ Switching Light, Dark, System and palette must not restart the app and must pres
 4. **Machine Red palette** needs the extra danger-button rule in 3.3.
 5. **Swatch labels** in your image do not match the displayed colours (section 3.2); confirm the exact hex codes if you want the original values.
 6. Final icon artwork and the calendar illustration are to be drawn from the descriptions above.
+
+---
+
+## 11. Layout Design & Tabular Inventories
+
+### 1. Main Feature Cards & List Rows Comparison
+Comparing all primary dashboard cards, calendar rows, vendor cards, item list cards, expense rows, and guest rows.
+
+| Feature / Attribute | `HomeCard` | `MonthlyEventRow` | `BookingCard` | `ItemListCard` | `ExpenseRowCard` | `GuestRowCard` |
+|---|---|---|---|---|---|---|
+| **Feature / Context** | Home Dashboard | Events Screen Calendar List | Bookings Screen | Item Lists Screen | Expenses Screen | Guests Screen |
+| **Container Layout** | Full width `Surface` card | Full width `Surface` row | Full width `Box`/`Card` | Full width `Box`/`Card` | Full width `Surface` row | Full width `Surface` row |
+| **Height / Padding** | Intrinsic, padding `16dp` | Height `64dp`, padding `16dp` | Intrinsic, padding `16dp` | Intrinsic, padding `16dp` | Height 25% reduced (`4dp` vert pad) | Height 25% reduced (`4dp` vert pad) |
+| **Corner Radius** | `24dp` (`Radius.hero`) | `14dp` | `20dp` (`Radius.card`) | `20dp` (`Radius.card`) | `14dp` (`Radius.field`) | `14dp` (`Radius.field`) |
+| **Background / Fill** | `AppColor.surface` | `primaryContainer` (50% alpha) | Palette Gradient (`gradientFor`) | Palette Gradient (`gradientFor`) | Palette Gradient (`gradientFor`) | Palette Gradient (`gradientFor`) |
+| **Elevation & Border** | Elevation `2dp`, Border `0.8dp` | No border | Elevation `1dp`, Border `0.8dp` | Elevation `1dp`, Border `0.8dp` | Elevation `1dp`, Border `0.8dp` | Elevation `1dp`, Border `0.8dp` |
+| **Leading Icon** | `CardIcon` (`44dp` circle `primaryContainer`, icon `22dp`) | `40dp` circle `primaryContainer`, icon `28dp` | Vendor Icon (`32dp` custom PNG / vector) | Task Icon (`32dp` custom PNG / vector) | Vendor/Category Icon (`32dp` circle, icon `22dp`/`18dp`) | Invitation type icon (`16dp` Call/Card or blank) |
+| **Primary Title Style** | `titleM` (`18sp` Bold) | `titleS` (`16sp` SemiBold) | `titleS` (`16sp` SemiBold) | `titleS` (`16sp` SemiBold) | `labelL` (`14sp` SemiBold) | `labelL` (`14sp` SemiBold) |
+| **Secondary Subtitle Style** | `bodyM` (`14sp` Normal) | `bodyM` (`14sp` Normal) | `bodyM` (`14sp` Normal) | `bodyM` (`14sp` Normal) | `bodyM` (`12sp` Normal) | `bodyM` (`12sp` Normal) |
+| **Numeric Value Style** | `32sp` Bold (`AppColor.primary`) | N/A | `numberL` (`22sp` ExtraBold) | `titleS` (`16sp` SemiBold) | `17.5sp` Bold (`bodyM` scaled +25%) | `13sp` SemiBold (20dp left inset) |
+| **Progress / Status Indicator** | Linear Progress (`10dp`) or fraction text | `Pill` ("Today" / "Passed" / "X days left") | Progress Bar (`10dp`) + Payment Pills | Progress Bar (`10dp`) + Item Count Pills | `Pill` ("Paid" / "Due") | `Pill` ("Invited" / "Pending") |
+| **Footer / Summary Row** | N/A | N/A | N/A | N/A | `SummaryFooter` (`primaryContainer`, 2-row 44%+44%+12% cols) | `GuestSummaryFooter` (`primaryContainer`, 2-row 48%+52% cols) |
+
+---
+
+### 2. Add / Edit Bottom Sheets Comparison
+Comparing all primary data creation and modification bottom sheets.
+
+| Feature / Attribute | `AddEditEventSheet` | `AddEditBookingSheet` | `AddEditGuestSheet` | `AddEditTaskSheet` | `AppSheet` (Core Wrapper) |
+|---|---|---|---|---|---|
+| **Feature Area** | Events Screen | Bookings Screen | Guests Screen | Item Lists Screen | Core UI Reusable Wrapper |
+| **Top Radius** | `28dp` (`Radius.sheet`) | `28dp` (`Radius.sheet`) | `28dp` (`Radius.sheet`) | `28dp` (`Radius.sheet`) | `28dp` (`Radius.sheet`) |
+| **Container Color** | `AppColor.surface` | `AppColor.surface` | `AppColor.surface` | `AppColor.surface` | `AppColor.surface` |
+| **Header Title Style** | "Add/Edit Event" (`titleL` `22sp` Bold) | "Add/Edit Booking" (`titleL` `22sp` Bold) | "Add/Edit Guest" (`titleL` `22sp` Bold) | "Add/Edit Item List" (`titleL` `22sp` Bold) | ColumnScope Content Slot |
+| **Icon Picker Component** | 10 XML category icons in 2x5 grid (`52dp` box, `32dp` icon) | 47 vendor icons grid via `BookingIconPickerDialog` (`52dp` box, `38dp` icon) | N/A | 47 vendor icons grid via `BookingIconPickerDialog` (`52dp` box, `38dp` icon) | N/A |
+| **Event Selector Type** | Fixed date in Add mode / DatePicker button in Edit mode | `FlowRow` single-select chips (`Radius.chip`, check icon `16dp`) | `FlowRow` single-select chips (`Radius.chip`, check icon `16dp`) | `FlowRow` single-select chips (`Radius.chip`, check icon `16dp`) | N/A |
+| **Custom Controls / Toggles** | Indian-formatted Budget field + "Invite Guests?" `Switch` | Contract Amount, Advance Amount, "Booking Confirmed?" `Switch`, Payment log list | Expected Guests Stepper (-/+ `30dp` circle buttons), Address, "Invited ?" `Switch`, Invitation Via chips | Dynamic Item Rows (Checkbox + Name + Price `100dp` + Delete icon), Total amount field, "All items collected?" `Switch` | N/A |
+| **Date Selection Control** | Read-only in Add mode, DatePicker dialog in Edit mode | Next due date DatePicker dialog | N/A | Complete by DatePicker dialog | N/A |
+| **Action Button Row** | `AppButtonRow` (Cancel `primaryContainer` / Add/Save `primary`, height `52dp`, radius `14dp`) | `AppButtonRow` (Cancel / Save / Add, height `52dp`, radius `14dp`) | `AppButtonRow` (Cancel / Save / Add, height `52dp`, radius `14dp`) | `AppButtonRow` (Cancel / Save / Add, height `52dp`, radius `14dp`) | N/A |
+
+---
+
+### 3. Read-Only / Details & Picker Bottom Sheets Comparison
+Comparing details summary and picker sheets.
+
+| Feature / Attribute | `EventDetailsSheet` | `MonthPickerSheet` |
+|---|---|---|
+| **Feature / Context** | Events Screen Read-Only Summary | Events Screen Calendar Navigation |
+| **Top Radius** | `28dp` (`Radius.sheet`) | `28dp` (`Radius.sheet`) |
+| **Container Color** | `AppColor.surface` | `AppColor.surface` |
+| **Header Elements** | Event Icon (`52dp` circle, `36dp` icon), Title (`titleL` `22sp` Bold), Date (`bodyM`) | Title "Select Month & Year" (`titleL` `22sp` Bold) |
+| **Body Layout** | 2 Stat Tiles (Bookings count, Guests count with `44dp` circle icons) + 4 Detail Rows | Year selector row (`40dp` height pills, radius `999dp`) + 3x4 Months grid (`44dp` height buttons, radius `12dp`) |
+| **Action Buttons** | `AppButtonTonal` ("Edit Event", `primaryContainer`, height `52dp`, radius `14dp`) + `AppButtonDanger` ("Delete Event", `danger`, height `52dp`, radius `14dp`) | Auto-dismiss on month selection |
+
+---
+
+### 4. Popups & Dialogs Comparison
+Comparing all popups, picker dialogs, settings dialogs, and core alert/delete dialogs.
+
+| Popup / Dialog Name | Feature / Context | Container Width & Shape | Top Header / Icon | Primary Input Controls | Action Buttons | Severity / Danger Style |
+|---|---|---|---|---|---|---|
+| `PaymentDialogFull` | Bookings Screen | `Dialog` + `Card` width `374dp`, radius `28dp` | Title "Add payment" (`titleM`) | DatePicker field + Amount field (₹) + Note field | Integrated `AppButtonRow` ("Cancel" / "Save") | Standard (`AppColor.surface`) |
+| `BookingIconPickerDialog` | Bookings & Item Lists | `Dialog` + `Card` width 92% screen (custom wide grid), radius `24dp` | Title "Select Booking Icon" + Close icon (`24dp`) | 47 vendor icons in 5-col grid (`52dp` box, `38dp` icon) | Auto-close on selection | Standard |
+| `ExtraCardsDialog` | Guests Screen | `Dialog` + `Card` width `374dp`, radius `28dp` | Title "Extra invitation cards" (`titleM`) | Number input field (`OutlinedTextField` radius `14dp`) | `AppButtonRow` ("Cancel" / "Save") | Standard |
+| `ChangePinDialog` | Security / Settings | `Dialog` + `Card` width `374dp`, radius `28dp` | Title "Change PIN" (`titleM`) | 3 PIN textfields (Current, New, Confirm) with `PasswordVisualTransformation` | `AppButtonRow` ("Cancel" / "Save PIN") | Standard |
+| `ExportCsvDialog` | Settings Screen | `Dialog` + `Card` width `374dp`, radius `28dp` | Title "Export Event Data (CSV)" + Subtitle | `FlowRow` single-select event chips | `AppButtonRow` ("Cancel" / "Export") | Standard |
+| `AppDialog` | Core UI Reusable | `Dialog` + `Card` width `374dp`, radius `28dp` | Title (`titleM`) + Body text (`bodyM`) | N/A | `AppButtonRow` ("Cancel" / "Confirm" or "Delete") | Configurable (`isDangerous`) |
+| `AppDeleteDialog` | Core UI Reusable | `Dialog` + `Card` width `374dp`, radius `28dp` | Red `Delete` icon (`40dp`, `AppColor.danger`) + Title + Message | N/A | `AppButtonRow` ("Cancel" / "Delete", `isDangerous = true`) | Destructive (`AppColor.danger`) |
+
+---
+
+### 5. Toasts & Snackbars Comparison
+Comparing floating feedback toasts and snackbar hosts.
+
+| Feature / Attribute | `AppSnackbar` Host | `AppSnackbarItem` Item | `SyncFeedbackToast` |
+|---|---|---|---|
+| **Feature / Context** | Core UI Floating Host Container | Core UI Individual Toast Item | Settings Screen Cloud Sync Status |
+| **Position / Alignment** | Middle of screen (`Alignment.Center`) | Rendered inside `AppSnackbar` | Middle of screen (`Alignment.Center`) |
+| **Container Width** | 75% screen width (25% reduced) | 75% screen width (`fillMaxWidth(0.75f)`) | 75% screen width |
+| **Corner Radius** | `14dp` (`Radius.field`) | `14dp` (`Radius.field`) | `14dp` (`Radius.field`) |
+| **Container BG Color** | `AppColor.surfaceVariant` (muted pill BG) | `AppColor.surfaceVariant` (muted pill BG) | `AppColor.surfaceVariant` (muted pill BG) |
+| **Text Style & Alignment** | `bodyM` (`14sp` Normal), `AppColor.text2` (muted pill text), centered | `bodyM` (`14sp` Normal), `AppColor.text2` (muted pill text), centered | `bodyM` (`14sp` Normal), `AppColor.text2` (muted pill text), centered |
+| **Action Button** | Same line (`Row`), height +50%, normal button radius (`Radius.field` `14dp`), `labelL` `AppColor.onPrimaryContainer`, `primaryContainer` BG | Same line (`Row`), height +50%, normal button radius (`Radius.field` `14dp`), `labelL` `AppColor.onPrimaryContainer`, `primaryContainer` BG | Optional status action |
+| **Dismiss / Timeout** | 5 seconds auto-dismiss (`withTimeoutOrNull(5000L)`) | Auto-dismiss after 5s | Auto-dismiss after 5s |
+
+---
+
+### 6. Navigation Components Comparison
+Comparing top header bar and sliding navigation drawer.
+
+| Feature / Attribute | `AppTopBar` Header Bar | `AppDrawer` Navigation Drawer |
+|---|---|---|
+| **Feature / Context** | App Top Bar Navigation | Sliding Navigation Drawer |
+| **Position / Type** | Top bar header (fixed / non-scrolling) | Sliding side modal navigation drawer |
+| **Dimensions / Width** | Full width (`fillMaxWidth`), height `56dp` | 82% screen width (`fillMaxWidth(0.82f)`), full height |
+| **Corner Radii** | Square / Flush top edge | Top-Right corner radius `28dp` (`Radius.sheet`), Bottom-Right `0dp` |
+| **Container Color** | Transparent / `AppColor.background` | `AppColor.surface` |
+| **Branding Header** | Title text / composable ("My Events" styled) | Title text ("My " `AppColor.text` + "Events" `AppColor.primary` `titleL`) |
+| **Navigation Items** | Navigation menu icon button (`24dp`) + Action slots (`actions`) | 7 nav item rows (`DrawerNavItem`: height `56dp`, radius `20dp` `Radius.card`) |
+| **Active Item Indicator** | N/A | `primaryContainer` fill + vertical indicator bar (`4x24dp`, radius `2dp`, `AppColor.primary`) at right edge |
+| **Background Artwork** | N/A | `BgBlobs` background doodle canvas + `HeroIllustration` vector canvas art at bottom (`180dp`) |
+

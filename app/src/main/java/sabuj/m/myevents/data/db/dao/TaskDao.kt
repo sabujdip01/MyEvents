@@ -22,8 +22,17 @@ interface TaskDao {
     @Query("UPDATE tasks SET deleted = 1, updatedAt = :updatedAt WHERE id = :id")
     suspend fun softDeleteTask(id: String, updatedAt: Long)
 
+    @Query("UPDATE tasks SET deleted = 1, updatedAt = :updatedAt WHERE eventId = :eventId")
+    suspend fun softDeleteByEvent(eventId: String, updatedAt: Long)
+
     @Query("UPDATE tasks SET deleted = 0, updatedAt = :updatedAt WHERE id = :id")
     suspend fun restoreTask(id: String, updatedAt: Long)
+
+    @Query("UPDATE tasks SET deleted = 0, updatedAt = :updatedAt WHERE eventId = :eventId")
+    suspend fun restoreByEvent(eventId: String, updatedAt: Long)
+
+    @Query("DELETE FROM tasks WHERE eventId = :eventId")
+    suspend fun hardDeleteByEvent(eventId: String)
 
     @Query("UPDATE tasks SET deleted = 1, updatedAt = :updatedAt WHERE id IN (:ids)")
     suspend fun softDeleteTasks(ids: List<String>, updatedAt: Long)

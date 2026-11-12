@@ -40,7 +40,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -57,6 +56,8 @@ import sabuj.m.myevents.core.theme.Radius
 import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
+import sabuj.m.myevents.core.theme.numberL
+import sabuj.m.myevents.core.theme.numberXl
 import sabuj.m.myevents.core.theme.titleL
 import sabuj.m.myevents.core.theme.titleM
 import sabuj.m.myevents.core.theme.titleS
@@ -121,11 +122,9 @@ private fun HomeContent(
         BgBlobs()
 
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
+            modifier = Modifier.fillMaxSize(),
         ) {
-            // Top Bar with Nav Icon & "My Events" title
+            // Fixed Top Bar with Nav Icon & "My Events" title (does not scroll off screen)
             Box(modifier = Modifier.padding(horizontal = Spacing.lg)) {
                 sabuj.m.myevents.core.ui.AppTopBar(
                     titleText   = "My Events",
@@ -147,9 +146,11 @@ private fun HomeContent(
 
             Spacer(Modifier.height(Spacing.sm))
 
+            // Scrollable dashboard cards
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
                     .padding(horizontal = Spacing.lg),
                 verticalArrangement = Arrangement.spacedBy(Spacing.md),
             ) {
@@ -342,17 +343,16 @@ private fun BookingsDoneCard(done: Int, total: Int, modifier: Modifier) {
                 ) {
                     Text(
                         text = buildAnnotatedString {
-                            withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold)) {
+                            withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
                                 append("$done")
                             }
                             withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
                                 append(" of ")
                             }
-                            withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold)) {
+                            withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
                                 append("$total")
                             }
                         },
-                        color     = AppColor.primary,
                         textAlign = TextAlign.Center,
                     )
                     Spacer(Modifier.height(2.dp))
@@ -395,7 +395,7 @@ private fun BookingAmountCard(paidPaise: Long, totalPaise: Long, modifier: Modif
                 ) {
                     Text(
                         text      = MoneyFormatter.format(paidPaise),
-                        style     = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold),
+                        style     = numberXl,
                         color     = AppColor.primary,
                         textAlign = TextAlign.Center,
                     )
@@ -445,13 +445,13 @@ private fun BudgetCard(spentPaise: Long, totalPaise: Long) {
                     Spacer(Modifier.width(44.dp + Spacing.md))
                     Text(
                         text = buildAnnotatedString {
-                            withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
+                            withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
                                 append(MoneyFormatter.format(spentPaise))
                             }
                             withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
                                 append(" of ")
                             }
-                            withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
+                            withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
                                 append(MoneyFormatter.format(totalPaise))
                             }
                             withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
@@ -504,7 +504,7 @@ private fun PendingDuesCard(paise: Long, modifier: Modifier) {
                 ) {
                     Text(
                         text      = MoneyFormatter.format(paise),
-                        style     = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold),
+                        style     = numberXl,
                         color     = if (paise > 0) AppColor.danger else AppColor.success,
                         textAlign = TextAlign.Center,
                     )
@@ -543,77 +543,107 @@ private fun InviteesCard(
     HomeCard(modifier = modifier) {
         Box {
             Column(modifier = Modifier.padding(Spacing.md)) {
+                // Header row: Icon + "Guests" title
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CardIcon(icon = AppIcon.Invitees.fallback)
                     Spacer(Modifier.width(Spacing.md))
                     Text("Guests", style = titleM, color = AppColor.text, modifier = Modifier.weight(1f))
                 }
+
                 Spacer(Modifier.height(Spacing.xs))
+
+                // Single horizontal content row (aligned under "Guests" header text, uniform numberXl font size & card height)
                 Row(
-                    modifier              = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                    modifier          = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.Top,
                 ) {
-                    Spacer(Modifier.width(44.dp + Spacing.md - Spacing.sm))
+                    // Indent to align Column 1 under starting position of "Guests" header text (44.dp icon + 16.dp spacing)
+                    Spacer(Modifier.width(44.dp + Spacing.md))
 
-                    // Column 1: "X of Y Guests" invited
-                    Column(
-                        modifier            = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
+                    Row(
+                        modifier              = Modifier.weight(1f),
+                        horizontalArrangement = Arrangement.spacedBy(2.dp),
+                        verticalAlignment     = Alignment.Top,
                     ) {
-                        Text(
-                            text = buildAnnotatedString {
-                                withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
-                                    append("$invitedGuests")
-                                }
-                                withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
-                                    append(" of ")
-                                }
-                                withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
-                                    append("$totalGuests")
-                                }
-                            },
-                            textAlign = TextAlign.Center,
-                        )
-                        Spacer(Modifier.height(2.dp))
-                        Text(
-                            text      = "guests invited",
-                            style     = bodyM,
-                            color     = AppColor.text2,
-                            textAlign = TextAlign.Center,
-                        )
-                    }
+                        // Info 1: X of Y guests invited
+                        Column(
+                            modifier            = Modifier.weight(1.2f),
+                            horizontalAlignment = Alignment.Start,
+                        ) {
+                            Text(
+                                text = buildAnnotatedString {
+                                    withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
+                                        append("$invitedGuests")
+                                    }
+                                    withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
+                                        append(" of ")
+                                    }
+                                    withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
+                                        append("$totalGuests")
+                                    }
+                                },
+                                maxLines = 1,
+                            )
+                            Spacer(Modifier.height(2.dp))
+                            Text(
+                                text     = "guests invited",
+                                style    = bodyM,
+                                color    = AppColor.text2,
+                                maxLines = 1,
+                            )
+                        }
 
-                    // Column 2: "X of Y Families" invited
-                    Column(
-                        modifier            = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Text(
-                            text = buildAnnotatedString {
-                                withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
-                                    append("$invitedFamilies")
-                                }
-                                withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
-                                    append(" of ")
-                                }
-                                withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
-                                    append("$totalFamilies")
-                                }
-                            },
-                            textAlign = TextAlign.Center,
-                        )
-                        Spacer(Modifier.height(2.dp))
-                        Text(
-                            text      = "families invited",
-                            style     = bodyM,
-                            color     = AppColor.text2,
-                            textAlign = TextAlign.Center,
-                        )
-                    }
+                        // Info 2: X of Y families invited
+                        Column(
+                            modifier            = Modifier.weight(1.0f),
+                            horizontalAlignment = Alignment.Start,
+                        ) {
+                            Text(
+                                text = buildAnnotatedString {
+                                    withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
+                                        append("$invitedFamilies")
+                                    }
+                                    withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
+                                        append(" of ")
+                                    }
+                                    withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
+                                        append("$totalFamilies")
+                                    }
+                                },
+                                maxLines = 1,
+                            )
+                            Spacer(Modifier.height(2.dp))
+                            Text(
+                                text     = "families invited",
+                                style    = bodyM,
+                                color    = AppColor.text2,
+                                maxLines = 1,
+                            )
+                        }
 
-                    Spacer(Modifier.width(28.dp))
+                        // Info 3: X cards required
+                        Column(
+                            modifier            = Modifier.weight(0.6f),
+                            horizontalAlignment = Alignment.Start,
+                        ) {
+                            Text(
+                                text     = "$invitationCards",
+                                style    = numberXl,
+                                color    = AppColor.primary,
+                                maxLines = 1,
+                            )
+                            Spacer(Modifier.height(2.dp))
+                            Text(
+                                text     = "cards required",
+                                style    = bodyM,
+                                color    = AppColor.text2,
+                                maxLines = 1,
+                            )
+                        }
+                    }
                 }
             }
+
             Box(
                 modifier        = Modifier.align(Alignment.BottomEnd).size(48.dp).padding(Spacing.xs),
                 contentAlignment = Alignment.Center,
@@ -645,7 +675,7 @@ private fun ItemsPendingCard(count: Int, modifier: Modifier = Modifier) {
                 ) {
                     Text(
                         text      = "$count",
-                        style     = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold),
+                        style     = numberXl,
                         color     = AppColor.primary,
                         textAlign = TextAlign.Center,
                     )
@@ -712,5 +742,21 @@ private fun HomeScreenFilledPreview() {
             onNavigateToEvents = {},
             onEventClick       = {},
         )
+    }
+}
+
+@LightDarkPreviews
+@Composable
+private fun InviteesCardPreview() {
+    AppTheme {
+        Box(modifier = Modifier.padding(Spacing.lg)) {
+            InviteesCard(
+                totalGuests     = 185,
+                invitedGuests   = 120,
+                totalFamilies   = 42,
+                invitedFamilies = 30,
+                invitationCards = 35,
+            )
+        }
     }
 }

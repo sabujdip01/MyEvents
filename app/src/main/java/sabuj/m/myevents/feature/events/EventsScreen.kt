@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -123,17 +125,29 @@ fun EventsContent(
     val pagerState = rememberPagerState(initialPage = initialPage) { pageCount }
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // Automatically clear snackbar if user navigates away
+    androidx.compose.runtime.DisposableEffect(Unit) {
+        onDispose {
+            onEvent(EventsUiEvent.SnackbarDismissed)
+        }
+    }
+
     LaunchedEffect(uiState.snackbarMessage) {
         val msg = uiState.snackbarMessage ?: return@LaunchedEffect
-        val result = snackbarHostState.showSnackbar(
-            message     = msg,
-            actionLabel = "Undo",
-            duration    = SnackbarDuration.Short,
-        )
-        if (result == SnackbarResult.ActionPerformed) {
-            onEvent(EventsUiEvent.UndoDelete)
+        try {
+            kotlinx.coroutines.withTimeoutOrNull(5000L) {
+                val result = snackbarHostState.showSnackbar(
+                    message     = msg,
+                    actionLabel = "Undo",
+                    duration    = SnackbarDuration.Indefinite,
+                )
+                if (result == SnackbarResult.ActionPerformed) {
+                    onEvent(EventsUiEvent.UndoDelete)
+                }
+            }
+        } finally {
+            onEvent(EventsUiEvent.SnackbarDismissed)
         }
-        onEvent(EventsUiEvent.SnackbarDismissed)
     }
 
     // Derived directly from calendar pager's current page — guaranteed 100% in sync
@@ -236,7 +250,7 @@ fun EventsContent(
 
         AppSnackbar(
             hostState = snackbarHostState,
-            modifier  = Modifier.align(Alignment.BottomCenter).padding(bottom = 88.dp),
+            modifier  = Modifier.align(Alignment.Center),
         )
     }
 
@@ -408,11 +422,13 @@ private fun MonthPickerSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .statusBarsPadding()
+                .navigationBarsPadding()
                 .padding(horizontal = Spacing.lg, vertical = Spacing.md),
         ) {
             Text(
                 text  = "Select Month & Year",
-                style = titleS,
+                style = titleL,
                 color = AppColor.text,
             )
             Spacer(Modifier.height(Spacing.md))

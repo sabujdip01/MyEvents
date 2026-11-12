@@ -58,6 +58,7 @@ import sabuj.m.myevents.core.preview.LightDarkPreviews
 import sabuj.m.myevents.core.preview.PreviewData
 import sabuj.m.myevents.core.theme.AppColor
 import sabuj.m.myevents.core.theme.AppTheme
+import sabuj.m.myevents.core.ui.AppButtonRow
 import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.labelM
@@ -346,36 +347,18 @@ fun AddEditEventSheet(
             Spacer(Modifier.height(16.dp))
 
             // Action buttons
-            Row(
-                modifier              = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                Button(
-                    onClick  = onDismiss,
-                    modifier = Modifier.weight(1f).height(52.dp),
-                    colors   = ButtonDefaults.buttonColors(
-                        containerColor = AppColor.primaryContainer,
-                        contentColor   = AppColor.onPrimaryContainer,
-                    ),
-                    shape    = RoundedCornerShape(16.dp),
-                ) { Text("Cancel", style = labelL) }
-
-                Button(
-                    onClick  = {
-                        if (isFormValid) {
-                            val cleanName = eventName.trim()
-                            onSave(cleanName, cleanName, selectedDate, selectedIcon, budgetPaise, inviteesRequired)
-                        }
-                    },
-                    enabled  = isFormValid,
-                    modifier = Modifier.weight(1f).height(52.dp),
-                    colors   = ButtonDefaults.buttonColors(
-                        containerColor = AppColor.primary,
-                        contentColor   = AppColor.onPrimary,
-                    ),
-                    shape    = RoundedCornerShape(16.dp),
-                ) { Text(if (isEdit) "Save" else "Add", style = labelL) }
-            }
+            AppButtonRow(
+                positiveText    = if (isEdit) "Save" else "Add",
+                onPositive      = {
+                    if (isFormValid) {
+                        val cleanName = eventName.trim()
+                        onSave(cleanName, cleanName, selectedDate, selectedIcon, budgetPaise, inviteesRequired)
+                    }
+                },
+                negativeText    = "Cancel",
+                onNegative      = onDismiss,
+                positiveEnabled = isFormValid,
+            )
 
             Spacer(Modifier.height(10.dp))
         }

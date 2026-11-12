@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -24,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import sabuj.m.myevents.core.theme.AppColor
 import sabuj.m.myevents.core.theme.Radius
@@ -31,6 +33,7 @@ import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.titleM
+import sabuj.m.myevents.core.ui.AppButtonRow
 import sabuj.m.myevents.domain.model.Event
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,7 +41,7 @@ import sabuj.m.myevents.domain.model.Event
 fun ExportCsvDialog(
     events: List<Event>,
     onDismiss: () -> Unit,
-    onExport: (eventId: String) -> Unit,
+    onExport: (eventId: String, fileName: String) -> Unit,
 ) {
     var selectedEventId by remember { mutableStateOf(events.firstOrNull()?.id ?: "") }
     var expanded by remember { mutableStateOf(false) }
@@ -48,7 +51,7 @@ fun ExportCsvDialog(
         Card(
             shape  = RoundedCornerShape(Radius.dialog),
             colors = CardDefaults.cardColors(containerColor = AppColor.surface),
-            modifier = Modifier.fillMaxWidth().padding(Spacing.md),
+            modifier = Modifier.width(374.dp).padding(Spacing.sm),
         ) {
             Column(
                 modifier = Modifier.padding(Spacing.lg),
@@ -88,21 +91,19 @@ fun ExportCsvDialog(
                     }
                 }
 
-                Row(
-                    modifier              = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                ) {
-                    TextButton(onClick = onDismiss) {
-                        Text("Cancel", style = labelL, color = AppColor.text2)
-                    }
-                    Spacer(Modifier.height(Spacing.xs))
-                    TextButton(
-                        enabled = selectedEventId.isNotBlank(),
-                        onClick = { onExport(selectedEventId) },
-                    ) {
-                        Text("Export", style = labelL, color = AppColor.primary)
-                    }
-                }
+                Spacer(Modifier.height(Spacing.xs))
+
+                AppButtonRow(
+                    positiveText    = "Export",
+                    onPositive      = {
+                        val evName = selectedEvent?.title ?: "Event"
+                        val fileName = sabuj.m.myevents.core.util.CsvWriter.generateFileName(evName)
+                        onExport(selectedEventId, fileName)
+                    },
+                    negativeText    = "Cancel",
+                    onNegative      = onDismiss,
+                    positiveEnabled = selectedEventId.isNotBlank(),
+                )
             }
         }
     }
@@ -115,7 +116,7 @@ private fun ExportCsvDialogPreview() {
         ExportCsvDialog(
             events    = sabuj.m.myevents.core.preview.PreviewData.sampleEvents,
             onDismiss = {},
-            onExport  = {},
+            onExport  = { _, _ -> },
         )
     }
 }

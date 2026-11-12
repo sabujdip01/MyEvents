@@ -7,13 +7,11 @@ import dagger.hilt.components.SingletonComponent
 import sabuj.m.myevents.data.repository.BookingRepositoryImpl
 import sabuj.m.myevents.data.repository.EventRepositoryImpl
 import sabuj.m.myevents.data.repository.ExpenseRepositoryImpl
-import sabuj.m.myevents.data.repository.GiftRepositoryImpl
 import sabuj.m.myevents.data.repository.InviteeRepositoryImpl
 import sabuj.m.myevents.data.repository.TaskRepositoryImpl
 import sabuj.m.myevents.domain.repository.BookingRepository
 import sabuj.m.myevents.domain.repository.EventRepository
 import sabuj.m.myevents.domain.repository.ExpenseRepository
-import sabuj.m.myevents.domain.repository.GiftRepository
 import sabuj.m.myevents.domain.repository.InviteeRepository
 import sabuj.m.myevents.domain.repository.TaskRepository
 import javax.inject.Inject
@@ -42,10 +40,6 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindInviteeRepository(impl: InviteeRepositoryImpl): InviteeRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindGiftRepository(impl: GiftRepositoryImpl): GiftRepository
 
     @Binds
     @Singleton

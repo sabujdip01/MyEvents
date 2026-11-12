@@ -73,18 +73,30 @@ fun BookingsScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // Automatically clear snackbar if user navigates away
+    androidx.compose.runtime.DisposableEffect(Unit) {
+        onDispose {
+            viewModel.snackbarDismissed()
+        }
+    }
+
     // Show snackbar with undo action whenever a booking is deleted
     LaunchedEffect(uiState.snackbarMessage) {
         val msg = uiState.snackbarMessage ?: return@LaunchedEffect
-        val result = snackbarHostState.showSnackbar(
-            message     = msg,
-            actionLabel = "UNDO", // TODO strings.xml
-            duration    = SnackbarDuration.Long,
-        )
-        if (result == SnackbarResult.ActionPerformed) {
-            viewModel.undoDelete()
+        try {
+            kotlinx.coroutines.withTimeoutOrNull(5000L) {
+                val result = snackbarHostState.showSnackbar(
+                    message     = msg,
+                    actionLabel = "UNDO",
+                    duration    = SnackbarDuration.Indefinite,
+                )
+                if (result == SnackbarResult.ActionPerformed) {
+                    viewModel.undoDelete()
+                }
+            }
+        } finally {
+            viewModel.snackbarDismissed()
         }
-        viewModel.snackbarDismissed()
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -172,7 +184,7 @@ fun BookingsScreen(
         // â”€â”€ Snackbar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         AppSnackbar(
             hostState = snackbarHostState,
-            modifier  = Modifier.align(Alignment.BottomCenter).padding(bottom = 88.dp),
+            modifier  = Modifier.align(Alignment.Center),
         )
     }
 

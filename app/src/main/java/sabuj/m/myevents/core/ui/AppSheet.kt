@@ -1,6 +1,7 @@
 package sabuj.m.myevents.core.ui
 
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -18,8 +19,8 @@ import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
 
 /**
- * App-wide bottom sheet wrapper. All add/edit sheets use this component
- * to guarantee consistent radius (28 dp), scrim, and drag handle.
+ * App-wide bottom sheet wrapper. All sheets use this component
+ * to guarantee consistent radius (28 dp), scrim, drag handle, and insets.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,13 +31,15 @@ fun AppSheet(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     ModalBottomSheet(
-        onDismissRequest  = onDismiss,
-        sheetState        = sheetState,
-        shape             = RoundedCornerShape(topStart = Radius.sheet, topEnd = Radius.sheet),
-        containerColor    = AppColor.surface,
-        scrimColor        = AppColor.scrim,
-        modifier          = modifier,
-        content           = content,
+        onDismissRequest    = onDismiss,
+        sheetState          = sheetState,
+        shape               = RoundedCornerShape(topStart = Radius.sheet, topEnd = Radius.sheet),
+        containerColor      = AppColor.surface,
+        scrimColor          = AppColor.scrim,
+        dragHandle          = null,
+        contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
+        modifier            = modifier,
+        content             = content,
     )
 }
 
@@ -50,4 +53,3 @@ private fun AppSheetPreview() {
         }
     }
 }
-

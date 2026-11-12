@@ -14,6 +14,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -22,6 +24,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import sabuj.m.myevents.core.theme.AppColor
 import sabuj.m.myevents.core.theme.AppTheme
 import sabuj.m.myevents.core.theme.Radius
@@ -153,25 +157,28 @@ fun PaymentDialogFull(
     val context = LocalContext.current
     val date = LocalDate.ofEpochDay(state.dateEpochDay)
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor   = AppColor.surface,
-        shape            = RoundedCornerShape(Radius.dialog),
-        title = {
-            Text(
-                text  = "Add payment", // TODO strings.xml
-                style = titleM,
-                color = AppColor.text,
-            )
-        },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            shape    = RoundedCornerShape(Radius.dialog),
+            colors   = CardDefaults.cardColors(containerColor = AppColor.surface),
+            modifier = Modifier.width(374.dp).padding(Spacing.sm),
+        ) {
+            Column(
+                modifier = Modifier.padding(Spacing.lg),
+                verticalArrangement = Arrangement.spacedBy(Spacing.md),
+            ) {
+                Text(
+                    text  = "Add payment",
+                    style = titleM,
+                    color = AppColor.text,
+                )
+
                 // Date picker field
                 OutlinedTextField(
                     value         = DateUtils.formatDisplay(date),
                     onValueChange = {},
                     readOnly      = true,
-                    label         = { Text("Date", style = bodyM) }, // TODO strings.xml
+                    label         = { Text("Date", style = bodyM) },
                     trailingIcon  = {
                         Icon(
                             imageVector        = Icons.Rounded.DateRange,
@@ -201,7 +208,7 @@ fun PaymentDialogFull(
                 OutlinedTextField(
                     value         = if (state.amountPaise == 0L) "" else (state.amountPaise / 100L).toString(),
                     onValueChange = { text -> onAmountChange(text.toLongOrNull()?.times(100L) ?: 0L) },
-                    label         = { Text("Amount (₹)", style = bodyM) }, // TODO strings.xml
+                    label         = { Text("Amount (₹)", style = bodyM) },
                     placeholder   = { Text("0", style = bodyM, color = AppColor.text3) },
                     modifier      = Modifier.fillMaxWidth(),
                     singleLine    = true,
@@ -218,7 +225,7 @@ fun PaymentDialogFull(
                 OutlinedTextField(
                     value         = state.note,
                     onValueChange = onNoteChange,
-                    label         = { Text("Note (optional)", style = bodyM) }, // TODO strings.xml
+                    label         = { Text("Note (optional)", style = bodyM) },
                     placeholder   = { Text("e.g. Advance payment", style = bodyM, color = AppColor.text3) },
                     modifier      = Modifier.fillMaxWidth(),
                     singleLine    = true,
@@ -226,20 +233,18 @@ fun PaymentDialogFull(
                     colors        = paymentFieldColors(),
                 )
 
-                Spacer(Modifier.height(Spacing.sm))
+                Spacer(Modifier.height(Spacing.xs))
 
                 AppButtonRow(
-                    positiveText = "Save",      // TODO strings.xml
+                    positiveText = "Save",
                     onPositive   = onSave,
-                    negativeText = "Cancel",    // TODO strings.xml
+                    negativeText = "Cancel",
                     onNegative   = onDismiss,
                     positiveEnabled = state.amountPaise > 0,
                 )
             }
-        },
-        confirmButton = {},
-        dismissButton = {},
-    )
+        }
+    }
 }
 
 @Composable
