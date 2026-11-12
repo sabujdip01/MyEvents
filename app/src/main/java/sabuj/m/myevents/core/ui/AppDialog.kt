@@ -3,14 +3,19 @@ package sabuj.m.myevents.core.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import sabuj.m.myevents.core.preview.LightDarkPreviews
 import sabuj.m.myevents.core.theme.AppColor
 import sabuj.m.myevents.core.theme.AppTheme
@@ -34,22 +39,29 @@ fun AppDialog(
     dismissText: String = "Cancel",
     isDangerous: Boolean = false,
 ) {
-    AlertDialog(
-        onDismissRequest  = onDismiss,
-        title             = { Text(title, style = titleM, color = AppColor.text) },
-        text              = { Text(body, style = bodyM, color = AppColor.text2) },
-        shape             = RoundedCornerShape(Radius.dialog),
-        containerColor    = AppColor.surface,
-        confirmButton     = {
-            if (isDangerous) {
-                AppButtonDanger(text = confirmText, onClick = onConfirm)
-            } else {
-                AppButton(text = confirmText, onClick = onConfirm)
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            shape    = RoundedCornerShape(Radius.dialog),
+            colors   = CardDefaults.cardColors(containerColor = AppColor.surface),
+            modifier = modifier.width(374.dp).padding(Spacing.sm),
+        ) {
+            Column(
+                modifier = Modifier.padding(Spacing.lg),
+                verticalArrangement = Arrangement.spacedBy(Spacing.md),
+            ) {
+                Text(title, style = titleM, color = AppColor.text)
+                Text(body, style = bodyM, color = AppColor.text2)
+                Spacer(Modifier.height(Spacing.xs))
+                AppButtonRow(
+                    positiveText = confirmText,
+                    onPositive   = onConfirm,
+                    negativeText = dismissText,
+                    onNegative   = onDismiss,
+                    isDangerous  = isDangerous,
+                )
             }
-        },
-        dismissButton     = { AppButtonText(text = dismissText, onClick = onDismiss) },
-        modifier          = modifier,
-    )
+        }
+    }
 }
 
 @LightDarkPreviews
@@ -65,4 +77,3 @@ private fun AppDialogPreview() {
         )
     }
 }
-

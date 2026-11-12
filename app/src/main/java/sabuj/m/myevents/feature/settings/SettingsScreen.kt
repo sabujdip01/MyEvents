@@ -143,7 +143,12 @@ fun SettingsScreenContent(
 
     LaunchedEffect(uiState.snackbarMessage) {
         val msg = uiState.snackbarMessage ?: return@LaunchedEffect
-        snackbarHostState.showSnackbar(msg)
+        kotlinx.coroutines.withTimeoutOrNull(5000L) {
+            snackbarHostState.showSnackbar(
+                message  = msg,
+                duration = androidx.compose.material3.SnackbarDuration.Indefinite,
+            )
+        }
         onDismissSnackbar()
     }
 
@@ -320,7 +325,7 @@ fun SettingsScreenContent(
         // Item 3: Sync toast positioned and designed same as the Undo toast
         AppSnackbar(
             hostState = snackbarHostState,
-            modifier  = Modifier.align(Alignment.BottomCenter).padding(bottom = 88.dp),
+            modifier  = Modifier.align(Alignment.Center),
         )
     }
 

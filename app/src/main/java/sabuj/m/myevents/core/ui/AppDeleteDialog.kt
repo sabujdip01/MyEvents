@@ -67,7 +67,7 @@ fun AppDeleteDialog(
                     color     = AppColor.text,
                     textAlign = TextAlign.Center,
                 )
-                Spacer(Modifier.height(Spacing.sm))
+                Spacer(Modifier.height(Spacing.md))
                 Text(
                     text      = message,
                     style     = bodyM,
@@ -76,32 +76,13 @@ fun AppDeleteDialog(
                 )
                 Spacer(Modifier.height(Spacing.xl))
 
-                Row(
-                    modifier              = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Button(
-                        onClick = onDismiss,
-                        colors  = ButtonDefaults.buttonColors(
-                            containerColor = AppColor.primaryContainer,
-                            contentColor   = AppColor.onPrimaryContainer,
-                        ),
-                        shape   = RoundedCornerShape(14.dp),
-                    ) {
-                        Text(cancelText, style = labelL)
-                    }
-
-                    Button(
-                        onClick = onConfirm,
-                        colors  = ButtonDefaults.buttonColors(
-                            containerColor = AppColor.danger,
-                            contentColor   = AppColor.onPrimary,
-                        ),
-                        shape   = RoundedCornerShape(14.dp),
-                    ) {
-                        Text(confirmText, style = labelL)
-                    }
-                }
+                AppButtonRow(
+                    positiveText = confirmText,
+                    onPositive   = onConfirm,
+                    negativeText = cancelText,
+                    onNegative   = onDismiss,
+                    isDangerous  = true,
+                )
             }
         }
     }

@@ -29,7 +29,10 @@ import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.MailOutline
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.ui.window.Dialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.foundation.text.KeyboardOptions
@@ -65,6 +68,7 @@ import sabuj.m.myevents.core.theme.gradientFor
 import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.labelM
 import sabuj.m.myevents.core.theme.titleL
+import sabuj.m.myevents.core.theme.titleM
 import sabuj.m.myevents.core.ui.AppButtonRow
 import sabuj.m.myevents.core.ui.AppDeleteDialog
 import sabuj.m.myevents.core.ui.AppSnackbar
@@ -174,7 +178,7 @@ fun GuestsScreen(
 
         AppSnackbar(
             hostState = snackbarHostState,
-            modifier  = Modifier.align(Alignment.BottomCenter).padding(bottom = 88.dp),
+            modifier  = Modifier.align(Alignment.Center),
         )
     }
 
@@ -728,19 +732,22 @@ private fun ExtraCardsDialog(
     var count by remember(current) { mutableStateOf(current) }
     var countText by remember(current) { mutableStateOf(if (current == 0) "" else current.toString()) }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor   = AppColor.surface,
-        shape            = RoundedCornerShape(Radius.dialog),
-        title = {
-            Text(
-                text  = "Extra invitation cards",
-                style = titleL,
-                color = AppColor.text,
-            )
-        },
-        text = {
-            Column {
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            shape    = RoundedCornerShape(Radius.dialog),
+            colors   = CardDefaults.cardColors(containerColor = AppColor.surface),
+            modifier = Modifier.width(374.dp).padding(Spacing.sm),
+        ) {
+            Column(
+                modifier = Modifier.padding(Spacing.lg),
+                verticalArrangement = Arrangement.spacedBy(Spacing.md),
+            ) {
+                Text(
+                    text  = "Extra invitation cards",
+                    style = titleM,
+                    color = AppColor.text,
+                )
+
                 // Count input field
                 OutlinedTextField(
                     value         = countText,
@@ -763,7 +770,7 @@ private fun ExtraCardsDialog(
                     ),
                 )
 
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(Spacing.xs))
 
                 AppButtonRow(
                     positiveText    = "Save",
@@ -772,13 +779,9 @@ private fun ExtraCardsDialog(
                     onNegative      = onDismiss,
                     positiveEnabled = true,
                 )
-
-                Spacer(Modifier.height(12.dp))
             }
-        },
-        confirmButton = {},
-        dismissButton = {},
-    )
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------
