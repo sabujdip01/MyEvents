@@ -1,9 +1,10 @@
 # Version History
 
-Current: Final.1.3
+Current: Final.1.4
 
 | Version   | Phase              | Build | Commit    | Summary                                                                                             |
 | --------- | ------------------ | ----- | --------- | --------------------------------------------------------------------------------------------------- |
+| Final.1.4 | Final Verification | 4     | -         | fix(itemlists): add missing closing brace in ItemListsScreen                                         |
 | Final.1.3 | Final Verification | 3     | -         | style(ui): fix 6 uniformity discrepancies — event tab pill shape, number tokens, card surface, dialog radius, footer layout, col inset |
 | Final.1.2 | Final Verification | 2     | 830a71d   | style(ui): synchronize sheet layouts, event selectors, and footer total rows                        |
 | Final.1.1 | Final Verification | 1     | d99da15   | style(ui): standardize universal popups, dialogs, and toast design                                  |

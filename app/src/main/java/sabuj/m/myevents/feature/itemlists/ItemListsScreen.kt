@@ -416,9 +416,9 @@ internal fun ItemListCard(
             Column(modifier = Modifier.fillMaxWidth()) {
                 // Row 1: [Title] (left) | [Total Amount] (middle) | <Edit/Delete Icon> (right)
                 Row(
-                modifier          = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
+                    modifier          = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                 Text(
                     text      = task.title,
                     style     = titleS,
@@ -554,4 +554,5 @@ internal fun ItemListCard(
             }
         }
     }
+}
 }
