@@ -1,9 +1,13 @@
 # Version History
 
-Current: V0.T.41
+Current: V0.T.45
 
 | Version  | Phase | Build | Commit    | Summary                                                                                             |
 | -------- |-------|-------|-----------|-----------------------------------------------------------------------------------------------------|
+| V0.T.45  | Test  | 45    | -         | fix(bookings): replace unresolved DeleteBookingDialog with AppDeleteDialog in BookingsPreviews      |
+| V0.T.44  | Test  | 44    | -         | refactor(ui): consolidate all deletion popups to use AppDeleteDialog directly                       |
+| V0.T.43  | Test  | 43    | -         | refactor(guests): safely rename Invitees feature package to Guests in codebase and docs            |
+| V0.T.42  | Test  | 42    | -         | refactor(itemlists): safely rename Checklist feature to Item Lists in codebase and docs             |
 | V0.T.41  | Test  | 41    | -         | docs(md): move AddGiftSheet to .bin, update ui_inventory.md, design.md and testcases.md |
 | V0.T.40  | Test  | 40    | -         | fix(guests): shift guest count 20dp left, right-align status pill, 1-line total row, top-bar extra cards count |
 | V0.T.39  | Test  | 39    | -         | feat(guests): footer redesign, top bar icons, sheet labels, single-select, extra cards dialog       |

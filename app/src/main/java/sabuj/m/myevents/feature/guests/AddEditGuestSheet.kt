@@ -1,4 +1,4 @@
-package sabuj.m.myevents.feature.invitees
+package sabuj.m.myevents.feature.guests
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -57,8 +57,8 @@ import sabuj.m.myevents.domain.model.InvitationType
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun AddEditInviteeSheet(
-    sheetState: InviteeSheetState,
+fun AddEditGuestSheet(
+    sheetState: GuestSheetState,
     events: List<Event>,
     onDismiss: () -> Unit,
     onNameChange: (String) -> Unit,
@@ -70,7 +70,7 @@ fun AddEditInviteeSheet(
     onNoteChange: (String) -> Unit,
     onSave: () -> Unit,
 ) {
-    val isEdit = sheetState is InviteeSheetState.EditInvitee
+    val isEdit = sheetState is GuestSheetState.EditGuest
     val name: String
     val selectedEventIds: Set<String>
     val expectedCount: Int
@@ -84,7 +84,7 @@ fun AddEditInviteeSheet(
     val inviteeEvents = events.filter { it.inviteesRequired }
 
     when (sheetState) {
-        is InviteeSheetState.AddInvitee -> {
+        is GuestSheetState.AddGuest -> {
             name = sheetState.name
             selectedEventIds = sheetState.selectedEventIds
             expectedCount = sheetState.expectedCount
@@ -95,7 +95,7 @@ fun AddEditInviteeSheet(
             eventsError = sheetState.eventsError
             invitationType = sheetState.invitationType
         }
-        is InviteeSheetState.EditInvitee -> {
+        is GuestSheetState.EditGuest -> {
             name = sheetState.name
             selectedEventIds = setOf(sheetState.eventId)
             expectedCount = sheetState.expectedCount
@@ -141,7 +141,7 @@ fun AddEditInviteeSheet(
             Spacer(Modifier.height(8.dp))
 
             // Name
-            InviteeTextField(
+            GuestTextField(
                 value          = name,
                 onValueChange  = onNameChange,
                 label          = "Relative / Family name",
@@ -150,7 +150,7 @@ fun AddEditInviteeSheet(
                 supportingText = nameError,
             )
 
-            Spacer(Modifier.height(10.dp)) // field → single-select section
+            Spacer(Modifier.height(10.dp))
 
             // For event single-select
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -175,7 +175,6 @@ fun AddEditInviteeSheet(
                                 .border(1.dp, chipBorder, RoundedCornerShape(Radius.chip))
                                 .clickable {
                                     if (!isEdit) {
-                                        // Single-select: selecting another event deselects the previous one
                                         onToggleEventSelection(event.id)
                                     }
                                 }
@@ -197,16 +196,15 @@ fun AddEditInviteeSheet(
                 }
             }
 
-            Spacer(Modifier.height(10.dp)) // multi-select → stepper section
+            Spacer(Modifier.height(10.dp))
 
-            // Expected guests count stepper (Item H3)
+            // Expected guests count stepper
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(text = "Expected no. of guests", style = labelM, color = AppColor.text2)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    // Minus button — 25% smaller than original 40dp = 30dp
                     Surface(
                         onClick  = { if (expectedCount > 1) onExpectedCountChange(expectedCount - 1) },
                         shape    = CircleShape,
@@ -224,7 +222,6 @@ fun AddEditInviteeSheet(
                         color = AppColor.text,
                     )
 
-                    // Plus button — 25% smaller than original 40dp = 30dp
                     Surface(
                         onClick  = { onExpectedCountChange(expectedCount + 1) },
                         shape    = CircleShape,
@@ -238,27 +235,27 @@ fun AddEditInviteeSheet(
                 }
             }
 
-            Spacer(Modifier.height(10.dp)) // stepper → text field
+            Spacer(Modifier.height(10.dp))
 
             // Address
-            InviteeTextField(
+            GuestTextField(
                 value         = address,
                 onValueChange = onAddressChange,
                 label         = "Address",
                 placeholder   = "e.g. 123, MG Road, Bengaluru",
             )
 
-            Spacer(Modifier.height(8.dp)) // similar text fields
+            Spacer(Modifier.height(8.dp))
 
             // Note
-            InviteeTextField(
+            GuestTextField(
                 value         = note,
                 onValueChange = onNoteChange,
                 label         = "Note",
                 placeholder   = "e.g. Needs accommodation",
             )
 
-            Spacer(Modifier.height(10.dp)) // field → toggle
+            Spacer(Modifier.height(10.dp))
 
             // Invited status switch
             Row(
@@ -286,7 +283,7 @@ fun AddEditInviteeSheet(
 
             Spacer(Modifier.height(10.dp))
 
-            // Invitation type picker — Call and Card only (None excluded)
+            // Invitation type picker — Call and Card only
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(text = "Invitation through", style = labelM, color = AppColor.text2)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -322,7 +319,7 @@ fun AddEditInviteeSheet(
                 }
             }
 
-            Spacer(Modifier.height(16.dp)) // before buttons
+            Spacer(Modifier.height(16.dp))
 
             val isSaveEnabled = name.isNotBlank() && (isEdit || selectedEventIds.isNotEmpty())
             AppButtonRow(
@@ -339,7 +336,7 @@ fun AddEditInviteeSheet(
 }
 
 @Composable
-private fun InviteeTextField(
+private fun GuestTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
@@ -377,10 +374,10 @@ private fun InviteeTextField(
 
 @LightDarkPreviews
 @Composable
-private fun AddInviteeSheetPreview() {
+private fun AddGuestSheetPreview() {
     AppTheme {
-        AddEditInviteeSheet(
-            sheetState             = InviteeSheetState.AddInvitee(),
+        AddEditGuestSheet(
+            sheetState             = GuestSheetState.AddGuest(),
             events                 = PreviewData.sampleEvents,
             onDismiss              = {},
             onNameChange           = {},
@@ -397,10 +394,10 @@ private fun AddInviteeSheetPreview() {
 
 @LightDarkPreviews
 @Composable
-private fun EditInviteeSheetPreview() {
+private fun EditGuestSheetPreview() {
     AppTheme {
-        AddEditInviteeSheet(
-            sheetState             = InviteeSheetState.EditInvitee(
+        AddEditGuestSheet(
+            sheetState             = GuestSheetState.EditGuest(
                 inviteeId     = "inv-1",
                 eventId       = PreviewData.sampleEvents.first().id,
                 name          = "Sharma Family",

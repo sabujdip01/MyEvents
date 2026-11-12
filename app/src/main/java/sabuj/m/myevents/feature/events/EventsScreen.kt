@@ -284,8 +284,9 @@ fun EventsContent(
                 )
             },
         )
-        is SheetMode.ConfirmDelete -> DeleteEventDialog(
-            event     = mode.event,
+        is SheetMode.ConfirmDelete -> sabuj.m.myevents.core.ui.AppDeleteDialog(
+            title     = "Delete event?",
+            message   = "\"${mode.event.title}\" and all its linked bookings, expenses, invitees and tasks will be completely removed.",
             onDismiss = { onEvent(EventsUiEvent.SheetDismissed) },
             onConfirm = { onEvent(EventsUiEvent.DeleteConfirmed) },
         )
@@ -477,6 +478,18 @@ private fun MonthPickerSheet(
 
             Spacer(Modifier.height(Spacing.xl))
         }
+    }
+}
+
+@sabuj.m.myevents.core.preview.LightDarkPreviews
+@Composable
+private fun MonthPickerSheetPreview() {
+    sabuj.m.myevents.core.theme.AppTheme {
+        MonthPickerSheet(
+            currentMonth    = YearMonth.now(),
+            onMonthSelected = {},
+            onDismiss       = {},
+        )
     }
 }
 

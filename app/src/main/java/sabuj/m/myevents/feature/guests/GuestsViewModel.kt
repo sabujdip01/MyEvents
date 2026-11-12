@@ -1,4 +1,4 @@
-package sabuj.m.myevents.feature.invitees
+package sabuj.m.myevents.feature.guests
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,13 +10,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import sabuj.m.myevents.data.settings.SettingsDataStore
-import sabuj.m.myevents.domain.model.InvitationType
-import sabuj.m.myevents.domain.usecase.AddGiftUseCase
 import sabuj.m.myevents.domain.usecase.AddInviteeUseCase
-import sabuj.m.myevents.domain.usecase.DeleteGiftsUseCase
 import sabuj.m.myevents.domain.usecase.DeleteInviteesUseCase
 import sabuj.m.myevents.domain.usecase.EditInviteeUseCase
-import sabuj.m.myevents.domain.usecase.GiftSaveResult
 import sabuj.m.myevents.domain.usecase.InviteeSaveResult
 import sabuj.m.myevents.domain.usecase.ObserveEventsUseCase
 import sabuj.m.myevents.domain.usecase.ObserveGiftsUseCase
@@ -24,20 +20,21 @@ import sabuj.m.myevents.domain.usecase.ObserveInviteesUseCase
 import javax.inject.Inject
 
 @HiltViewModel
-class InviteesViewModel @Inject constructor(
+class GuestsViewModel @Inject constructor(
     private val observeEvents: ObserveEventsUseCase,
     private val observeInvitees: ObserveInviteesUseCase,
     private val observeGifts: ObserveGiftsUseCase,
     private val addInvitee: AddInviteeUseCase,
     private val editInvitee: EditInviteeUseCase,
     private val deleteInvitees: DeleteInviteesUseCase,
-    private val addGift: AddGiftUseCase,
-    private val deleteGifts: DeleteGiftsUseCase,
+    private val inviteeRepo: sabuj.m.myevents.domain.repository.InviteeRepository,
     private val settingsDataStore: SettingsDataStore,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(InviteesUiState())
-    val uiState: StateFlow<InviteesUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(GuestsUiState())
+    val uiState: StateFlow<GuestsUiState> = _uiState.asStateFlow()
+
+    private var lastDeletedInvitee: sabuj.m.myevents.domain.model.Invitee? = null
 
     init {
         viewModelScope.launch {
@@ -60,7 +57,7 @@ class InviteesViewModel @Inject constructor(
         }
     }
 
-    fun setMainTab(tab: InviteeMainTab) {
+    fun setMainTab(tab: GuestMainTab) {
         _uiState.update { it.copy(mainTab = tab, selectedEventId = null) }
     }
 
@@ -72,7 +69,7 @@ class InviteesViewModel @Inject constructor(
         _uiState.update { it.copy(searchQuery = query) }
     }
 
-    fun setFilter(filter: InviteeFilter) {
+    fun setFilter(filter: GuestFilter) {
         _uiState.update { it.copy(filter = filter) }
     }
 
@@ -80,7 +77,7 @@ class InviteesViewModel @Inject constructor(
         val preselected = uiState.value.selectedEventId?.let { setOf(it) } ?: emptySet()
         _uiState.update {
             it.copy(
-                sheetState = InviteeSheetState.AddInvitee(
+                sheetState = GuestSheetState.AddGuest(
                     selectedEventIds = preselected,
                 )
             )
@@ -91,7 +88,7 @@ class InviteesViewModel @Inject constructor(
         val inv = uiState.value.invitees.find { it.id == inviteeId } ?: return
         _uiState.update {
             it.copy(
-                sheetState = InviteeSheetState.EditInvitee(
+                sheetState = GuestSheetState.EditGuest(
                     inviteeId      = inv.id,
                     eventId        = inv.eventId,
                     name           = inv.name,
@@ -106,23 +103,23 @@ class InviteesViewModel @Inject constructor(
     }
 
     fun hideSheet() {
-        _uiState.update { it.copy(sheetState = InviteeSheetState.Hidden) }
+        _uiState.update { it.copy(sheetState = GuestSheetState.Hidden) }
     }
 
-    fun updateAddInviteeSheet(update: (InviteeSheetState.AddInvitee) -> InviteeSheetState.AddInvitee) {
-        val current = _uiState.value.sheetState as? InviteeSheetState.AddInvitee ?: return
+    fun updateAddInviteeSheet(update: (GuestSheetState.AddGuest) -> GuestSheetState.AddGuest) {
+        val current = _uiState.value.sheetState as? GuestSheetState.AddGuest ?: return
         _uiState.update { it.copy(sheetState = update(current)) }
     }
 
-    fun updateEditInviteeSheet(update: (InviteeSheetState.EditInvitee) -> InviteeSheetState.EditInvitee) {
-        val current = _uiState.value.sheetState as? InviteeSheetState.EditInvitee ?: return
+    fun updateEditInviteeSheet(update: (GuestSheetState.EditGuest) -> GuestSheetState.EditGuest) {
+        val current = _uiState.value.sheetState as? GuestSheetState.EditGuest ?: return
         _uiState.update { it.copy(sheetState = update(current)) }
     }
 
     fun saveInvitee() {
         viewModelScope.launch {
             when (val sheet = _uiState.value.sheetState) {
-                is InviteeSheetState.AddInvitee -> {
+                is GuestSheetState.AddGuest -> {
                     val result = addInvitee(
                         name           = sheet.name,
                         eventIds       = sheet.selectedEventIds.toList(),
@@ -138,7 +135,7 @@ class InviteesViewModel @Inject constructor(
                         InviteeSaveResult.EventsEmpty -> applyInviteeError(sheet, eventsError = "Select at least one event")
                     }
                 }
-                is InviteeSheetState.EditInvitee -> {
+                is GuestSheetState.EditGuest -> {
                     val existing = uiState.value.invitees.find { it.id == sheet.inviteeId } ?: return@launch
                     val result = editInvitee(
                         existing       = existing,
@@ -161,16 +158,16 @@ class InviteesViewModel @Inject constructor(
     }
 
     private fun applyInviteeError(
-        sheet: InviteeSheetState,
+        sheet: GuestSheetState,
         nameError: String? = null,
         eventsError: String? = null,
     ) {
         _uiState.update {
             it.copy(
                 sheetState = when (sheet) {
-                    is InviteeSheetState.AddInvitee  -> sheet.copy(nameError = nameError, eventsError = eventsError)
-                    is InviteeSheetState.EditInvitee -> sheet.copy(nameError = nameError)
-                    else                             -> sheet
+                    is GuestSheetState.AddGuest  -> sheet.copy(nameError = nameError, eventsError = eventsError)
+                    is GuestSheetState.EditGuest -> sheet.copy(nameError = nameError)
+                    else                         -> sheet
                 }
             )
         }
@@ -229,9 +226,19 @@ class InviteesViewModel @Inject constructor(
     /** Confirms and executes the pending single-invitee deletion. */
     fun confirmDeleteSingleInvitee() {
         val invitee = _uiState.value.pendingDeleteInvitee ?: return
+        lastDeletedInvitee = invitee
         viewModelScope.launch {
             deleteInvitees(listOf(invitee.id))
-            _uiState.update { it.copy(pendingDeleteInvitee = null, snackbarMessage = "Guest deleted") }
+            _uiState.update { it.copy(pendingDeleteInvitee = null, snackbarMessage = "\"${invitee.name}\" deleted") }
+        }
+    }
+
+    /** Restores the last deleted guest upon tapping UNDO in the snackbar. */
+    fun undoDelete() {
+        val inv = lastDeletedInvitee ?: return
+        lastDeletedInvitee = null
+        viewModelScope.launch {
+            inviteeRepo.upsertInvitee(inv.copy(deleted = false, updatedAt = System.currentTimeMillis()))
         }
     }
 

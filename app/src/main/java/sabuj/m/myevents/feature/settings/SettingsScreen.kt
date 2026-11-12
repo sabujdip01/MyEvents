@@ -249,7 +249,7 @@ fun SettingsScreenContent(
                         HorizontalDivider(color = AppColor.outlineVariant)
                         SettingsToggleRow("Payment Dues", "Booking and expense due alerts", uiState.settings.notifyPaymentDues, onNotifyPaymentDues)
                         HorizontalDivider(color = AppColor.outlineVariant)
-                        SettingsToggleRow("Task Reminders", "Checklist due date reminders", uiState.settings.notifyTasks, onNotifyTasks)
+                        SettingsToggleRow("Task Reminders", "Item list due date reminders", uiState.settings.notifyTasks, onNotifyTasks)
                         HorizontalDivider(color = AppColor.outlineVariant)
                         SettingsToggleRow("Budget Warnings", "Alerts at 80% and 100% budget spent", uiState.settings.notifyBudgetAlerts, onNotifyBudgetAlerts)
                     }

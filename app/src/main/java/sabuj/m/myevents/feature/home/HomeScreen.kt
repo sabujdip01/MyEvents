@@ -634,7 +634,7 @@ private fun ItemsPendingCard(count: Int, modifier: Modifier = Modifier) {
         Box {
             Column(modifier = Modifier.fillMaxHeight().padding(Spacing.md)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    CardIcon(icon = AppIcon.Checklist.fallback)
+                    CardIcon(icon = AppIcon.ItemLists.fallback)
                     Spacer(Modifier.width(Spacing.md))
                     Text("Pending Item(s)", style = titleM, color = AppColor.text, modifier = Modifier.weight(1f))
                 }
@@ -662,7 +662,7 @@ private fun ItemsPendingCard(count: Int, modifier: Modifier = Modifier) {
                 modifier        = Modifier.align(Alignment.BottomEnd).size(48.dp).padding(Spacing.xs),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(AppIcon.Checklist.fallback, null, tint = AppColor.primary.copy(alpha = 0.08f), modifier = Modifier.size(40.dp))
+                Icon(AppIcon.ItemLists.fallback, null, tint = AppColor.primary.copy(alpha = 0.08f), modifier = Modifier.size(40.dp))
             }
         }
     }

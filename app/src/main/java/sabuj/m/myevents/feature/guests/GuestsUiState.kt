@@ -1,18 +1,18 @@
-package sabuj.m.myevents.feature.invitees
+package sabuj.m.myevents.feature.guests
 
 import sabuj.m.myevents.domain.model.Event
 import sabuj.m.myevents.domain.model.Gift
 import sabuj.m.myevents.domain.model.Invitee
 import sabuj.m.myevents.domain.model.InvitationType
 
-enum class InviteeMainTab { Invitees, Gifts }
+enum class GuestMainTab { Guests, Gifts }
 
-enum class InviteeFilter { All, Invited, NotInvited }
+enum class GuestFilter { All, Invited, NotInvited }
 
-sealed class InviteeSheetState {
-    object Hidden : InviteeSheetState()
+sealed class GuestSheetState {
+    object Hidden : GuestSheetState()
 
-    data class AddInvitee(
+    data class AddGuest(
         val name: String = "",
         val selectedEventIds: Set<String> = emptySet(),
         val expectedCount: Int = 1,
@@ -22,9 +22,9 @@ sealed class InviteeSheetState {
         val invitationType: InvitationType = InvitationType.None,
         val nameError: String? = null,
         val eventsError: String? = null,
-    ) : InviteeSheetState()
+    ) : GuestSheetState()
 
-    data class EditInvitee(
+    data class EditGuest(
         val inviteeId: String,
         val eventId: String,
         val name: String,
@@ -34,20 +34,20 @@ sealed class InviteeSheetState {
         val note: String,
         val invitationType: InvitationType = InvitationType.None,
         val nameError: String? = null,
-    ) : InviteeSheetState()
+    ) : GuestSheetState()
 }
 
-/** UI state for Invitees & Gifts screen. */
-data class InviteesUiState(
+/** UI state for Guests screen. */
+data class GuestsUiState(
     val isLoading: Boolean = true,
-    val mainTab: InviteeMainTab = InviteeMainTab.Invitees,
+    val mainTab: GuestMainTab = GuestMainTab.Guests,
     val events: List<Event> = emptyList(),
     val selectedEventId: String? = null, // null = All
     val invitees: List<Invitee> = emptyList(),
     val gifts: List<Gift> = emptyList(),
     val searchQuery: String = "",
-    val filter: InviteeFilter = InviteeFilter.All,
-    val sheetState: InviteeSheetState = InviteeSheetState.Hidden,
+    val filter: GuestFilter = GuestFilter.All,
+    val sheetState: GuestSheetState = GuestSheetState.Hidden,
     val isDeleteMode: Boolean = false,
     val selectedForDelete: Set<String> = emptySet(),
     val snackbarMessage: String? = null,
@@ -58,7 +58,7 @@ data class InviteesUiState(
     /** Invitee pending long-press single-delete confirmation. */
     val pendingDeleteInvitee: Invitee? = null,
 ) {
-    /** Filtered events that have invitees required == true (for the Invitees top tab row). */
+    /** Filtered events that have invitees required == true (for the Guests top tab row). */
     val inviteeRequiredEvents: List<Event>
         get() = events.filter { it.inviteesRequired }
 
@@ -75,9 +75,9 @@ data class InviteesUiState(
             }
 
             result = when (filter) {
-                InviteeFilter.All        -> result
-                InviteeFilter.Invited    -> result.filter { it.invited }
-                InviteeFilter.NotInvited -> result.filter { !it.invited }
+                GuestFilter.All        -> result
+                GuestFilter.Invited    -> result.filter { it.invited }
+                GuestFilter.NotInvited -> result.filter { !it.invited }
             }
 
             return result

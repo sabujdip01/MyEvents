@@ -238,10 +238,11 @@ fun BookingsScreen(
     val deleteId = uiState.deleteDialogBookingId
     if (deleteId != null) {
         val booking = uiState.bookings.find { it.id == deleteId }
-        DeleteBookingDialog(
-            bookingTitle = booking?.title ?: "",
-            onDismiss    = { viewModel.dismissDeleteDialog() },
-            onConfirm    = { viewModel.confirmDelete() },
+        sabuj.m.myevents.core.ui.AppDeleteDialog(
+            title     = "Delete booking?",
+            message   = "\"${booking?.title ?: ""}\" and all its payments will be permanently removed.",
+            onDismiss = { viewModel.dismissDeleteDialog() },
+            onConfirm = { viewModel.confirmDelete() },
         )
     }
 }

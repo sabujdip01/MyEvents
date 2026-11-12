@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import sabuj.m.myevents.core.preview.LightDarkPreviews
 import sabuj.m.myevents.core.preview.PreviewData
 import sabuj.m.myevents.core.theme.AppTheme
+import sabuj.m.myevents.core.ui.AppDeleteDialog
 
 /**
  * Light and dark @Preview composables for the Bookings feature.
@@ -92,10 +93,11 @@ private fun EditBookingSheetPreview() {
 @Composable
 private fun DeleteBookingDialogPreview() {
     AppTheme {
-        DeleteBookingDialog(
-            bookingTitle = "Photography",
-            onDismiss    = {},
-            onConfirm    = {},
+        AppDeleteDialog(
+            title     = "Delete booking?",
+            message   = "\"Photography\" and all its payments will be permanently removed.",
+            onDismiss = {},
+            onConfirm = {},
         )
     }
 }

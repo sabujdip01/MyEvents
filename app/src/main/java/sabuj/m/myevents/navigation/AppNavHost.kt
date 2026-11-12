@@ -65,11 +65,11 @@ fun AppNavHost(
             composable(Routes.EXPENSES) {
                 sabuj.m.myevents.feature.expenses.ExpensesScreen(onMenuClick = openDrawer)
             }
-            composable(Routes.INVITEES) {
-                sabuj.m.myevents.feature.invitees.InviteesScreen(onMenuClick = openDrawer)
+            composable(Routes.GUESTS) {
+                sabuj.m.myevents.feature.guests.GuestsScreen(onMenuClick = openDrawer)
             }
-            composable(Routes.CHECKLIST) {
-                sabuj.m.myevents.feature.checklist.ChecklistScreen(onMenuClick = openDrawer)
+            composable(Routes.ITEM_LISTS) {
+                sabuj.m.myevents.feature.itemlists.ItemListsScreen(onMenuClick = openDrawer)
             }
             composable(Routes.SETTINGS) {
                 SettingsScreen(onMenuClick = openDrawer)

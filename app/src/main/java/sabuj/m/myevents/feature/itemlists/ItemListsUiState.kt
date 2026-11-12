@@ -1,4 +1,4 @@
-package sabuj.m.myevents.feature.checklist
+package sabuj.m.myevents.feature.itemlists
 
 import sabuj.m.myevents.core.icons.BookingIcon
 import sabuj.m.myevents.domain.model.Event
@@ -33,8 +33,8 @@ sealed class TaskSheetState {
     ) : TaskSheetState()
 }
 
-/** UI state for Checklist screen. */
-data class ChecklistUiState(
+/** UI state for Item Lists screen. */
+data class ItemListsUiState(
     val isLoading: Boolean = true,
     val events: List<Event> = emptyList(),
     val selectedEventId: String? = null, // null = All

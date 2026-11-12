@@ -1,4 +1,4 @@
-package sabuj.m.myevents.feature.checklist
+package sabuj.m.myevents.feature.itemlists
 
 import android.app.DatePickerDialog
 import androidx.compose.foundation.Image
@@ -213,7 +213,7 @@ fun AddEditTaskSheet(
 
             Spacer(Modifier.height(8.dp))
 
-            // For Event Dropdown (Item F1 — Not auto-selected)
+            // For Event Dropdown
             TaskEventDropdownSelector(
                 events     = events,
                 selectedId = eventId,
@@ -258,7 +258,7 @@ fun AddEditTaskSheet(
 
             Spacer(Modifier.height(10.dp))
 
-            // Dynamic List of items with price + checkbox (Item F2)
+            // Dynamic List of items with price + checkbox
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(text = "List of Items & Prices", style = labelM, color = AppColor.text2)
 
@@ -329,7 +329,7 @@ fun AddEditTaskSheet(
 
             Spacer(Modifier.height(10.dp))
 
-            // Total Amount (Auto-calculated sum)
+            // Total Amount
             val calculatedTotalPaise = items.sumOf { it.pricePaise }
             TaskTextField(
                 value         = MoneyFormatter.format(calculatedTotalPaise),

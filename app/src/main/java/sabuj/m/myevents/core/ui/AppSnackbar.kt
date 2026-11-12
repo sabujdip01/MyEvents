@@ -7,10 +7,13 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import sabuj.m.myevents.core.preview.LightDarkPreviews
 import sabuj.m.myevents.core.theme.AppColor
 import sabuj.m.myevents.core.theme.AppTheme
+import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
 
@@ -34,7 +37,7 @@ fun AppSnackbar(
 
 /** Single snackbar appearance — surface background with primary action colour. */
 @Composable
-private fun AppSnackbarItem(data: SnackbarData) {
+private fun AppSnackbarItem(data: SnackbarData, modifier: Modifier = Modifier) {
     Snackbar(
         action = data.visuals.actionLabel?.let { label ->
             {
@@ -46,6 +49,8 @@ private fun AppSnackbarItem(data: SnackbarData) {
         containerColor = AppColor.surface,
         contentColor   = AppColor.text,
         actionOnNewLine = false,
+        modifier       = modifier.padding(horizontal = Spacing.md, vertical = Spacing.xs),
+        shape          = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
     ) {
         Text(data.visuals.message, style = bodyM)
     }

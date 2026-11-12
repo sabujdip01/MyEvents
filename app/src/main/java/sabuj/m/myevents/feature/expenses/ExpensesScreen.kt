@@ -526,7 +526,7 @@ private fun ExpenseRowCard(
                         // Direct expense — show generic category icon
                         val categoryIcon = when (expense.category) {
                             ExpenseCategory.Bookings -> sabuj.m.myevents.core.icons.AppIcon.Bookings.fallback
-                            ExpenseCategory.ItemList -> sabuj.m.myevents.core.icons.AppIcon.Checklist.fallback
+                            ExpenseCategory.ItemList -> sabuj.m.myevents.core.icons.AppIcon.ItemLists.fallback
                             else                     -> sabuj.m.myevents.core.icons.AppIcon.Expenses.fallback
                         }
                         Icon(

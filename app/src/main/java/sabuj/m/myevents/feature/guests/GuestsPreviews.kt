@@ -1,4 +1,4 @@
-package sabuj.m.myevents.feature.invitees
+package sabuj.m.myevents.feature.guests
 
 import androidx.compose.runtime.Composable
 import sabuj.m.myevents.core.preview.LightDarkPreviews
@@ -6,16 +6,12 @@ import sabuj.m.myevents.core.preview.PreviewData
 import sabuj.m.myevents.core.theme.AppTheme
 import sabuj.m.myevents.domain.model.InvitationType
 
-// ---------------------------------------------------------------------------
-// Add/Edit Sheet previews
-// ---------------------------------------------------------------------------
-
 @LightDarkPreviews
 @Composable
-private fun AddInviteeSheetPreview() {
+private fun AddGuestSheetPreview() {
     AppTheme {
-        AddEditInviteeSheet(
-            sheetState             = InviteeSheetState.AddInvitee(
+        AddEditGuestSheet(
+            sheetState             = GuestSheetState.AddGuest(
                 name             = "Sharma Family",
                 selectedEventIds = setOf(PreviewData.sampleEvents.first().id),
                 expectedCount    = 4,

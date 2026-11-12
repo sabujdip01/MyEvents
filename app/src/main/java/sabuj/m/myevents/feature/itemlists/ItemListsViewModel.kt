@@ -1,4 +1,4 @@
-package sabuj.m.myevents.feature.checklist
+package sabuj.m.myevents.feature.itemlists
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,7 +21,7 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
-class ChecklistViewModel @Inject constructor(
+class ItemListsViewModel @Inject constructor(
     private val observeEvents: ObserveEventsUseCase,
     private val observeTasks: ObserveTasksUseCase,
     private val addTask: AddTaskUseCase,
@@ -30,8 +30,8 @@ class ChecklistViewModel @Inject constructor(
     private val taskRepo: TaskRepository,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ChecklistUiState())
-    val uiState: StateFlow<ChecklistUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(ItemListsUiState())
+    val uiState: StateFlow<ItemListsUiState> = _uiState.asStateFlow()
 
     private var pendingDeleteId: String? = null
 

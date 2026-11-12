@@ -1,4 +1,4 @@
-package sabuj.m.myevents.feature.checklist
+package sabuj.m.myevents.feature.itemlists
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -77,9 +77,9 @@ import sabuj.m.myevents.domain.model.Event
 import sabuj.m.myevents.domain.model.Task
 
 @Composable
-fun ChecklistScreen(
+fun ItemListsScreen(
     onMenuClick: () -> Unit,
-    viewModel: ChecklistViewModel = hiltViewModel(),
+    viewModel: ItemListsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -108,7 +108,7 @@ fun ChecklistScreen(
 
             Column(modifier = Modifier.fillMaxSize()) {
                 // Top bar with Delete/Done action toggle
-                ChecklistTopBar(
+                ItemListsTopBar(
                     isDeleteMode   = uiState.isDeleteMode,
                     onToggleDelete = { viewModel.toggleDeleteMode() },
                     onMenuClick    = onMenuClick,
@@ -235,7 +235,7 @@ fun ChecklistScreen(
         else -> Unit
     }
 
-    // Item G5 — Universal Delete Dialog
+    // Universal Delete Dialog
     val deleteTaskId = uiState.deleteTaskId
     if (deleteTaskId != null) {
         val task = uiState.tasks.find { it.id == deleteTaskId }
@@ -309,7 +309,7 @@ private fun TaskEventTabsRow(
 }
 
 @Composable
-private fun ChecklistTopBar(
+private fun ItemListsTopBar(
     isDeleteMode: Boolean,
     onToggleDelete: () -> Unit,
     onMenuClick: () -> Unit,
@@ -360,10 +360,10 @@ private fun ItemListContent(
 
 /**
  * Item List Card matching specs:
- * Row 1: <Title> | <Total Amount> (same font as BookingCard AmountPaid) | <Edit/Delete Icon> (right)
- * Row 2: <Event Icon (32dp, flush left)> | Total items X • Remaining items Y
+ * Row 1: <Title> | <Total Amount> | <Edit/Delete Icon>
+ * Row 2: <Event Icon (32dp, flush left)> | Total items X • Collected Y items
  *                                        | Progress Bar (10dp height, accent/success)
- * Row 3: <All items collected / Pending items Pill> (left) | <Complete by Pill> (right)
+ * Row 3: <All items collected / Pending items Pill> | <Complete by Pill>
  */
 @Composable
 internal fun ItemListCard(
@@ -488,7 +488,7 @@ internal fun ItemListCard(
                 modifier              = Modifier.fillMaxWidth(),
                 verticalAlignment     = Alignment.CenterVertically,
             ) {
-                // Left 1/3: Event Name (starting of 3rd row, same font as Total items line: bodyM)
+                // Left 1/3: Event Name
                 Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
                     Text(
                         text     = event?.title ?: "General",
@@ -499,7 +499,7 @@ internal fun ItemListCard(
                     )
                 }
 
-                // Middle 1/3: Pending items / All collected Pill (Center aligned)
+                // Middle 1/3: Pending items / All collected Pill
                 val isAllCollected = remItems == 0 || task.completed || progress >= 1f
                 val collectedText = if (isAllCollected) {
                     if (totalItems <= 1) "All item collected" else "All items collected"
@@ -511,7 +511,7 @@ internal fun ItemListCard(
                     Pill(text = collectedText, variant = collectedVariant)
                 }
 
-                // Right 1/3: Complete by / Completed on Pill (Right aligned)
+                // Right 1/3: Complete by / Completed on Pill
                 Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
                     if (isAllCollected) {
                         val dateText = task.dueDate?.let { DateUtils.formatShort(it) } ?: DateUtils.formatShort(task.updatedAt)

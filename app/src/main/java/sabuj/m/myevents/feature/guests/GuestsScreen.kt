@@ -1,4 +1,4 @@
-package sabuj.m.myevents.feature.invitees
+package sabuj.m.myevents.feature.guests
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -23,7 +23,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.MailOutline
@@ -77,16 +76,23 @@ import sabuj.m.myevents.domain.model.Invitee
 import sabuj.m.myevents.domain.model.InvitationType
 
 @Composable
-fun InviteesScreen(
+fun GuestsScreen(
     onMenuClick: () -> Unit,
-    viewModel: InviteesViewModel = hiltViewModel(),
+    viewModel: GuestsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(uiState.snackbarMessage) {
         val msg = uiState.snackbarMessage ?: return@LaunchedEffect
-        snackbarHostState.showSnackbar(msg)
+        val result = snackbarHostState.showSnackbar(
+            message     = msg,
+            actionLabel = "UNDO",
+            duration    = androidx.compose.material3.SnackbarDuration.Long,
+        )
+        if (result == androidx.compose.material3.SnackbarResult.ActionPerformed) {
+            viewModel.undoDelete()
+        }
         viewModel.snackbarDismissed()
     }
 
@@ -101,7 +107,7 @@ fun InviteesScreen(
 
             Column(modifier = Modifier.fillMaxSize()) {
                 // Top bar: [🃏 extra cards with count] [Add]
-                InviteesTopBar(
+                GuestsTopBar(
                     onMenuClick        = onMenuClick,
                     extraCards         = uiState.extraCards,
                     onAddClick         = { viewModel.showAddSheet() },
@@ -113,7 +119,7 @@ fun InviteesScreen(
                 // Event filter tabs — show total invitees per event in brackets
                 val reqEvents = uiState.inviteeRequiredEvents
                 if (reqEvents.isNotEmpty()) {
-                    InviteeEventTabs(
+                    GuestEventTabs(
                         events          = reqEvents,
                         invitees        = uiState.invitees,
                         selectedEventId = uiState.selectedEventId,
@@ -123,7 +129,7 @@ fun InviteesScreen(
                 }
 
                 // Search & Filter
-                InviteeSearchAndFilterBar(
+                GuestSearchAndFilterBar(
                     searchQuery         = uiState.searchQuery,
                     onSearchQueryChange = { viewModel.updateSearchQuery(it) },
                     activeFilter        = uiState.filter,
@@ -159,39 +165,39 @@ fun InviteesScreen(
         )
     }
 
-    // Add / Edit Invitee Sheet
+    // Add / Edit Guest Sheet
     when (val sheet = uiState.sheetState) {
-        is InviteeSheetState.AddInvitee, is InviteeSheetState.EditInvitee -> AddEditInviteeSheet(
+        is GuestSheetState.AddGuest, is GuestSheetState.EditGuest -> AddEditGuestSheet(
             sheetState             = sheet,
             events                 = uiState.events,
             onDismiss              = { viewModel.hideSheet() },
             onNameChange           = { name ->
-                if (sheet is InviteeSheetState.AddInvitee) viewModel.updateAddInviteeSheet { it.copy(name = name) }
-                else if (sheet is InviteeSheetState.EditInvitee) viewModel.updateEditInviteeSheet { it.copy(name = name) }
+                if (sheet is GuestSheetState.AddGuest) viewModel.updateAddInviteeSheet { it.copy(name = name) }
+                else if (sheet is GuestSheetState.EditGuest) viewModel.updateEditInviteeSheet { it.copy(name = name) }
             },
             onToggleEventSelection = { id ->
                 // Single-select: always replace with the tapped event
                 viewModel.updateAddInviteeSheet { it.copy(selectedEventIds = setOf(id)) }
             },
             onExpectedCountChange  = { count ->
-                if (sheet is InviteeSheetState.AddInvitee) viewModel.updateAddInviteeSheet { it.copy(expectedCount = count) }
-                else if (sheet is InviteeSheetState.EditInvitee) viewModel.updateEditInviteeSheet { it.copy(expectedCount = count) }
+                if (sheet is GuestSheetState.AddGuest) viewModel.updateAddInviteeSheet { it.copy(expectedCount = count) }
+                else if (sheet is GuestSheetState.EditGuest) viewModel.updateEditInviteeSheet { it.copy(expectedCount = count) }
             },
             onAddressChange        = { addr ->
-                if (sheet is InviteeSheetState.AddInvitee) viewModel.updateAddInviteeSheet { it.copy(address = addr) }
-                else if (sheet is InviteeSheetState.EditInvitee) viewModel.updateEditInviteeSheet { it.copy(address = addr) }
+                if (sheet is GuestSheetState.AddGuest) viewModel.updateAddInviteeSheet { it.copy(address = addr) }
+                else if (sheet is GuestSheetState.EditGuest) viewModel.updateEditInviteeSheet { it.copy(address = addr) }
             },
             onInvitedChange        = { inv ->
-                if (sheet is InviteeSheetState.AddInvitee) viewModel.updateAddInviteeSheet { it.copy(invited = inv) }
-                else if (sheet is InviteeSheetState.EditInvitee) viewModel.updateEditInviteeSheet { it.copy(invited = inv) }
+                if (sheet is GuestSheetState.AddGuest) viewModel.updateAddInviteeSheet { it.copy(invited = inv) }
+                else if (sheet is GuestSheetState.EditGuest) viewModel.updateEditInviteeSheet { it.copy(invited = inv) }
             },
             onInvitationTypeChange = { type ->
-                if (sheet is InviteeSheetState.AddInvitee) viewModel.updateAddInviteeSheet { it.copy(invitationType = type) }
-                else if (sheet is InviteeSheetState.EditInvitee) viewModel.updateEditInviteeSheet { it.copy(invitationType = type) }
+                if (sheet is GuestSheetState.AddGuest) viewModel.updateAddInviteeSheet { it.copy(invitationType = type) }
+                else if (sheet is GuestSheetState.EditGuest) viewModel.updateEditInviteeSheet { it.copy(invitationType = type) }
             },
             onNoteChange           = { note ->
-                if (sheet is InviteeSheetState.AddInvitee) viewModel.updateAddInviteeSheet { it.copy(note = note) }
-                else if (sheet is InviteeSheetState.EditInvitee) viewModel.updateEditInviteeSheet { it.copy(note = note) }
+                if (sheet is GuestSheetState.AddGuest) viewModel.updateAddInviteeSheet { it.copy(note = note) }
+                else if (sheet is GuestSheetState.EditGuest) viewModel.updateEditInviteeSheet { it.copy(note = note) }
             },
             onSave                 = { viewModel.saveInvitee() },
         )
@@ -226,7 +232,7 @@ fun InviteesScreen(
  * Guests top bar with Extra Cards icon (with count text below if > 0) and "Add" button.
  */
 @Composable
-private fun InviteesTopBar(
+private fun GuestsTopBar(
     onMenuClick: () -> Unit,
     extraCards: Int,
     onAddClick: () -> Unit,
@@ -279,7 +285,7 @@ private fun InviteesTopBar(
  * Horizontal tab row of events showing total invitee count per event in brackets.
  */
 @Composable
-private fun InviteeEventTabs(
+private fun GuestEventTabs(
     events: List<Event>,
     invitees: List<Invitee>,
     selectedEventId: String?,
@@ -343,11 +349,11 @@ private fun InviteeEventTabs(
 // ---------------------------------------------------------------------------
 
 @Composable
-private fun InviteeSearchAndFilterBar(
+private fun GuestSearchAndFilterBar(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
-    activeFilter: InviteeFilter,
-    onFilterChange: (InviteeFilter) -> Unit,
+    activeFilter: GuestFilter,
+    onFilterChange: (GuestFilter) -> Unit,
 ) {
     Column(
         modifier            = Modifier.padding(horizontal = Spacing.lg),
@@ -377,7 +383,7 @@ private fun InviteeSearchAndFilterBar(
         )
 
         Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-            InviteeFilter.entries.forEach { filter ->
+            GuestFilter.entries.forEach { filter ->
                 val isSelected = activeFilter == filter
                 Surface(
                     onClick  = { onFilterChange(filter) },
@@ -388,9 +394,9 @@ private fun InviteeSearchAndFilterBar(
                     Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(horizontal = Spacing.sm)) {
                         Text(
                             text  = when (filter) {
-                                InviteeFilter.All        -> "All"
-                                InviteeFilter.Invited    -> "Invited"
-                                InviteeFilter.NotInvited -> "Not invited"
+                                GuestFilter.All        -> "All"
+                                GuestFilter.Invited    -> "Invited"
+                                GuestFilter.NotInvited -> "Not invited"
                             },
                             style = labelM,
                             color = if (isSelected) AppColor.primary else AppColor.text2,

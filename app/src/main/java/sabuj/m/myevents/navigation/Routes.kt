@@ -6,7 +6,9 @@ object Routes {
     const val EVENTS     = "events"
     const val BOOKINGS   = "bookings"
     const val EXPENSES   = "expenses"
-    const val INVITEES   = "invitees"
-    const val CHECKLIST  = "checklist"
+    const val GUESTS     = "guests"
+    const val INVITEES   = GUESTS
+    const val ITEM_LISTS = "item_lists"
+    const val CHECKLIST  = ITEM_LISTS
     const val SETTINGS   = "settings"
 }
