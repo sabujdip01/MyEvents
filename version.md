@@ -1,10 +1,13 @@
 # Version History
 
-Current: V0.T.49
+Current: Final.1.3
 
-| Version  | Phase | Build | Commit    | Summary                                                                                             |
-| -------- |-------|-------|-----------|-----------------------------------------------------------------------------------------------------|
-| V0.T.49  | Test  | 49    | -         | fix(home): fixed top bar, event deletion cascade, 5s toast auto-dismiss, guest footer alignment     |
+| Version   | Phase              | Build | Commit    | Summary                                                                                             |
+| --------- | ------------------ | ----- | --------- | --------------------------------------------------------------------------------------------------- |
+| Final.1.3 | Final Verification | 3     | -         | style(ui): fix 6 uniformity discrepancies — event tab pill shape, number tokens, card surface, dialog radius, footer layout, col inset |
+| Final.1.2 | Final Verification | 2     | 830a71d   | style(ui): synchronize sheet layouts, event selectors, and footer total rows                        |
+| Final.1.1 | Final Verification | 1     | d99da15   | style(ui): standardize universal popups, dialogs, and toast design                                  |
+| V0.T.49   | Test               | 49    | -         | fix(home): fixed top bar, event deletion cascade, 5s toast auto-dismiss, guest footer alignment     |
 | V0.T.48  | Test  | 48    | -         | feat(settings): CSV import/export with File Manager save picker, unquoted tables, and updated docs |
 | V0.T.47  | Test  | 47    | -         | style(settings): refine settings screen labels to sentence case and format sync timestamp colon      |
 | V0.T.46  | Test  | 46    | -         | fix(settings): 50-50 sharp color swatch split, fixed top bar, bio toggle check, real-time firestore sync |

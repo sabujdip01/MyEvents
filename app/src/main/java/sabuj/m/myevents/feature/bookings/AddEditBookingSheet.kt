@@ -605,7 +605,7 @@ fun BookingIconPickerDialog(
         properties       = DialogProperties(usePlatformDefaultWidth = false),
     ) {
         Card(
-            shape    = RoundedCornerShape(24.dp),
+            shape    = RoundedCornerShape(Radius.dialog),
             colors   = CardDefaults.cardColors(containerColor = AppColor.surface),
             modifier = Modifier
                 .fillMaxWidth(0.92f)

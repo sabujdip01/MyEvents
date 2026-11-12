@@ -40,13 +40,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import sabuj.m.myevents.core.icons.AppIcon
 import sabuj.m.myevents.core.icons.EventIconDisplay
@@ -57,6 +55,8 @@ import sabuj.m.myevents.core.theme.Radius
 import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
+import sabuj.m.myevents.core.theme.numberL
+import sabuj.m.myevents.core.theme.numberXl
 import sabuj.m.myevents.core.theme.titleL
 import sabuj.m.myevents.core.theme.titleM
 import sabuj.m.myevents.core.theme.titleS
@@ -342,17 +342,16 @@ private fun BookingsDoneCard(done: Int, total: Int, modifier: Modifier) {
                 ) {
                     Text(
                         text = buildAnnotatedString {
-                            withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold)) {
+                            withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
                                 append("$done")
                             }
-                            withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
+                            withStyle(numberL.toSpanStyle().copy(color = AppColor.text2)) {
                                 append(" of ")
                             }
-                            withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold)) {
+                            withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
                                 append("$total")
                             }
                         },
-                        color     = AppColor.primary,
                         textAlign = TextAlign.Center,
                     )
                     Spacer(Modifier.height(2.dp))
@@ -395,7 +394,7 @@ private fun BookingAmountCard(paidPaise: Long, totalPaise: Long, modifier: Modif
                 ) {
                     Text(
                         text      = MoneyFormatter.format(paidPaise),
-                        style     = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold),
+                        style     = numberXl,
                         color     = AppColor.primary,
                         textAlign = TextAlign.Center,
                     )
@@ -445,16 +444,16 @@ private fun BudgetCard(spentPaise: Long, totalPaise: Long) {
                     Spacer(Modifier.width(44.dp + Spacing.md))
                     Text(
                         text = buildAnnotatedString {
-                            withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
+                            withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
                                 append(MoneyFormatter.format(spentPaise))
                             }
-                            withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
+                            withStyle(numberL.toSpanStyle().copy(color = AppColor.text2)) {
                                 append(" of ")
                             }
-                            withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
+                            withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
                                 append(MoneyFormatter.format(totalPaise))
                             }
-                            withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
+                            withStyle(numberL.toSpanStyle().copy(color = AppColor.text2)) {
                                 append(" spent")
                             }
                         },
@@ -504,7 +503,7 @@ private fun PendingDuesCard(paise: Long, modifier: Modifier) {
                 ) {
                     Text(
                         text      = MoneyFormatter.format(paise),
-                        style     = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold),
+                        style     = numberXl,
                         color     = if (paise > 0) AppColor.danger else AppColor.success,
                         textAlign = TextAlign.Center,
                     )
@@ -562,13 +561,13 @@ private fun InviteesCard(
                     ) {
                         Text(
                             text = buildAnnotatedString {
-                                withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
+                                withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
                                     append("$invitedGuests")
                                 }
-                                withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
+                                withStyle(numberL.toSpanStyle().copy(color = AppColor.text2)) {
                                     append(" of ")
                                 }
-                                withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
+                                withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
                                     append("$totalGuests")
                                 }
                             },
@@ -590,13 +589,13 @@ private fun InviteesCard(
                     ) {
                         Text(
                             text = buildAnnotatedString {
-                                withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
+                                withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
                                     append("$invitedFamilies")
                                 }
-                                withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
+                                withStyle(numberL.toSpanStyle().copy(color = AppColor.text2)) {
                                     append(" of ")
                                 }
-                                withStyle(SpanStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, color = AppColor.primary)) {
+                                withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
                                     append("$totalFamilies")
                                 }
                             },
@@ -645,7 +644,7 @@ private fun ItemsPendingCard(count: Int, modifier: Modifier = Modifier) {
                 ) {
                     Text(
                         text      = "$count",
-                        style     = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold),
+                        style     = numberXl,
                         color     = AppColor.primary,
                         textAlign = TextAlign.Center,
                     )
