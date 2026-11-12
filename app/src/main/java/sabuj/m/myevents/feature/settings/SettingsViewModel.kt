@@ -19,9 +19,15 @@ import sabuj.m.myevents.data.settings.SettingsDataStore
 import sabuj.m.myevents.data.settings.ThemeMode
 import sabuj.m.myevents.data.settings.UserSettings
 import sabuj.m.myevents.domain.model.Event
+import sabuj.m.myevents.domain.repository.BookingRepository
+import sabuj.m.myevents.domain.repository.EventRepository
+import sabuj.m.myevents.domain.repository.InviteeRepository
+import sabuj.m.myevents.domain.repository.TaskRepository
+import sabuj.m.myevents.domain.usecase.ObserveBookingsUseCase
 import sabuj.m.myevents.domain.usecase.ObserveEventsUseCase
 import sabuj.m.myevents.domain.usecase.ObserveExpensesUseCase
 import sabuj.m.myevents.domain.usecase.ObserveInviteesUseCase
+import sabuj.m.myevents.domain.usecase.ObserveTasksUseCase
 import javax.inject.Inject
 
 data class SettingsUiState(
@@ -38,9 +44,15 @@ class SettingsViewModel @Inject constructor(
     private val pinStore: PinStore,
     private val pinHasher: PinHasher,
     private val syncRepo: sabuj.m.myevents.data.remote.FirestoreSyncRepository,
+    private val eventRepo: EventRepository,
+    private val bookingRepo: BookingRepository,
+    private val taskRepo: TaskRepository,
+    private val inviteeRepo: InviteeRepository,
     private val observeEvents: ObserveEventsUseCase,
     private val observeExpenses: ObserveExpensesUseCase,
     private val observeInvitees: ObserveInviteesUseCase,
+    private val observeBookings: ObserveBookingsUseCase,
+    private val observeTasks: ObserveTasksUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
@@ -131,13 +143,59 @@ class SettingsViewModel @Inject constructor(
         _uiState.update { it.copy(isExportDialogOpen = false) }
     }
 
-    fun exportEventData(context: Context, eventId: String) {
+    fun exportEventToUri(context: Context, eventId: String, uri: android.net.Uri) {
         viewModelScope.launch {
             val event = uiState.value.events.find { it.id == eventId } ?: return@launch
-            val expenses = observeExpenses(eventId).first()
+            val bookings = observeBookings.byEvent(eventId).first()
             val invitees = observeInvitees(eventId).first()
-            CsvWriter.exportAndShare(context, event.title, expenses, invitees)
+            val tasks = observeTasks(eventId).first()
+            val expenses = observeExpenses(eventId).first()
+            val extraCards = settingsDataStore.extraCardsFlow.first()
+
+            val csvString = CsvWriter.generateCsvString(
+                event      = event,
+                bookings   = bookings,
+                invitees   = invitees,
+                tasks      = tasks,
+                expenses   = expenses,
+                extraCards = extraCards,
+            )
+
+            val success = CsvWriter.writeToUri(context, uri, csvString)
             hideExportDialog()
+            if (success) {
+                _uiState.update { it.copy(snackbarMessage = "Export saved to File Manager successfully!") }
+            } else {
+                _uiState.update { it.copy(snackbarMessage = "Failed to save export file.") }
+            }
+        }
+    }
+
+    fun importCsvData(context: Context, uri: android.net.Uri) {
+        viewModelScope.launch {
+            try {
+                val inputStream = context.contentResolver.openInputStream(uri) ?: return@launch
+                val data = sabuj.m.myevents.core.util.CsvReader.parse(inputStream)
+                if (data != null) {
+                    // Upsert imported event
+                    eventRepo.upsert(data.event)
+                    // Upsert imported bookings
+                    data.bookings.forEach { b -> bookingRepo.upsertBooking(b) }
+                    // Upsert imported tasks / item lists
+                    data.tasks.forEach { t -> taskRepo.upsertTask(t) }
+                    // Upsert imported invitees / guests
+                    data.invitees.forEach { inv -> inviteeRepo.upsertInvitee(inv) }
+                    // Set extra cards count
+                    if (data.extraCards > 0) {
+                        settingsDataStore.setExtraCards(data.extraCards)
+                    }
+                    _uiState.update { it.copy(snackbarMessage = "Event \"${data.event.title}\" imported successfully!") }
+                } else {
+                    _uiState.update { it.copy(snackbarMessage = "Failed to parse CSV file. Invalid format.") }
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(snackbarMessage = "Import failed: ${e.localizedMessage}") }
+            }
         }
     }
 

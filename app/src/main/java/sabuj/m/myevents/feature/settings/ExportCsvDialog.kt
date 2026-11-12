@@ -38,7 +38,7 @@ import sabuj.m.myevents.domain.model.Event
 fun ExportCsvDialog(
     events: List<Event>,
     onDismiss: () -> Unit,
-    onExport: (eventId: String) -> Unit,
+    onExport: (eventId: String, fileName: String) -> Unit,
 ) {
     var selectedEventId by remember { mutableStateOf(events.firstOrNull()?.id ?: "") }
     var expanded by remember { mutableStateOf(false) }
@@ -98,7 +98,11 @@ fun ExportCsvDialog(
                     Spacer(Modifier.height(Spacing.xs))
                     TextButton(
                         enabled = selectedEventId.isNotBlank(),
-                        onClick = { onExport(selectedEventId) },
+                        onClick = {
+                            val evName = selectedEvent?.title ?: "Event"
+                            val fileName = sabuj.m.myevents.core.util.CsvWriter.generateFileName(evName)
+                            onExport(selectedEventId, fileName)
+                        },
                     ) {
                         Text("Export", style = labelL, color = AppColor.primary)
                     }
@@ -115,7 +119,7 @@ private fun ExportCsvDialogPreview() {
         ExportCsvDialog(
             events    = sabuj.m.myevents.core.preview.PreviewData.sampleEvents,
             onDismiss = {},
-            onExport  = {},
+            onExport  = { _, _ -> },
         )
     }
 }

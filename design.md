@@ -713,6 +713,69 @@ Sticky full-width `primaryContainer` card positioned above the Android navigatio
 - **Appearance:** a `.segmented` for Light / Dark / System. Below it "Colour scheme": a row of 4 circular swatches (56 dp): 50%-50% split with 135 degree linear gradient (brand primary top-left, soft primaryContainer bottom-right). Selected swatch has 2.5 dp primary ring and checkmark badge.
 - **Security:** Change PIN (title color `AppColor.text`), Fingerprint unlock (`.switch`).
 - **Sync and Export:** Last synced on timestamp, "Sync Now" button (triggers Firebase background sync worker, periodic 1 hr schedule), "Export Data (CSV)" button.
+
+#### Data Export CSV Specification (`CsvWriter.kt`)
+- **File Name**: `$EventName_Export_<Timestamp>.csv` (e.g. `Nilu's_Shaadi_Export_12_Nov_2026_03-45-30_PM.csv`).
+- **Date & Number Format**: All dates in `DD MMM YYYY` (e.g. `26 Nov 2026`); money amounts in Indian locale format `₹x,yy,zzz` (e.g. `₹45,000`); zero amounts formatted as `₹0`.
+- **Structure**:
+  ```csv
+  === Event Details ===
+  Event Name: $event_name
+  Event ID: $event_ID
+  Added On: $event_added_date
+  Event Date: $event_date
+  Budget: ₹$event_budget
+  Invite Guest?: $yes/no
+  Booking Count: $booking_count
+  Guests Count: $guest_count
+  Event Icon: $event_icon_unique_name
+
+  === Bookings ===
+  Serial No: #1
+  Booking Name: $booking_name
+  Booking ID: $booking_ID
+  Contact Person: $contact_person_name
+  Phone Number: $contact_person_number
+  Total Amount: ₹$contract_amount
+  Advance Amount: ₹$booking_advance
+  Due Amount: ₹$due_amount
+  Booking Confirmed?: $yes/no
+  Next Due: $due_date
+  Booking Icon: $booking_icon_unique_name
+
+  === Item List ===
+  Serial No: #1
+  Item List Name: $item_list_name
+  Item List ID: $item_list_ID
+  Complete By: $complete_by_date
+  Total Items in This List: $item_counts
+   ---
+  Item Number: #1
+  Item Name: $item_name
+  Item Price: ₹$item_price
+  Item Collected?: $yes/no
+   ---
+  Total Amount: ₹$items_total_amount
+  All Items Collected?: $yes/no
+  Item List Icon: $booking_icon_unique_name
+
+  === Expenses ===
+  Expense Name,Expense Type,Total Amount,Paid Amount,Remaining Amount,Payment Status
+  $booking_name,Booking,₹$contract_amount,₹$booking_advance,₹$due_amount,$status
+  $item_list_name,Item List,₹$items_total_amount,₹$items_total_amount,₹0,Paid
+     ---------------------    
+  Budget: ₹$event_budget,Total Items: $total_items,Total Spending: ₹$total_spending,Total Paid: ₹$total_paid_amount,Total Due: ₹$total_due_amount
+
+  === Guests ===
+  Extra Cards: $extra_cards_count
+  Relative / Family Name,Guests Count,Address,Note,Invitation Mode,Invitation Status
+  $relative_name,$guest_count,$guest_address,$notes,$invitation_mode,$invitation_status
+     ---------------------    
+  $family_count Total Families,$invited_families_count Invited Families,$guests_count Total Guests,$cards Cards,$invited_guest_count Already Invited Guests
+
+  ===== Generated on <Timestamp> =====
+  ```
+
 - **About:** Version row with the version number right-aligned `body-m` `text2`.
 
 ### 6.11 Cross-screen feedback

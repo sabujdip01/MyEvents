@@ -32,7 +32,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -75,6 +77,18 @@ fun SettingsScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
+    var pendingExportEventId by remember { mutableStateOf<String?>(null) }
+
+    val createDocumentLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.CreateDocument("text/csv")
+    ) { uri: android.net.Uri? ->
+        val eventId = pendingExportEventId
+        if (uri != null && eventId != null) {
+            viewModel.exportEventToUri(context, eventId, uri)
+        }
+        pendingExportEventId = null
+    }
+
     SettingsScreenContent(
         uiState              = uiState,
         onMenuClick          = onMenuClick,
@@ -92,8 +106,12 @@ fun SettingsScreen(
         onDismissSnackbar    = viewModel::snackbarDismissed,
         onChangePinConfirm   = { currentPin, newPin -> viewModel.changePin(currentPin, newPin) },
         onChangePinDismiss   = viewModel::hideChangePinDialog,
-        onExportConfirm      = { eventId -> viewModel.exportEventData(context, eventId) },
+        onExportConfirm      = { eventId, fileName ->
+            pendingExportEventId = eventId
+            createDocumentLauncher.launch(fileName)
+        },
         onExportDismiss      = viewModel::hideExportDialog,
+        onImportCsv          = { uri -> viewModel.importCsvData(context, uri) },
         modifier             = modifier,
     )
 }
@@ -116,8 +134,9 @@ fun SettingsScreenContent(
     onDismissSnackbar: () -> Unit,
     onChangePinConfirm: (String, String) -> Boolean,
     onChangePinDismiss: () -> Unit,
-    onExportConfirm: (String) -> Unit,
-    onExportDismiss: () -> Unit,
+    onExportConfirm: (String, String) -> Unit = { _, _ -> },
+    onExportDismiss: () -> Unit = {},
+    onImportCsv: (android.net.Uri) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
@@ -265,15 +284,22 @@ fun SettingsScreenContent(
                         val lastSync = uiState.settings.lastSyncTimestamp
                         val syncText = if (lastSync == 0L) "Never synced" else formatSyncTime(lastSync)
 
+                        val csvPickerLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+                            contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
+                        ) { uri: android.net.Uri? ->
+                            uri?.let { onImportCsv(it) }
+                        }
+
                         Column(modifier = Modifier.padding(vertical = Spacing.xs)) {
                             Text(text = "Last synced on: $syncText", style = bodyM, color = AppColor.text2)
                             Spacer(Modifier.height(Spacing.md))
                             Row(
-                                horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                                horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
                                 modifier = Modifier.fillMaxWidth(),
                             ) {
                                 AppButtonTonal("Sync Now", onClick = onSyncNow, modifier = Modifier.weight(1f))
-                                AppButton("Export Data (CSV)", onClick = onShowExport, modifier = Modifier.weight(1f))
+                                AppButtonTonal("Export CSV", onClick = onShowExport, modifier = Modifier.weight(1f))
+                                AppButtonTonal("Import CSV", onClick = { csvPickerLauncher.launch("text/*") }, modifier = Modifier.weight(1f))
                             }
                         }
                     }
@@ -506,7 +532,7 @@ private fun SettingsScreenPreview() {
             onDismissSnackbar     = {},
             onChangePinConfirm    = { _, _ -> true },
             onChangePinDismiss    = {},
-            onExportConfirm       = {},
+            onExportConfirm       = { _, _ -> },
             onExportDismiss       = {},
         )
     }

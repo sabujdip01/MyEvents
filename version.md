@@ -1,9 +1,10 @@
 # Version History
 
-Current: V0.T.47
+Current: V0.T.48
 
 | Version  | Phase | Build | Commit    | Summary                                                                                             |
 | -------- |-------|-------|-----------|-----------------------------------------------------------------------------------------------------|
+| V0.T.48  | Test  | 48    | -         | feat(settings): CSV import/export with File Manager save picker, unquoted tables, and updated docs |
 | V0.T.47  | Test  | 47    | -         | style(settings): refine settings screen labels to sentence case and format sync timestamp colon      |
 | V0.T.46  | Test  | 46    | -         | fix(settings): 50-50 sharp color swatch split, fixed top bar, bio toggle check, real-time firestore sync |
 | V0.T.45  | Test  | 45    | -         | fix(bookings): replace unresolved DeleteBookingDialog with AppDeleteDialog in BookingsPreviews      |
