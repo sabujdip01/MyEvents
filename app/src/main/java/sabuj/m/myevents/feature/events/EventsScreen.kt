@@ -123,17 +123,29 @@ fun EventsContent(
     val pagerState = rememberPagerState(initialPage = initialPage) { pageCount }
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // Automatically clear snackbar if user navigates away
+    androidx.compose.runtime.DisposableEffect(Unit) {
+        onDispose {
+            onEvent(EventsUiEvent.SnackbarDismissed)
+        }
+    }
+
     LaunchedEffect(uiState.snackbarMessage) {
         val msg = uiState.snackbarMessage ?: return@LaunchedEffect
-        val result = snackbarHostState.showSnackbar(
-            message     = msg,
-            actionLabel = "Undo",
-            duration    = SnackbarDuration.Short,
-        )
-        if (result == SnackbarResult.ActionPerformed) {
-            onEvent(EventsUiEvent.UndoDelete)
+        try {
+            kotlinx.coroutines.withTimeoutOrNull(5000L) {
+                val result = snackbarHostState.showSnackbar(
+                    message     = msg,
+                    actionLabel = "Undo",
+                    duration    = SnackbarDuration.Indefinite,
+                )
+                if (result == SnackbarResult.ActionPerformed) {
+                    onEvent(EventsUiEvent.UndoDelete)
+                }
+            }
+        } finally {
+            onEvent(EventsUiEvent.SnackbarDismissed)
         }
-        onEvent(EventsUiEvent.SnackbarDismissed)
     }
 
     // Derived directly from calendar pager's current page — guaranteed 100% in sync

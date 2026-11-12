@@ -21,4 +21,13 @@ interface GiftDao {
 
     @Query("UPDATE gifts SET deleted = 1, updatedAt = :updatedAt WHERE id = :id")
     suspend fun softDeleteGift(id: String, updatedAt: Long)
+
+    @Query("UPDATE gifts SET deleted = 1, updatedAt = :updatedAt WHERE eventId = :eventId")
+    suspend fun softDeleteByEvent(eventId: String, updatedAt: Long)
+
+    @Query("UPDATE gifts SET deleted = 0, updatedAt = :updatedAt WHERE eventId = :eventId")
+    suspend fun restoreByEvent(eventId: String, updatedAt: Long)
+
+    @Query("DELETE FROM gifts WHERE eventId = :eventId")
+    suspend fun hardDeleteByEvent(eventId: String)
 }

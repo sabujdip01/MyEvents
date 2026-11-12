@@ -7,13 +7,14 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+    import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -83,17 +84,29 @@ fun GuestsScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // Automatically clear snackbar if user navigates away
+    androidx.compose.runtime.DisposableEffect(Unit) {
+        onDispose {
+            viewModel.snackbarDismissed()
+        }
+    }
+
     LaunchedEffect(uiState.snackbarMessage) {
         val msg = uiState.snackbarMessage ?: return@LaunchedEffect
-        val result = snackbarHostState.showSnackbar(
-            message     = msg,
-            actionLabel = "UNDO",
-            duration    = androidx.compose.material3.SnackbarDuration.Long,
-        )
-        if (result == androidx.compose.material3.SnackbarResult.ActionPerformed) {
-            viewModel.undoDelete()
+        try {
+            kotlinx.coroutines.withTimeoutOrNull(5000L) {
+                val result = snackbarHostState.showSnackbar(
+                    message     = msg,
+                    actionLabel = "UNDO",
+                    duration    = androidx.compose.material3.SnackbarDuration.Indefinite,
+                )
+                if (result == androidx.compose.material3.SnackbarResult.ActionPerformed) {
+                    viewModel.undoDelete()
+                }
+            }
+        } finally {
+            viewModel.snackbarDismissed()
         }
-        viewModel.snackbarDismissed()
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -597,7 +610,7 @@ private fun GuestRowCard(
  * Col5 (0.20f): "<Sum of Guests where invited> Invited guests"   under Status pill (right-aligned)
  */
 @Composable
-private fun GuestSummaryFooter(
+fun GuestSummaryFooter(
     totalGuests: Int,
     totalInvitedGuests: Int,
     totalCards: Int,
@@ -605,7 +618,7 @@ private fun GuestSummaryFooter(
     totalInvitedFamilies: Int,
     modifier: Modifier = Modifier,
 ) {
-    val valueStyle = bodyM.copy(fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+    val valueStyle = bodyM.copy(fontSize = 9.sp, fontWeight = FontWeight.SemiBold)
     val color      = AppColor.onPrimaryContainer
 
     Surface(
@@ -619,9 +632,9 @@ private fun GuestSummaryFooter(
                 .padding(horizontal = Spacing.xs, vertical = Spacing.sm),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Col 1 (0.22f): "<Count of Rows> Families" under Guest name
+            // Col 1 (0.15f): "<Count of Rows> Families"
             Box(
-                modifier         = Modifier.weight(0.22f).padding(start = 2.dp),
+                modifier         = Modifier.weight(0.15f).padding(start = 2.dp),
                 contentAlignment = Alignment.CenterStart,
             ) {
                 Text(
@@ -629,13 +642,14 @@ private fun GuestSummaryFooter(
                     style    = valueStyle,
                     color    = color,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Visible,
+                    softWrap = false,
                 )
             }
 
-            // Col 2 (0.26f): "<Count of Rows where invited> invited families" under Event name
+            // Col 2 (0.18f): "<Count of Rows where invited> invited families" (moved left by 10 dp)
             Box(
-                modifier         = Modifier.weight(0.26f),
+                modifier         = Modifier.weight(0.18f).offset(x = (-10).dp),
                 contentAlignment = Alignment.CenterStart,
             ) {
                 Text(
@@ -643,27 +657,29 @@ private fun GuestSummaryFooter(
                     style    = valueStyle,
                     color    = color,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Visible,
+                    softWrap = false,
                 )
             }
 
-            // Col 3 (0.15f): "<Sum of Guests> Guests" under Guest count (20dp left)
+            // Col 3 (0.28f): "<Sum of Guests> Guests" (moved left by 8 dp, full text visible)
             Box(
-                modifier         = Modifier.weight(0.15f).padding(end = 20.dp),
+                modifier         = Modifier.weight(0.28f).offset(x = (-8).dp),
                 contentAlignment = Alignment.CenterEnd,
             ) {
                 Text(
                     text     = "$totalGuests Guests",
-                    style    = valueStyle,
+                    style    = valueStyle.copy(fontSize = 8.5.sp),
                     color    = color,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Visible,
+                    softWrap = false,
                 )
             }
 
-            // Col 4 (0.13f): "<Count where invitation through = card> Cards" under Invitation Via icon
+            // Col 4 (0.15f): "<Count where invitation through = card> Cards" (moved right by 8 dp)
             Box(
-                modifier         = Modifier.weight(0.13f),
+                modifier         = Modifier.weight(0.15f).offset(x = 8.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
@@ -671,11 +687,12 @@ private fun GuestSummaryFooter(
                     style    = valueStyle,
                     color    = color,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Visible,
+                    softWrap = false,
                 )
             }
 
-            // Col 5 (0.24f): "<Sum of Guests where invited> Invited guests" under Status pill
+            // Col 5 (0.24f): "<Sum of Guests where invited> Invited guests"
             Box(
                 modifier         = Modifier.weight(0.24f),
                 contentAlignment = Alignment.CenterEnd,
@@ -685,7 +702,8 @@ private fun GuestSummaryFooter(
                     style    = valueStyle,
                     color    = color,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Visible,
+                    softWrap = false,
                 )
             }
         }

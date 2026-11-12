@@ -44,15 +44,24 @@ class ObserveHomeSummaryUseCase @Inject constructor(
             taskRepo.observeAllTasks(),
             settingsDataStore.extraCardsFlow,
         ) { flows ->
-            val events = flows[0] as List<Event>
-            val bookings = flows[1] as List<Booking>
-            val expenses = flows[2] as List<Expense>
-            val invitees = flows[3] as List<Invitee>
-            val gifts = flows[4] as List<Gift>
-            val tasks = flows[5] as List<Task>
+            val allEvents = flows[0] as List<Event>
+            val allBookings = flows[1] as List<Booking>
+            val allExpenses = flows[2] as List<Expense>
+            val allInvitees = flows[3] as List<Invitee>
+            val allGifts = flows[4] as List<Gift>
+            val allTasks = flows[5] as List<Task>
             val extraCards = flows[6] as Int
 
-            val totalBudget = events.sumOf { it.budgetPaise }
+            val activeEvents = allEvents.filter { !it.deleted }
+            val activeEventIds = activeEvents.map { it.id }.toSet()
+
+            val bookings = allBookings.filter { !it.deleted && it.eventId in activeEventIds }
+            val expenses = allExpenses.filter { !it.deleted && it.eventId in activeEventIds }
+            val invitees = allInvitees.filter { !it.deleted && it.eventId in activeEventIds }
+            val gifts = allGifts.filter { !it.deleted && it.eventId in activeEventIds }
+            val tasks = allTasks.filter { !it.deleted && it.eventId in activeEventIds }
+
+            val totalBudget = activeEvents.sumOf { it.budgetPaise }
             val bookingPaid = bookings.sumOf { it.paidPaise }
             val bookingTotal = bookings.sumOf { it.totalAmountPaise }
             val bookingDues = bookings.sumOf { it.amountLeftPaise }
@@ -78,7 +87,7 @@ class ObserveHomeSummaryUseCase @Inject constructor(
             val totalBookingsCount = bookings.size
 
             HomeSummary(
-                events             = events.map { e ->
+                events             = activeEvents.map { e ->
                     val bCount = bookings.count { it.eventId == e.id }
                     val iCount = invitees.filter { it.eventId == e.id }.sumOf { maxOf(1, it.expectedCount) }
                     EventSummary(

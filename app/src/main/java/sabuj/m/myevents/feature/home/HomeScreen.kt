@@ -121,11 +121,9 @@ private fun HomeContent(
         BgBlobs()
 
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
+            modifier = Modifier.fillMaxSize(),
         ) {
-            // Top Bar with Nav Icon & "My Events" title
+            // Fixed Top Bar with Nav Icon & "My Events" title (does not scroll off screen)
             Box(modifier = Modifier.padding(horizontal = Spacing.lg)) {
                 sabuj.m.myevents.core.ui.AppTopBar(
                     titleText   = "My Events",
@@ -147,9 +145,11 @@ private fun HomeContent(
 
             Spacer(Modifier.height(Spacing.sm))
 
+            // Scrollable dashboard cards
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
                     .padding(horizontal = Spacing.lg),
                 verticalArrangement = Arrangement.spacedBy(Spacing.md),
             ) {

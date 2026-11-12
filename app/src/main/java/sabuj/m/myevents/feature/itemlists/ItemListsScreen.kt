@@ -84,17 +84,29 @@ fun ItemListsScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // Automatically clear snackbar if user navigates away
+    androidx.compose.runtime.DisposableEffect(Unit) {
+        onDispose {
+            viewModel.snackbarDismissed()
+        }
+    }
+
     LaunchedEffect(uiState.snackbarMessage) {
         val msg = uiState.snackbarMessage ?: return@LaunchedEffect
-        val result = snackbarHostState.showSnackbar(
-            message     = msg,
-            actionLabel = "UNDO",
-            duration    = SnackbarDuration.Long,
-        )
-        if (result == SnackbarResult.ActionPerformed) {
-            viewModel.undoDelete()
+        try {
+            kotlinx.coroutines.withTimeoutOrNull(5000L) {
+                val result = snackbarHostState.showSnackbar(
+                    message     = msg,
+                    actionLabel = "UNDO",
+                    duration    = SnackbarDuration.Indefinite,
+                )
+                if (result == SnackbarResult.ActionPerformed) {
+                    viewModel.undoDelete()
+                }
+            }
+        } finally {
+            viewModel.snackbarDismissed()
         }
-        viewModel.snackbarDismissed()
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
