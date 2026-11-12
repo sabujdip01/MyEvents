@@ -19,7 +19,7 @@ import sabuj.m.myevents.data.db.entity.TaskEntity
 
 /**
  * Single Room database for the app.
- * Version 8 — adds invitationType column to invitees.
+ * Version 9 — removes obsolete gifts table.
  */
 @Database(
     entities = [
@@ -30,7 +30,7 @@ import sabuj.m.myevents.data.db.entity.TaskEntity
         InviteeEntity::class,
         TaskEntity::class,
     ],
-    version = 8,
+    version = 9,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -200,6 +200,12 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_7_8 = object : Migration(7, 8) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE `invitees` ADD COLUMN `invitationType` TEXT NOT NULL DEFAULT 'None'")
+            }
+        }
+
+        val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS `gifts`")
             }
         }
     }

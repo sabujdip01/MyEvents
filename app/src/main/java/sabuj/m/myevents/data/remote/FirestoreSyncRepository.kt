@@ -7,7 +7,6 @@ import sabuj.m.myevents.domain.model.SyncState
 import sabuj.m.myevents.domain.repository.BookingRepository
 import sabuj.m.myevents.domain.repository.EventRepository
 import sabuj.m.myevents.domain.repository.ExpenseRepository
-import sabuj.m.myevents.domain.repository.GiftRepository
 import sabuj.m.myevents.domain.repository.InviteeRepository
 import sabuj.m.myevents.domain.repository.TaskRepository
 import javax.inject.Inject

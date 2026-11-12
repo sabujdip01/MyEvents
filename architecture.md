@@ -59,10 +59,10 @@ SyncWorker (background) pushes pending Room rows to Firestore
 
 ## 4. Project structure
 
-Package root: `com.<you>.eventtracker`.
+Package root: `sabuj.m.myevents`.
 
 ```
-EventTracker/
+MyEvents/
 ├── .gitignore
 ├── .bin/                         # agent recycle bin (git-ignored)
 ├── Gemini.md
@@ -78,15 +78,15 @@ EventTracker/
 ├── gradle/
 │   └── libs.versions.toml        # version catalog
 ├── design/
-│   └── svg/                      # source SVG files (ic_*, ev_*, bk_*, il_*)
+│   └── svg/                      # source SVG files
 └── app/
     ├── build.gradle.kts          # reads version.md -> BuildConfig.APP_VERSION
     ├── proguard-rules.pro
     └── src/
         ├── main/
         │   ├── AndroidManifest.xml
-        │   ├── java/com/<you>/eventtracker/
-        │   │   ├── EventTrackerApp.kt          # @HiltAndroidApp, channels, WorkManager setup
+        │   ├── java/sabuj/m/myevents/
+        │   │   ├── MyEventsApp.kt              # @HiltAndroidApp, channels, WorkManager setup
         │   │   ├── MainActivity.kt             # splash, lock gate, root NavHost
         │   │   │
         │   │   ├── core/
@@ -98,36 +98,46 @@ EventTracker/
         │   │   │   │   ├── Shapes.kt           # radius tokens
         │   │   │   │   ├── Spacing.kt          # 4 dp grid tokens
         │   │   │   │   └── AppTheme.kt         # theme entry point
-        │   │   │   ├── ui/                     # reusable components (design.md section 4)
-        │   │   │   │   ├── AppCard.kt, GradientCard.kt, IconChip.kt, Pill.kt
-        │   │   │   │   ├── AppButton.kt, AppFab.kt, FabStack.kt
-        │   │   │   │   ├── AppField.kt, MoneyField.kt, Segmented.kt, AppCheckbox.kt, AppSwitch.kt
-        │   │   │   │   ├── AppSheet.kt, AppDialog.kt, AppSnackbar.kt
-        │   │   │   │   ├── AppTabs.kt, SearchBar.kt, FilterChips.kt, DataTable.kt
-        │   │   │   │   ├── EmptyState.kt, AppProgress.kt, MenuButton.kt, ScreenScaffold.kt
-        │   │   │   │   └── doodles/            # BgBlobs.kt, Watermark.kt, HeroIllustration.kt
-        │   │   │   ├── icons/                  # AppIcons.kt, EventIcon.kt, BookingIcon.kt (key -> drawable)
+        │   │   │   ├── ui/                     # reusable components
+        │   │   │   │   ├── AppButton.kt, AppFab.kt, AppField.kt, IconChip.kt, Pill.kt
+        │   │   │   │   ├── AppSheet.kt, AppDialog.kt, AppDeleteDialog.kt, AppSnackbar.kt
+        │   │   │   │   ├── SearchBar.kt, Segmented.kt, MenuButton.kt, ScreenScaffold.kt
+        │   │   │   │   └── doodles/            # BgBlobs.kt, HeroIllustration.kt
+        │   │   │   ├── icons/                  # AppIcons.kt, EventCategoryIcon.kt, EventIcon.kt, BookingIcon.kt
         │   │   │   ├── preview/                # LightDarkPreviews.kt, PreviewData.kt
-        │   │   │   └── util/                   # MoneyFormatter.kt, DateUtils.kt, CsvWriter.kt, Extensions.kt
+        │   │   │   └── util/                   # MoneyFormatter.kt, DateUtils.kt, CsvWriter.kt, CsvReader.kt, Extensions.kt
         │   │   │
         │   │   ├── domain/
-        │   │   │   ├── model/                  # Event, Booking, BookingPayment, Expense, Invitee, Gift, Task, AppSettings
-        │   │   │   ├── repository/             # interfaces: EventRepository, BookingRepository, ...
-        │   │   │   └── usecase/                # ObserveHomeSummary, CalculateBudgetStatus, AddExpenseForEvents,
-        │   │   │                               # DeleteEventWithUndo, BuildExportCsv, ...
+        │   │   │   ├── model/                  # Event, Booking, BookingPayment, Expense, Invitee, Task, AppSettings
+        │   │   │   ├── repository/             # interfaces: EventRepository, BookingRepository, ExpenseRepository, InviteeRepository, TaskRepository
+        │   │   │   └── usecase/                # ObserveHomeSummaryUseCase, AddEventUseCase, AddBookingUseCase, ...
         │   │   │
         │   │   ├── data/
         │   │   │   ├── db/
         │   │   │   │   ├── AppDatabase.kt
-        │   │   │   │   ├── entity/             # EventEntity, BookingEntity, ...
-        │   │   │   │   ├── dao/                # EventDao, BookingDao, ...
+        │   │   │   │   ├── entity/             # EventEntity, BookingEntity, BookingPaymentEntity, ExpenseEntity, InviteeEntity, TaskEntity
+        │   │   │   │   ├── dao/                # EventDao, BookingDao, ExpenseDao, InviteeDao, TaskDao
         │   │   │   │   └── Converters.kt       # LocalDate, items list, enums
         │   │   │   ├── repository/             # *RepositoryImpl.kt, mappers
-        │   │   │   ├── remote/                 # FirestoreDataSource.kt, RemoteMappers.kt, AuthProvider.kt
-        │   │   │   ├── sync/                   # SyncWorker.kt, SyncScheduler.kt, SyncState.kt
+        │   │   │   ├── remote/                 # FirestoreSyncRepository.kt, RemoteMappers.kt, FirebaseAuthManager.kt
         │   │   │   ├── settings/               # SettingsDataStore.kt
-        │   │   │   └── security/               # PinStore.kt, PinHasher.kt, BiometricHelper.kt
+        │   │   │   ├── security/               # PinStore.kt, PinHasher.kt, BiometricHelper.kt
+        │   │   │   └── worker/                 # SyncWorker.kt, NotificationScheduler.kt, ReminderWorker.kt
         │   │   │
+        │   │   ├── feature/
+        │   │   │   ├── lock/                   # PinScreen, LockViewModel
+        │   │   │   ├── home/                   # HomeScreen, HomeViewModel, HomeUiState
+        │   │   │   ├── events/                 # EventsScreen, AddEditEventSheet, EventDetailsSheet, EventsViewModel
+        │   │   │   ├── bookings/               # BookingsScreen, BookingCard, AddEditBookingSheet, PaymentDialog, BookingsViewModel
+        │   │   │   ├── expenses/               # ExpensesScreen, ExpensesViewModel, ExpensesUiState (read-only view)
+        │   │   │   ├── guests/                 # GuestsScreen, AddEditGuestSheet, GuestsViewModel, GuestsUiState
+        │   │   │   ├── itemlists/              # ItemListsScreen, AddEditTaskSheet, ItemListsViewModel, ItemListsUiState
+        │   │   │   ├── placeholder/            # PlaceholderScreen
+        │   │   │   └── settings/               # SettingsScreen, ChangePinDialog, ExportCsvDialog, SettingsViewModel
+        │   │   │
+        │   │   ├── navigation/                 # AppNavHost.kt, AppDrawer.kt
+        │   │   └── di/                         # DatabaseModule, RepositoryModule, FirebaseModule, SecurityModule, SettingsModule, WorkModule
+```
         │   │   ├── feature/
         │   │   │   ├── lock/                   # SplashGate, PinSetupScreen, UnlockScreen, LockViewModel
         │   │   │   ├── home/                   # HomeScreen, HomeViewModel, HomeUiState, cards/
@@ -306,3 +316,44 @@ ViewModels use `@HiltViewModel`; workers use `@HiltWorker`.
 - Repositories return results as `Result<T>`; ViewModels turn failures into a snackbar message or inline field error.
 - Sync failures set `syncState = FAILED` and retry with back-off; they never block the UI.
 - No logging of PINs, amounts or personal data. Debug logs are removed before release.
+
+## 19. UI Inventory
+
+This section lists all **Screens**, **Bottom Sheets**, **Popups / Dialogs**, **Toasts / Snackbars**, and **Navigation Drawers** across the MyEvents codebase.
+
+| # | Component Name | Type | Feature / Context | Description | Relative Path | Preview Available? |
+|---|---|---|---|---|---|---|
+| | **SCREENS** | | | | | |
+| 1 | `SplashScreenContent` | Screen | App Lock / Shell | Custom artwork splash screen with smooth 1.2s fade-out. | `MainActivity.kt` | Yes |
+| 2 | `PinScreen` | Screen | Security / Lock | 4-digit PIN setup and passcode unlock screen with biometric fingerprint fallback. | `feature/lock/PinScreen.kt` | Yes |
+| 3 | `HomeScreen` | Screen | Home Dashboard | Main dashboard showing 7 overview cards (Budget, Spent, Events, Bookings, Guests, Tasks, Gifts). | `feature/home/HomeScreen.kt` | Yes |
+| 4 | `EventsScreen` | Screen | Events | Interactive monthly calendar view, budget stat cards, and event list. | `feature/events/EventsScreen.kt` | Yes |
+| 5 | `BookingsScreen` | Screen | Bookings | Vendor booking cards, payment progress bars, pill filters, and sticky totals footer. | `feature/bookings/BookingsScreen.kt` | Yes |
+| 6 | `ItemListsScreen` | Screen | Item Lists | Task/item list per event with check toggles, estimated costs, paid sums, and delete mode. | `feature/itemlists/ItemListsScreen.kt` | Yes |
+| 7 | `ExpensesScreen` | Screen | Expenses | Tabular Excel-style expense rows, event tabs, filter chips, and sticky totals footer. | `feature/expenses/ExpensesScreen.kt` | Yes |
+| 8 | `GuestsScreen` | Screen | Guests | Single-row tabular guest list, invitation type icons, extra cards counter, and sticky totals footer. | `feature/guests/GuestsScreen.kt` | Yes |
+| 9 | `SettingsScreen` | Screen | Settings | App theme mode, 5-swatch color palette selector, PIN settings, CSV export, and About version details. | `feature/settings/SettingsScreen.kt` | Yes |
+| 10 | `PlaceholderScreen` | Screen | Navigation | Fallback placeholder screen for unbuilt routes. | `feature/placeholder/PlaceholderScreen.kt` | Yes |
+| | **BOTTOM SHEETS** | | | | | |
+| 11 | `AddEditEventSheet` | Bottom Sheet | Events | Sheet to create a new event or edit title, category, date range, budget, and guest count. | `feature/events/AddEditEventSheet.kt` | Yes |
+| 12 | `EventDetailsSheet` | Bottom Sheet | Events | Read-only details sheet showing event summary, budget breakdown, and stats. | `feature/events/EventDetailsSheet.kt` | Yes |
+| 13 | `MonthPickerSheet` | Bottom Sheet | Events | Bottom sheet to select month (Jan–Dec 3x4 grid) and year for calendar navigation. | `feature/events/EventsScreen.kt` | Yes |
+| 14 | `AddEditBookingSheet` | Bottom Sheet | Bookings | Sheet to add/edit vendor bookings, total cost, advance payment, due date, and icon. | `feature/bookings/AddEditBookingSheet.kt` | Yes |
+| 15 | `AddEditGuestSheet` | Bottom Sheet | Guests | Sheet to add/edit guest name, event, expected count, address, invited status, invitation via, and note. | `feature/guests/AddEditGuestSheet.kt` | Yes |
+| 16 | `AddEditTaskSheet` | Bottom Sheet | Item Lists | Sheet to add/edit item list task title, event, vendor, estimated cost, paid amount, and due date. | `feature/itemlists/AddEditTaskSheet.kt` | Yes |
+| 17 | `AppSheet` | Bottom Sheet (Core) | Core UI | Reusable bottom sheet wrapper with rounded top corners (`Radius.sheet`). | `core/ui/AppSheet.kt` | Yes |
+| | **POPUPS & DIALOGS** | | | | | |
+| 18 | `PaymentDialogFull` | Popup | Bookings | Popup dialog to record a payment against a vendor booking (Date, Amount, Note). | `feature/bookings/PaymentDialog.kt` | Yes |
+| 19 | `BookingIconPickerDialog` | Popup | Bookings | 5-column grid popup dialog with 47 custom vendor icons for booking icon selection. | `feature/bookings/AddEditBookingSheet.kt` | Yes |
+| 20 | `ExtraCardsDialog` | Popup | Guests | Popup dialog to set the number of extra physical invitation cards (with 12dp button margins). | `feature/guests/GuestsScreen.kt` | Yes |
+| 21 | `ChangePinDialog` | Popup | Settings | Popup dialog to set, change, or disable the 4-digit security PIN. | `feature/settings/ChangePinDialog.kt` | Yes |
+| 22 | `ExportCsvDialog` | Popup | Settings | Popup dialog to export app data into downloadable CSV files. | `feature/settings/ExportCsvDialog.kt` | Yes |
+| 23 | `AppDialog` | Popup (Core) | Core UI | Generic app dialog wrapper component. | `core/ui/AppDialog.kt` | Yes |
+| 24 | `AppDeleteDialog` | Popup (Core) | Core UI | Universal red deletion popup dialog used directly across Events, Bookings, Item Lists, and Guests screens. | `core/ui/AppDeleteDialog.kt` | Yes |
+| | **TOASTS & SNACKBARS** | | | | | |
+| 25 | `AppSnackbar` | Toast / Snackbar | Core UI | Universal floating snackbar container supporting 10s Undo actions and feedback toasts. | `core/ui/AppSnackbar.kt` | Yes |
+| 26 | `AppSnackbarItem` | Toast / Snackbar | Core UI | Individual toast message visual item rendered inside `AppSnackbar`. | `core/ui/AppSnackbar.kt` | Yes |
+| 27 | `SyncFeedbackToast` | Toast / Snackbar | Settings / Sync | Firebase Cloud Sync status feedback toasts ("Syncing with cloud...", "Sync completed successfully", "Sync failed. Check connection."). | `feature/settings/SettingsScreen.kt` | Yes |
+| | **NAVIGATION DRAWER** | | | | | |
+| 28 | `AppDrawer` | Navigation Drawer | Navigation | Sliding side navigation drawer with brand header, nav links + badges, theme switch, and version label. | `navigation/AppDrawer.kt` | Yes |
+

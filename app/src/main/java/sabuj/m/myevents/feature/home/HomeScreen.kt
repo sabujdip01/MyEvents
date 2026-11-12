@@ -552,33 +552,33 @@ private fun InviteesCard(
 
                 Spacer(Modifier.height(Spacing.xs))
 
-                // Content row aligned exactly under "Guests" header text (44.dp icon + 16.dp spacing)
+                // Single horizontal content row (aligned under "Guests" header text, uniform numberXl font size & card height)
                 Row(
                     modifier          = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.Top,
                 ) {
-                    // Indent to align Column 1 under starting position of "Guests" header text
+                    // Indent to align Column 1 under starting position of "Guests" header text (44.dp icon + 16.dp spacing)
                     Spacer(Modifier.width(44.dp + Spacing.md))
 
                     Row(
                         modifier              = Modifier.weight(1f),
-                        horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                        horizontalArrangement = Arrangement.spacedBy(2.dp),
                         verticalAlignment     = Alignment.Top,
                     ) {
                         // Info 1: X of Y guests invited
                         Column(
-                            modifier            = Modifier.weight(1f),
+                            modifier            = Modifier.weight(1.2f),
                             horizontalAlignment = Alignment.Start,
                         ) {
                             Text(
                                 text = buildAnnotatedString {
-                                    withStyle(numberL.toSpanStyle().copy(color = AppColor.primary)) {
+                                    withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
                                         append("$invitedGuests")
                                     }
-                                    withStyle(SpanStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
+                                    withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
                                         append(" of ")
                                     }
-                                    withStyle(numberL.toSpanStyle().copy(color = AppColor.primary)) {
+                                    withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
                                         append("$totalGuests")
                                     }
                                 },
@@ -587,7 +587,7 @@ private fun InviteesCard(
                             Spacer(Modifier.height(2.dp))
                             Text(
                                 text     = "guests invited",
-                                style    = bodyM.copy(fontSize = 12.5.sp),
+                                style    = bodyM,
                                 color    = AppColor.text2,
                                 maxLines = 1,
                             )
@@ -595,18 +595,18 @@ private fun InviteesCard(
 
                         // Info 2: X of Y families invited
                         Column(
-                            modifier            = Modifier.weight(1f),
+                            modifier            = Modifier.weight(1.0f),
                             horizontalAlignment = Alignment.Start,
                         ) {
                             Text(
                                 text = buildAnnotatedString {
-                                    withStyle(numberL.toSpanStyle().copy(color = AppColor.primary)) {
+                                    withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
                                         append("$invitedFamilies")
                                     }
-                                    withStyle(SpanStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
+                                    withStyle(SpanStyle(fontSize = 19.sp, fontWeight = FontWeight.Medium, color = AppColor.text2)) {
                                         append(" of ")
                                     }
-                                    withStyle(numberL.toSpanStyle().copy(color = AppColor.primary)) {
+                                    withStyle(numberXl.toSpanStyle().copy(color = AppColor.primary)) {
                                         append("$totalFamilies")
                                     }
                                 },
@@ -615,7 +615,7 @@ private fun InviteesCard(
                             Spacer(Modifier.height(2.dp))
                             Text(
                                 text     = "families invited",
-                                style    = bodyM.copy(fontSize = 12.5.sp),
+                                style    = bodyM,
                                 color    = AppColor.text2,
                                 maxLines = 1,
                             )
@@ -623,19 +623,19 @@ private fun InviteesCard(
 
                         // Info 3: X cards required
                         Column(
-                            modifier            = Modifier.weight(1f),
+                            modifier            = Modifier.weight(0.6f),
                             horizontalAlignment = Alignment.Start,
                         ) {
                             Text(
                                 text     = "$invitationCards",
-                                style    = numberL,
+                                style    = numberXl,
                                 color    = AppColor.primary,
                                 maxLines = 1,
                             )
                             Spacer(Modifier.height(2.dp))
                             Text(
                                 text     = "cards required",
-                                style    = bodyM.copy(fontSize = 12.5.sp),
+                                style    = bodyM,
                                 color    = AppColor.text2,
                                 maxLines = 1,
                             )

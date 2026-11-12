@@ -4,7 +4,6 @@ import sabuj.m.myevents.domain.model.Booking
 import sabuj.m.myevents.domain.model.BookingPayment
 import sabuj.m.myevents.domain.model.Event
 import sabuj.m.myevents.domain.model.Expense
-import sabuj.m.myevents.domain.model.Gift
 import sabuj.m.myevents.domain.model.Invitee
 import sabuj.m.myevents.domain.model.Task
 
@@ -61,6 +60,5 @@ object RemoteMappers {
         )
     }
 
-    // TODO: add toMap / toXxx for Booking, Expense, Invitee, Task, Gift, BookingPayment
+    // TODO: add toMap / toXxx for Booking, Expense, Invitee, Task, BookingPayment
 }
-
