@@ -147,7 +147,7 @@ fun SettingsScreenContent(
                 ) {
                     // APPEARANCE
                     SettingsSection("APPEARANCE") {
-                        Text("Theme Mode", style = bodyM, color = AppColor.text2)
+                        Text("Theme mode", style = bodyM, color = AppColor.text2)
                         Spacer(Modifier.height(Spacing.xs))
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
@@ -177,7 +177,7 @@ fun SettingsScreenContent(
                         HorizontalDivider(color = AppColor.outlineVariant)
                         Spacer(Modifier.height(Spacing.md))
 
-                        Text("Colour Scheme", style = bodyM, color = AppColor.text2)
+                        Text("Colour scheme", style = bodyM, color = AppColor.text2)
                         Spacer(Modifier.height(Spacing.xs))
 
                         // Item I2: 56 dp 50%-50% circular swatches with 135 degree sharp split (no gradient)
@@ -229,7 +229,7 @@ fun SettingsScreenContent(
                         }
                         HorizontalDivider(color = AppColor.outlineVariant)
                         SettingsToggleRow(
-                            label     = "Fingerprint Unlock",
+                            label     = "Fingerprint unlock",
                             subtext   = "Use biometric authentication if available",
                             isChecked = uiState.settings.fingerprintEnabled,
                             onToggle  = onFingerprint,
@@ -241,20 +241,20 @@ fun SettingsScreenContent(
                     // NOTIFICATIONS
                     SettingsSection("NOTIFICATIONS") {
                         SettingsToggleRow(
-                            label     = "Enable Notifications",
+                            label     = "Enable notifications",
                             subtext   = "Master switch for all reminders",
                             isChecked = uiState.settings.notificationsMaster,
                             onToggle  = onNotificationsMaster,
                         )
                         if (uiState.settings.notificationsMaster) {
                             HorizontalDivider(color = AppColor.outlineVariant)
-                            SettingsToggleRow("Event Countdowns", "30, 7, and 1 day reminders", uiState.settings.notifyEventCountdowns, onNotifyCountdowns)
+                            SettingsToggleRow("Event countdowns", "30, 7, and 1 day reminders", uiState.settings.notifyEventCountdowns, onNotifyCountdowns)
                             HorizontalDivider(color = AppColor.outlineVariant)
-                            SettingsToggleRow("Payment Dues", "Booking and expense due alerts", uiState.settings.notifyPaymentDues, onNotifyPaymentDues)
+                            SettingsToggleRow("Payment dues", "Booking and expense due alerts", uiState.settings.notifyPaymentDues, onNotifyPaymentDues)
                             HorizontalDivider(color = AppColor.outlineVariant)
-                            SettingsToggleRow("Task Reminders", "Item list due date reminders", uiState.settings.notifyTasks, onNotifyTasks)
+                            SettingsToggleRow("Task reminders", "Item list due date reminders", uiState.settings.notifyTasks, onNotifyTasks)
                             HorizontalDivider(color = AppColor.outlineVariant)
-                            SettingsToggleRow("Budget Warnings", "Alerts at 80% and 100% budget spent", uiState.settings.notifyBudgetAlerts, onNotifyBudgetAlerts)
+                            SettingsToggleRow("Budget warnings", "Alerts at 80% and 100% budget spent", uiState.settings.notifyBudgetAlerts, onNotifyBudgetAlerts)
                         }
                     }
 
@@ -266,7 +266,7 @@ fun SettingsScreenContent(
                         val syncText = if (lastSync == 0L) "Never synced" else formatSyncTime(lastSync)
 
                         Column(modifier = Modifier.padding(vertical = Spacing.xs)) {
-                            Text(text = "Last synced on $syncText", style = bodyM, color = AppColor.text2)
+                            Text(text = "Last synced on: $syncText", style = bodyM, color = AppColor.text2)
                             Spacer(Modifier.height(Spacing.md))
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
