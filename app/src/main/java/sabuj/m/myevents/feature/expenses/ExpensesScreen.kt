@@ -321,6 +321,9 @@ private fun ExpenseListContent(
             }
         }
 
+        // 6 dp gap before the total row
+        Spacer(Modifier.height(6.dp))
+
         // Summary footer — always visible, sticky just above the Android nav bar with 6dp gap
         SummaryFooter(
             totalItemsCount  = totalItemsCount,
@@ -364,97 +367,107 @@ private fun SummaryFooter(
                 )
             }
 
-            // Row 1: values — columns match card weights (9%+35% label | 44% amounts | 12% pill)
             Row(
                 modifier          = Modifier.fillMaxWidth().padding(horizontal = Spacing.xs),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // 44% combined — "Total items N" spanning icon+title cols
-                Text(
-                    text       = "Total items $totalItemsCount",
-                    style      = labelL,
-                    fontWeight = FontWeight.Bold,
-                    color      = AppColor.onPrimaryContainer,
-                    maxLines   = 1,
-                    modifier   = Modifier.weight(0.44f),
-                )
-                // 44% — three equal sub-cols: Total | Paid | Due sums
-                Row(Modifier.weight(0.44f)) {
-                    Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+                // Left 44% — "Total items N" + "Budget ₹X" stacked
+                Column(
+                    modifier            = Modifier.weight(0.44f),
+                    horizontalAlignment = Alignment.Start,
+                ) {
+                    Text(
+                        text       = "Total items $totalItemsCount",
+                        style      = labelL,
+                        fontWeight = FontWeight.Bold,
+                        color      = AppColor.onPrimaryContainer,
+                        maxLines   = 1,
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text     = "Budget ${MoneyFormatter.format(totalBudgetPaise)}",
+                        style    = labelL,
+                        color    = AppColor.onPrimaryContainer,
+                        maxLines = 1,
+                    )
+                }
+
+                // Right 44% — three sub-columns with subtext placed exactly under text, center aligned
+                Row(
+                    modifier          = Modifier.weight(0.44f),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    // Sub-col 1: Total
+                    Column(
+                        modifier            = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
                         Text(
                             text       = MoneyFormatter.format(grandTotalPaise),
                             style      = labelL,
                             fontWeight = FontWeight.Bold,
                             color      = AppColor.onPrimaryContainer,
                             maxLines   = 1,
+                            textAlign  = TextAlign.Center,
+                        )
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            text      = "Total",
+                            style     = bodyM.copy(fontSize = 12.5.sp),
+                            color     = AppColor.text2,
+                            maxLines  = 1,
+                            textAlign = TextAlign.Center,
                         )
                     }
-                    Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+
+                    // Sub-col 2: Total paid
+                    Column(
+                        modifier            = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
                         Text(
-                            text     = MoneyFormatter.format(paidTotalPaise),
-                            style    = labelL,
-                            color    = AppColor.onSuccessContainer,
-                            maxLines = 1,
+                            text       = MoneyFormatter.format(paidTotalPaise),
+                            style      = labelL,
+                            fontWeight = FontWeight.Bold,
+                            color      = AppColor.onSuccessContainer,
+                            maxLines   = 1,
+                            textAlign  = TextAlign.Center,
+                        )
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            text      = "Total paid",
+                            style     = bodyM.copy(fontSize = 12.5.sp),
+                            color     = AppColor.onSuccessContainer,
+                            maxLines  = 1,
+                            textAlign = TextAlign.Center,
                         )
                     }
-                    // Due col matches card's 8dp end shift
-                    Box(Modifier.weight(1f).padding(end = 8.dp), contentAlignment = Alignment.CenterEnd) {
+
+                    // Sub-col 3: Total due
+                    Column(
+                        modifier            = Modifier.weight(1f).padding(end = 8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
                         Text(
-                            text     = MoneyFormatter.format(dueTotalPaise),
-                            style    = labelL,
-                            color    = AppColor.onWarningContainer,
-                            maxLines = 1,
+                            text       = MoneyFormatter.format(dueTotalPaise),
+                            style      = labelL,
+                            fontWeight = FontWeight.Bold,
+                            color      = AppColor.onWarningContainer,
+                            maxLines   = 1,
+                            textAlign  = TextAlign.Center,
+                        )
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            text      = "Total due",
+                            style     = bodyM.copy(fontSize = 12.5.sp),
+                            color     = AppColor.onWarningContainer,
+                            maxLines  = 1,
+                            textAlign = TextAlign.Center,
                         )
                     }
                 }
+
                 // 12% — empty pill placeholder
-                Spacer(Modifier.weight(0.12f))
-            }
-
-            // +20% gap between value row and label row (was 3dp → 4dp rounded up)
-            Spacer(Modifier.height(4.dp))
-
-            // Row 2: labels aligned to same card columns
-            Row(
-                modifier          = Modifier.fillMaxWidth().padding(horizontal = Spacing.xs),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                // 44% combined — "Budget ₹X" in same labelL font as Row 1
-                Text(
-                    text     = "Budget ${MoneyFormatter.format(totalBudgetPaise)}",
-                    style    = labelL,
-                    color    = AppColor.onPrimaryContainer,
-                    maxLines = 1,
-                    modifier = Modifier.weight(0.44f),
-                )
-                // 44% — three label sub-cols at +25% font (10sp → 12.5sp)
-                Row(Modifier.weight(0.44f)) {
-                    Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
-                        Text(
-                            text     = "Total",
-                            style    = bodyM.copy(fontSize = 12.5.sp),
-                            color    = AppColor.text2,
-                            maxLines = 1,
-                        )
-                    }
-                    Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
-                        Text(
-                            text     = "Total paid",
-                            style    = bodyM.copy(fontSize = 12.5.sp),
-                            color    = AppColor.onSuccessContainer,
-                            maxLines = 1,
-                        )
-                    }
-                    Box(Modifier.weight(1f).padding(end = 8.dp), contentAlignment = Alignment.CenterEnd) {
-                        Text(
-                            text     = "Total due",
-                            style    = bodyM.copy(fontSize = 12.5.sp),
-                            color    = AppColor.onWarningContainer,
-                            maxLines = 1,
-                        )
-                    }
-                }
-                // 12% — empty
                 Spacer(Modifier.weight(0.12f))
             }
         }

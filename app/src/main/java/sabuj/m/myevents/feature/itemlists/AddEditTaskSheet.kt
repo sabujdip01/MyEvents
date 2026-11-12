@@ -3,10 +3,13 @@ package sabuj.m.myevents.feature.itemlists
 import android.app.DatePickerDialog
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,14 +26,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
@@ -405,7 +406,7 @@ fun AddEditTaskSheet(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun TaskEventDropdownSelector(
     events: List<Event>,
@@ -414,51 +415,44 @@ private fun TaskEventDropdownSelector(
     isError: Boolean = false,
     errorText: String? = null,
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    val selectedEvent = events.find { it.id == selectedId }
-
-    ExposedDropdownMenuBox(
-        expanded         = expanded,
-        onExpandedChange = { expanded = !expanded },
-        modifier         = Modifier.fillMaxWidth(),
+    Column(
+        modifier            = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        OutlinedTextField(
-            value              = selectedEvent?.let { "${it.title} (${DateUtils.formatDisplay(it.date)})" } ?: "",
-            onValueChange      = {},
-            readOnly           = true,
-            label              = { Text("For event", style = bodyM) },
-            trailingIcon       = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier           = Modifier
-                .fillMaxWidth()
-                .menuAnchor(),
-            isError            = isError,
-            supportingText     = if (errorText != null) { { Text(errorText, style = bodyM) } } else null,
-            shape              = RoundedCornerShape(Radius.field),
-            colors             = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor   = AppColor.primary,
-                unfocusedBorderColor = AppColor.outline,
-                focusedLabelColor    = AppColor.primary,
-                unfocusedLabelColor  = AppColor.text2,
-                cursorColor          = AppColor.primary,
-                errorBorderColor     = AppColor.danger,
-            ),
-        )
-        ExposedDropdownMenu(
-            expanded         = expanded,
-            onDismissRequest = { expanded = false },
+        Text(text = "For event", style = labelM, color = AppColor.text2)
+        if (isError && errorText != null) {
+            Text(text = errorText, style = bodyM, color = AppColor.danger)
+        }
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement   = Arrangement.spacedBy(8.dp),
         ) {
             events.forEach { event ->
-                DropdownMenuItem(
-                    text    = { Text("${event.title} (${DateUtils.formatDisplay(event.date)})", style = bodyM) },
-                    onClick = { onSelect(event.id); expanded = false },
-                    leadingIcon = {
-                        EventIconDisplay(
-                            icon               = event.icon,
-                            contentDescription = event.title,
-                            modifier           = Modifier.size(20.dp),
+                val isSelected = selectedId == event.id
+                val chipBg = if (isSelected) AppColor.primaryContainer else AppColor.surfaceVariant
+                val chipBorder = if (isSelected) AppColor.primary else AppColor.outline
+                val chipTextColor = if (isSelected) AppColor.primary else AppColor.text
+
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(Radius.chip))
+                        .background(chipBg)
+                        .border(1.dp, chipBorder, RoundedCornerShape(Radius.chip))
+                        .clickable { onSelect(event.id) }
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (isSelected) {
+                        Icon(
+                            imageVector        = Icons.Rounded.Check,
+                            contentDescription = null,
+                            tint               = AppColor.primary,
+                            modifier           = Modifier.size(16.dp),
                         )
-                    },
-                )
+                        Spacer(Modifier.width(4.dp))
+                    }
+                    Text(text = event.title, style = labelL, color = chipTextColor)
+                }
             }
         }
     }
