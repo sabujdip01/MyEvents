@@ -29,7 +29,6 @@ class FirestoreSyncRepository @Inject constructor(
     private val bookingRepo: BookingRepository,
     private val expenseRepo: ExpenseRepository,
     private val inviteeRepo: InviteeRepository,
-    private val giftRepo: GiftRepository,
     private val taskRepo: TaskRepository,
 ) {
     private val db: FirebaseFirestore get() = FirebaseFirestore.getInstance()
@@ -54,7 +53,6 @@ class FirestoreSyncRepository @Inject constructor(
             syncBookings(uid)
             syncExpenses(uid)
             syncInvitees(uid)
-            syncGifts(uid)
             syncTasks(uid)
 
             settingsDataStore.saveLastSyncTimestamp(timestamp)
@@ -182,30 +180,6 @@ class FirestoreSyncRepository @Inject constructor(
             )
             col.document(inv.id).set(data).await()
             inviteeRepo.upsertInvitee(inv.copy(syncState = SyncState.SYNCED))
-        }
-    }
-
-    // ── Gifts ────────────────────────────────────────────────────────────────
-
-    private suspend fun syncGifts(uid: String) {
-        val pending = giftRepo.observeAllGifts().first()
-            .filter { it.syncState == SyncState.PENDING }
-        val col = db.collection("users").document(uid).collection("gifts")
-
-        pending.forEach { gift ->
-            val data = hashMapOf(
-                "id"          to gift.id,
-                "eventId"     to gift.eventId,
-                "giverName"   to gift.giverName,
-                "amountPaise" to gift.amountPaise,
-                "description" to gift.description,
-                "inviteeId"   to gift.inviteeId,
-                "createdAt"   to gift.createdAt,
-                "updatedAt"   to gift.updatedAt,
-                "deleted"     to gift.deleted,
-            )
-            col.document(gift.id).set(data).await()
-            giftRepo.upsertGift(gift.copy(syncState = SyncState.SYNCED))
         }
     }
 

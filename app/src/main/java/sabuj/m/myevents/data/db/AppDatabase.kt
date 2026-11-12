@@ -8,14 +8,12 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import sabuj.m.myevents.data.db.dao.BookingDao
 import sabuj.m.myevents.data.db.dao.EventDao
 import sabuj.m.myevents.data.db.dao.ExpenseDao
-import sabuj.m.myevents.data.db.dao.GiftDao
 import sabuj.m.myevents.data.db.dao.InviteeDao
 import sabuj.m.myevents.data.db.dao.TaskDao
 import sabuj.m.myevents.data.db.entity.BookingEntity
 import sabuj.m.myevents.data.db.entity.BookingPaymentEntity
 import sabuj.m.myevents.data.db.entity.EventEntity
 import sabuj.m.myevents.data.db.entity.ExpenseEntity
-import sabuj.m.myevents.data.db.entity.GiftEntity
 import sabuj.m.myevents.data.db.entity.InviteeEntity
 import sabuj.m.myevents.data.db.entity.TaskEntity
 
@@ -30,7 +28,6 @@ import sabuj.m.myevents.data.db.entity.TaskEntity
         BookingPaymentEntity::class,
         ExpenseEntity::class,
         InviteeEntity::class,
-        GiftEntity::class,
         TaskEntity::class,
     ],
     version = 8,
@@ -42,7 +39,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun bookingDao(): BookingDao
     abstract fun expenseDao(): ExpenseDao
     abstract fun inviteeDao(): InviteeDao
-    abstract fun giftDao(): GiftDao
     abstract fun taskDao(): TaskDao
 
     companion object {

@@ -11,7 +11,6 @@ import sabuj.m.myevents.data.db.AppDatabase
 import sabuj.m.myevents.data.db.dao.BookingDao
 import sabuj.m.myevents.data.db.dao.EventDao
 import sabuj.m.myevents.data.db.dao.ExpenseDao
-import sabuj.m.myevents.data.db.dao.GiftDao
 import sabuj.m.myevents.data.db.dao.InviteeDao
 import sabuj.m.myevents.data.db.dao.TaskDao
 import javax.inject.Singleton
@@ -54,9 +53,6 @@ object DatabaseModule {
 
     @Provides
     fun provideInviteeDao(db: AppDatabase): InviteeDao = db.inviteeDao()
-
-    @Provides
-    fun provideGiftDao(db: AppDatabase): GiftDao = db.giftDao()
 
     @Provides
     fun provideTaskDao(db: AppDatabase): TaskDao = db.taskDao()

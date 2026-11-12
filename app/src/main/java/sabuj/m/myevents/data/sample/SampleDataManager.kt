@@ -6,14 +6,12 @@ import sabuj.m.myevents.domain.model.Booking
 import sabuj.m.myevents.domain.model.BookingPayment
 import sabuj.m.myevents.domain.model.Event
 import sabuj.m.myevents.domain.model.Expense
-import sabuj.m.myevents.domain.model.Gift
 import sabuj.m.myevents.domain.model.Invitee
 import sabuj.m.myevents.domain.model.SyncState
 import sabuj.m.myevents.domain.model.Task
 import sabuj.m.myevents.domain.repository.BookingRepository
 import sabuj.m.myevents.domain.repository.EventRepository
 import sabuj.m.myevents.domain.repository.ExpenseRepository
-import sabuj.m.myevents.domain.repository.GiftRepository
 import sabuj.m.myevents.domain.repository.InviteeRepository
 import sabuj.m.myevents.domain.repository.TaskRepository
 import java.time.LocalDate
@@ -26,7 +24,6 @@ class SampleDataManager @Inject constructor(
     private val bookingRepo: BookingRepository,
     private val expenseRepo: ExpenseRepository,
     private val inviteeRepo: InviteeRepository,
-    private val giftRepo: GiftRepository,
     private val taskRepo: TaskRepository,
 ) {
     suspend fun loadSampleData() {
@@ -76,14 +73,7 @@ class SampleDataManager @Inject constructor(
         )
         inviteeRepo.upsertInvitee(inv1)
 
-        // 5. Gifts
-        val g1 = Gift(
-            id = "demo-gift-1", eventId = eventId1, giverName = "Ramesh Sharma", amountPaise = 11_000_00L,
-            description = "Silver Bowl set", inviteeId = "demo-inv-1", createdAt = now, updatedAt = now,
-        )
-        giftRepo.upsertGift(g1)
-
-        // 6. Tasks
+        // 5. Tasks
         val t1 = Task(
             id = "demo-task-1", eventId = eventId1, title = "Finalize Mandap Decorator",
             dueDate = LocalDate.now().plusDays(5), completed = false, createdAt = now, updatedAt = now,

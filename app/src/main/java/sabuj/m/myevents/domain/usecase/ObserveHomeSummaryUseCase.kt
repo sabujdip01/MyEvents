@@ -7,7 +7,6 @@ import sabuj.m.myevents.domain.model.Booking
 import sabuj.m.myevents.domain.model.Event
 import sabuj.m.myevents.domain.model.EventSummary
 import sabuj.m.myevents.domain.model.Expense
-import sabuj.m.myevents.domain.model.Gift
 import sabuj.m.myevents.domain.model.HomeSummary
 import sabuj.m.myevents.domain.model.Invitee
 import sabuj.m.myevents.domain.model.InvitationType
@@ -15,21 +14,19 @@ import sabuj.m.myevents.domain.model.Task
 import sabuj.m.myevents.domain.repository.BookingRepository
 import sabuj.m.myevents.domain.repository.EventRepository
 import sabuj.m.myevents.domain.repository.ExpenseRepository
-import sabuj.m.myevents.domain.repository.GiftRepository
 import sabuj.m.myevents.domain.repository.InviteeRepository
 import sabuj.m.myevents.domain.repository.TaskRepository
 import javax.inject.Inject
 
 /**
  * Derives the [HomeSummary] shown on the Home dashboard by combining live data
- * from Events, Bookings, Expenses, Invitees, Gifts, Tasks, and Settings (extra cards).
+ * from Events, Bookings, Expenses, Invitees, Tasks, and Settings (extra cards).
  */
 class ObserveHomeSummaryUseCase @Inject constructor(
     private val eventRepo: EventRepository,
     private val bookingRepo: BookingRepository,
     private val expenseRepo: ExpenseRepository,
     private val inviteeRepo: InviteeRepository,
-    private val giftRepo: GiftRepository,
     private val taskRepo: TaskRepository,
     private val settingsDataStore: SettingsDataStore,
 ) {
@@ -40,7 +37,6 @@ class ObserveHomeSummaryUseCase @Inject constructor(
             bookingRepo.observeAll(),
             expenseRepo.observeAllExpenses(),
             inviteeRepo.observeAllInvitees(),
-            giftRepo.observeAllGifts(),
             taskRepo.observeAllTasks(),
             settingsDataStore.extraCardsFlow,
         ) { flows ->
@@ -48,9 +44,8 @@ class ObserveHomeSummaryUseCase @Inject constructor(
             val allBookings = flows[1] as List<Booking>
             val allExpenses = flows[2] as List<Expense>
             val allInvitees = flows[3] as List<Invitee>
-            val allGifts = flows[4] as List<Gift>
-            val allTasks = flows[5] as List<Task>
-            val extraCards = flows[6] as Int
+            val allTasks = flows[4] as List<Task>
+            val extraCards = flows[5] as Int
 
             val activeEvents = allEvents.filter { !it.deleted }
             val activeEventIds = activeEvents.map { it.id }.toSet()
@@ -58,7 +53,6 @@ class ObserveHomeSummaryUseCase @Inject constructor(
             val bookings = allBookings.filter { !it.deleted && it.eventId in activeEventIds }
             val expenses = allExpenses.filter { !it.deleted && it.eventId in activeEventIds }
             val invitees = allInvitees.filter { !it.deleted && it.eventId in activeEventIds }
-            val gifts = allGifts.filter { !it.deleted && it.eventId in activeEventIds }
             val tasks = allTasks.filter { !it.deleted && it.eventId in activeEventIds }
 
             val totalBudget = activeEvents.sumOf { it.budgetPaise }

@@ -1,11 +1,8 @@
 package sabuj.m.myevents.feature.guests
 
 import sabuj.m.myevents.domain.model.Event
-import sabuj.m.myevents.domain.model.Gift
 import sabuj.m.myevents.domain.model.Invitee
 import sabuj.m.myevents.domain.model.InvitationType
-
-enum class GuestMainTab { Guests, Gifts }
 
 enum class GuestFilter { All, Invited, NotInvited }
 
@@ -40,11 +37,9 @@ sealed class GuestSheetState {
 /** UI state for Guests screen. */
 data class GuestsUiState(
     val isLoading: Boolean = true,
-    val mainTab: GuestMainTab = GuestMainTab.Guests,
     val events: List<Event> = emptyList(),
     val selectedEventId: String? = null, // null = All
     val invitees: List<Invitee> = emptyList(),
-    val gifts: List<Gift> = emptyList(),
     val searchQuery: String = "",
     val filter: GuestFilter = GuestFilter.All,
     val sheetState: GuestSheetState = GuestSheetState.Hidden,
@@ -97,8 +92,4 @@ data class GuestsUiState(
 
     /** Number of invited family rows in filtered list (invited = true). */
     val totalInvitedFamilies: Int get() = filteredInvitees.count { it.invited }
-
-    /** Filtered list of gifts according to selected event. */
-    val filteredGifts: List<Gift>
-        get() = if (selectedEventId == null) gifts else gifts.filter { it.eventId == selectedEventId }
 }
