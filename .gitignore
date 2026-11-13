@@ -15,6 +15,8 @@ local.properties
 
 # Project docs to keep local only
 GEMINI.md
+PRD.md
+phases.md
 testcases.md
 securityaudit.md
 newidea.md
