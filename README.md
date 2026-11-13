@@ -99,6 +99,10 @@ For detailed version history and changelogs, see [`version.md`](version.md).
 
 ---
 
+## Download Link
+
+Download the 1st release app from [here](https://github.com/sabujdip01/MyEvents/releases/download/R1/MyEvents.V1.0.0.apk).
+
 ## 👨‍💻 Author
 
 Made with ❤️ by **Sabuj Mondal**
