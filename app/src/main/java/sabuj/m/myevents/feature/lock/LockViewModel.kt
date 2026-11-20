@@ -46,6 +46,21 @@ class LockViewModel @Inject constructor(
     init {
         checkPersistedLockout()
         checkAuthAndPinState()
+        authManager.addAuthStateListener { firebaseAuth ->
+            val user = firebaseAuth.currentUser
+            if (user == null || user.isAnonymous) {
+                pinStore.clearPin()
+                _state.update {
+                    it.copy(
+                        authStep = AuthStep.NEED_SIGN_IN,
+                        isUnlocked = false,
+                        userEmail = null,
+                        userName = null,
+                        pin = "",
+                    )
+                }
+            }
+        }
     }
 
     private fun checkPersistedLockout() {

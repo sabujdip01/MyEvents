@@ -57,4 +57,8 @@ class FirebaseAuthManager @Inject constructor() {
     fun signOut() {
         auth.signOut()
     }
+
+    fun addAuthStateListener(listener: FirebaseAuth.AuthStateListener) {
+        auth.addAuthStateListener(listener)
+    }
 }
