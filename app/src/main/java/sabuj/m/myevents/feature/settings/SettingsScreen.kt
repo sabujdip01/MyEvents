@@ -260,30 +260,8 @@ fun SettingsScreenContent(
 
                     Spacer(Modifier.height(Spacing.lg))
 
-                    // ACCOUNT & CLOUD SYNC
-                    SettingsSection("ACCOUNT & CLOUD SYNC") {
-                        val isSignedIn = uiState.isSignedIn
-                        val userEmail = uiState.userEmail ?: "Guest User (Not signed in)"
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.xs),
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(text = "Account", style = labelM, color = AppColor.text3)
-                                Text(text = userEmail, style = bodyM, color = AppColor.text, fontWeight = FontWeight.Bold)
-                            }
-                            if (isSignedIn) {
-                                AppButtonTonal("Sign Out", onClick = onSignOut)
-                            } else {
-                                AppButton("Sign In", onClick = onShowAuthDialog)
-                            }
-                        }
-
-                        Spacer(Modifier.height(Spacing.sm))
-                        HorizontalDivider(color = AppColor.outlineVariant)
-                        Spacer(Modifier.height(Spacing.sm))
-
+                    // DATA SYNC AND EXPORT
+                    SettingsSection("SYNC AND EXPORT") {
                         val lastSync = uiState.settings.lastSyncTimestamp
                         val syncText = if (lastSync == 0L) "Never synced" else formatSyncTime(lastSync)
 

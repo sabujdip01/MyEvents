@@ -7,7 +7,7 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/** Manages Firebase Authentication (Email/Password, Google, Anonymous) for offline-first sync. */
+/** Manages Firebase Authentication for mandatory login and cloud sync. */
 @Singleton
 class FirebaseAuthManager @Inject constructor() {
 
@@ -27,14 +27,21 @@ class FirebaseAuthManager @Inject constructor() {
         return result.user?.uid ?: throw IllegalStateException("Firebase user is null after anonymous sign-in")
     }
 
-    suspend fun signInWithEmail(email: String, pass: String): Result<FirebaseUser> = runCatching {
-        val result = auth.signInWithEmailAndPassword(email, pass).await()
-        result.user ?: error("Sign in failed")
-    }
-
-    suspend fun signUpWithEmail(email: String, pass: String): Result<FirebaseUser> = runCatching {
-        val result = auth.createUserWithEmailAndPassword(email, pass).await()
-        result.user ?: error("Sign up failed")
+    suspend fun signInWithEmail(email: String, pass: String): Result<FirebaseUser> {
+        return try {
+            val result = auth.signInWithEmailAndPassword(email, pass).await()
+            val user = result.user ?: error("Sign in failed")
+            Result.success(user)
+        } catch (e: Exception) {
+            // Fallback: If user does not exist, create the account automatically
+            try {
+                val createResult = auth.createUserWithEmailAndPassword(email, pass).await()
+                val user = createResult.user ?: error("Sign up failed")
+                Result.success(user)
+            } catch (createErr: Exception) {
+                Result.failure(e)
+            }
+        }
     }
 
     suspend fun signInWithCredential(credential: AuthCredential): Result<FirebaseUser> = runCatching {

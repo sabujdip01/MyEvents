@@ -2,6 +2,7 @@ package sabuj.m.myevents.feature.lock
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.AuthCredential
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,9 +21,16 @@ private const val MAX_ATTEMPTS  = 3
 /** Lockout duration in seconds. */
 private const val LOCKOUT_SECS  = 30L
 
+enum class AuthStep {
+    NEED_SIGN_IN,
+    CHECKING_FIREBASE,
+    NEED_PIN_SETUP,
+    NEED_PIN_UNLOCK,
+    UNLOCKED,
+}
+
 /**
- * Drives both PIN setup and unlock flows.
- * The UI observes [state] and sends [onEvent].
+ * Drives authentication, PIN setup, and unlock flows.
  */
 @HiltViewModel
 class LockViewModel @Inject constructor(
@@ -37,7 +45,7 @@ class LockViewModel @Inject constructor(
 
     init {
         checkPersistedLockout()
-        checkRemotePinAndSync()
+        checkAuthAndPinState()
     }
 
     private fun checkPersistedLockout() {
@@ -51,13 +59,40 @@ class LockViewModel @Inject constructor(
         }
     }
 
-    private fun checkRemotePinAndSync() {
+    fun checkAuthAndPinState() {
         viewModelScope.launch {
-            runCatching {
-                val uid = authManager.currentUser?.uid
-                if (uid != null && !pinStore.isPinSet) {
-                    syncRepo.syncRemotePin(uid)
+            val user = authManager.currentUser
+            if (user == null || user.isAnonymous) {
+                _state.update { it.copy(authStep = AuthStep.NEED_SIGN_IN, isLoading = false) }
+            } else {
+                val name = user.displayName?.ifBlank { null }
+                    ?: user.email?.substringBefore("@")?.replaceFirstChar { it.uppercase() }
+                _state.update {
+                    it.copy(
+                        userEmail = user.email,
+                        userName = name,
+                        isLoading = true,
+                    )
                 }
+                checkRemotePin(user.uid)
+            }
+        }
+    }
+
+    private suspend fun checkRemotePin(uid: String) {
+        try {
+            syncRepo.syncRemotePin(uid)
+            if (pinStore.isPinSet) {
+                _state.update { it.copy(authStep = AuthStep.NEED_PIN_UNLOCK, isLoading = false) }
+                syncRepo.performSync()
+            } else {
+                _state.update { it.copy(authStep = AuthStep.NEED_PIN_SETUP, isLoading = false) }
+            }
+        } catch (e: Exception) {
+            if (pinStore.isPinSet) {
+                _state.update { it.copy(authStep = AuthStep.NEED_PIN_UNLOCK, isLoading = false) }
+            } else {
+                _state.update { it.copy(authStep = AuthStep.NEED_PIN_SETUP, isLoading = false) }
             }
         }
     }
@@ -73,18 +108,28 @@ class LockViewModel @Inject constructor(
 
     fun signInWithEmail(email: String, pass: String) {
         viewModelScope.launch {
-            _state.update { it.copy(error = "Signing in...") }
+            _state.update { it.copy(error = "Signing in...", isLoading = true) }
             val res = authManager.signInWithEmail(email, pass)
             if (res.isSuccess) {
-                val uid = res.getOrNull()?.uid
-                if (uid != null) {
-                    syncRepo.syncRemotePin(uid)
-                    syncRepo.performSync()
-                }
-                _state.update { it.copy(error = "Signed in as ${res.getOrNull()?.email}") }
+                _state.update { it.copy(error = null, isLoading = false) }
+                checkAuthAndPinState()
             } else {
                 val err = res.exceptionOrNull()?.localizedMessage ?: "Sign in failed"
-                _state.update { it.copy(error = err) }
+                _state.update { it.copy(error = err, isLoading = false) }
+            }
+        }
+    }
+
+    fun signInWithCredential(credential: AuthCredential) {
+        viewModelScope.launch {
+            _state.update { it.copy(error = "Signing in with Google...", isLoading = true) }
+            val res = authManager.signInWithCredential(credential)
+            if (res.isSuccess) {
+                _state.update { it.copy(error = null, isLoading = false) }
+                checkAuthAndPinState()
+            } else {
+                val err = res.exceptionOrNull()?.localizedMessage ?: "Google sign in failed"
+                _state.update { it.copy(error = err, isLoading = false) }
             }
         }
     }
@@ -139,7 +184,7 @@ class LockViewModel @Inject constructor(
                 pinStore.savePin(hash)
                 pinStore.failedAttempts = 0
                 pinStore.lockoutUntilEpochMs = 0L
-                _state.update { it.copy(isUnlocked = true) }
+                _state.update { it.copy(isUnlocked = true, authStep = AuthStep.UNLOCKED) }
 
                 // Sync PIN hash & pull/push data to Firebase
                 viewModelScope.launch {
@@ -187,13 +232,16 @@ class LockViewModel @Inject constructor(
     }
 
     private fun onUnlockSuccess() {
-        _state.update { it.copy(isUnlocked = true, failedAttempts = 0, error = null) }
+        _state.update { it.copy(isUnlocked = true, authStep = AuthStep.UNLOCKED, failedAttempts = 0, error = null) }
+        viewModelScope.launch {
+            runCatching {
+                syncRepo.performSync()
+            }
+        }
     }
 
     /**
      * Re-locks the app when [LockEvent.ReLock] is received.
-     * Only acts if a PIN is actually set (no PIN → no lock).
-     * Preserves failed attempts & lockout state.
      */
     private fun reLock() {
         if (pinStore.isPinSet) {
@@ -205,6 +253,7 @@ class LockViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     isUnlocked         = false,
+                    authStep           = AuthStep.NEED_PIN_UNLOCK,
                     pin                = "",
                     error              = null,
                     failedAttempts     = pinStore.failedAttempts,
@@ -241,11 +290,15 @@ class LockViewModel @Inject constructor(
 // ---------------------------------------------------------------------------
 
 data class LockUiState(
+    val authStep: AuthStep       = AuthStep.NEED_SIGN_IN,
+    val userEmail: String?       = null,
+    val userName: String?        = null,
     val pin: String              = "",
     val setupFirstPin: String?   = null,
     val isConfirming: Boolean    = false,
     val isUnlocked: Boolean      = false,
     val error: String?           = null,
+    val isLoading: Boolean       = false,
     val failedAttempts: Int      = 0,
     val isLockedOut: Boolean     = false,
     val lockoutSecondsLeft: Int  = 0,

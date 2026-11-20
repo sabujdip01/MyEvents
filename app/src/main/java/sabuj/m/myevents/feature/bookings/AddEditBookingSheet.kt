@@ -222,7 +222,7 @@ fun AddEditBookingSheet(
                 BookingTextField(
                     value         = bookingType,
                     onValueChange = onTypeChange,
-                    label         = "Booking name", // TODO strings.xml
+                    label         = "Booking Name", // TODO strings.xml
                     placeholder   = "e.g. Camera, Mandap",
                     modifier      = Modifier.weight(1f),
                 )
@@ -246,7 +246,7 @@ fun AddEditBookingSheet(
                     } else {
                         Icon(
                             imageVector        = selIcon.fallback,
-                            contentDescription = "Select icon",
+                            contentDescription = "Select Icon",
                             tint               = AppColor.primary,
                             modifier           = Modifier.size(38.dp),
                         )
@@ -271,8 +271,8 @@ fun AddEditBookingSheet(
             BookingTextField(
                 value         = contactName,
                 onValueChange = onContactChange,
-                label         = "Contact person", // TODO strings.xml
-                placeholder   = "Vendor name",
+                label         = "Contact Person", // TODO strings.xml
+                placeholder   = "Vendor Name",
             )
 
             Spacer(Modifier.height(8.dp))
@@ -292,7 +292,7 @@ fun AddEditBookingSheet(
             BookingMoneyTextField(
                 paiseValue    = totalAmountPaise,
                 onPaiseChange = onTotalChange,
-                label         = "Contract amount",
+                label         = "Contract Amount",
                 placeholder   = "0",
                 isError       = totalError != null,
                 supportingText = totalError,
@@ -309,7 +309,7 @@ fun AddEditBookingSheet(
                             onBookingMadeChange(true)
                         }
                     },
-                    label         = "Booking amount / Advance",
+                    label         = "Booking Amount / Advance",
                     placeholder   = "0",
                 )
             }
@@ -343,16 +343,16 @@ fun AddEditBookingSheet(
             Spacer(Modifier.height(10.dp))
 
             // Next due date (optional)
-            val dueDateLabel = nextDueDateEpochDay?.let { DateUtils.formatDisplay(LocalDate.ofEpochDay(it)) } ?: "Not set"
+            val dueDateLabel = nextDueDateEpochDay?.let { DateUtils.formatDisplay(LocalDate.ofEpochDay(it)) } ?: "Not Set"
             BookingTextField(
                 value         = dueDateLabel,
                 onValueChange = {},
-                label         = "Next due date (optional)", // TODO strings.xml
+                label         = "Next Due Date (Optional)", // TODO strings.xml
                 readOnly      = true,
                 trailingIcon  = {
                     Icon(
                         imageVector        = Icons.Rounded.DateRange,
-                        contentDescription = "Pick date",
+                        contentDescription = "Pick Date",
                         tint               = AppColor.primary,
                         modifier           = Modifier.clickable {
                             val cal = Calendar.getInstance()
@@ -411,7 +411,7 @@ fun AddEditBookingSheet(
                     onClick   = onAddPayment,
                     modifier  = Modifier.fillMaxWidth(),
                 ) {
-                    Text("+ Add payment", style = labelL, color = AppColor.primary) // TODO strings.xml
+                    Text("+ Add Payment", style = labelL, color = AppColor.primary) // TODO strings.xml
                 }
             }
 
@@ -480,7 +480,7 @@ private fun PaymentRow(
         Spacer(Modifier.width(8.dp))
         Icon(
             imageVector        = Icons.Rounded.Delete,
-            contentDescription = "Delete payment",
+            contentDescription = "Delete Payment",
             tint               = AppColor.danger,
             modifier           = Modifier
                 .size(20.dp)
@@ -555,8 +555,8 @@ private fun BookingIconDropdown(
             value         = selectedIcon?.displayName ?: "",
             onValueChange = {},
             readOnly      = true,
-            label         = { Text("Booking icon", style = bodyM) },
-            placeholder   = { Text("Select booking icon", style = bodyM, color = AppColor.text3) },
+            label         = { Text("Booking Icon", style = bodyM) },
+            placeholder   = { Text("Select Booking Icon", style = bodyM, color = AppColor.text3) },
             leadingIcon   = selectedIcon?.let { icon ->
                 {
                     IconChip(
@@ -570,7 +570,7 @@ private fun BookingIconDropdown(
             trailingIcon  = {
                 Icon(
                     imageVector        = Icons.Rounded.KeyboardArrowDown,
-                    contentDescription = "Select icon",
+                    contentDescription = "Select Icon",
                     tint               = AppColor.text2,
                 )
             },

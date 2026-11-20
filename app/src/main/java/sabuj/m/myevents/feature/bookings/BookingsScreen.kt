@@ -134,13 +134,13 @@ fun BookingsScreen(
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                text  = "No bookings yet", // TODO strings.xml
+                                text  = "No Bookings yet", // TODO strings.xml
                                 style = titleL,
                                 color = AppColor.text2,
                             )
                             Spacer(Modifier.height(Spacing.sm))
                             Text(
-                                text  = "Tap + to add your first booking", // TODO strings.xml
+                                text  = "Tap + to add your First Booking", // TODO strings.xml
                                 style = labelM,
                                 color = AppColor.text3,
                             )

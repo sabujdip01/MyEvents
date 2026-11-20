@@ -129,7 +129,7 @@ fun BookingCard(
                 )
                 Spacer(Modifier.width(Spacing.xs))
                 Text(
-                    text     = "${MoneyFormatter.format(booking.paidPaise)} paid",
+                    text     = "${MoneyFormatter.format(booking.paidPaise)} Paid",
                     style    = titleS,
                     color    = AppColor.text,
                     maxLines = 1,
@@ -138,7 +138,7 @@ fun BookingCard(
                 if (editMode) {
                     Icon(
                         imageVector        = Icons.Rounded.Delete,
-                        contentDescription = "Delete booking",
+                        contentDescription = "Delete Booking",
                         tint               = AppColor.danger,
                         modifier           = Modifier
                             .size(20.dp)
@@ -147,7 +147,7 @@ fun BookingCard(
                 } else {
                     Icon(
                         imageVector        = Icons.Rounded.Edit,
-                        contentDescription = "Edit booking",
+                        contentDescription = "Edit Booking",
                         tint               = AppColor.primary,
                         modifier           = Modifier
                             .size(20.dp)

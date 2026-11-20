@@ -156,8 +156,8 @@ class BookingsViewModel @Inject constructor(
     private fun handleSaveResult(result: BookingSaveResult, sheet: BookingSheetState) {
         when (result) {
             is BookingSaveResult.Success -> _sheetState.value = BookingSheetState.Hidden
-            is BookingSaveResult.EventIdBlank -> applySheetError(sheet, eventError = "Select an event")
-            is BookingSaveResult.TotalInvalid -> applySheetError(sheet, totalError = "Enter a valid total")
+            is BookingSaveResult.EventIdBlank -> applySheetError(sheet, eventError = "Select an Event")
+            is BookingSaveResult.TotalInvalid -> applySheetError(sheet, totalError = "Enter a Valid Total")
         }
     }
 
@@ -249,7 +249,7 @@ class BookingsViewModel @Inject constructor(
     fun savePayment() {
         val dialog = _paymentDialogState.value as? PaymentDialogState.Add ?: return
         if (dialog.amountPaise <= 0L) {
-            _paymentDialogState.value = dialog.copy(amountError = "Enter a valid amount")
+            _paymentDialogState.value = dialog.copy(amountError = "Enter a Valid Amount")
             return
         }
         val newPayment = sabuj.m.myevents.domain.model.BookingPayment(

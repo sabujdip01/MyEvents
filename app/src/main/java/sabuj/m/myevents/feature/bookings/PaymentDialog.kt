@@ -67,7 +67,7 @@ fun PaymentDialog(
         shape            = RoundedCornerShape(Radius.dialog),
         title = {
             Text(
-                text  = "Add payment", // TODO strings.xml
+                text  = "Add Payment", // TODO strings.xml
                 style = titleM,
                 color = AppColor.text,
             )
@@ -83,7 +83,7 @@ fun PaymentDialog(
                     trailingIcon  = {
                         Icon(
                             imageVector        = Icons.Rounded.DateRange,
-                            contentDescription = "Pick date",
+                            contentDescription = "Pick Date",
                             tint               = AppColor.primary,
                             modifier           = Modifier.clickable {
                                 val cal = Calendar.getInstance()
@@ -126,8 +126,8 @@ fun PaymentDialog(
                 OutlinedTextField(
                     value         = state.note,
                     onValueChange = onNoteChange,
-                    label         = { Text("Note (optional)", style = bodyM) }, // TODO strings.xml
-                    placeholder   = { Text("e.g. Advance payment", style = bodyM, color = AppColor.text3) },
+                    label         = { Text("Note (Optional)", style = bodyM) }, // TODO strings.xml
+                    placeholder   = { Text("e.g. Advance Payment", style = bodyM, color = AppColor.text3) },
                     modifier      = Modifier.fillMaxWidth(),
                     singleLine    = true,
                     shape         = RoundedCornerShape(Radius.field),
@@ -168,7 +168,7 @@ fun PaymentDialogFull(
                 verticalArrangement = Arrangement.spacedBy(Spacing.md),
             ) {
                 Text(
-                    text  = "Add payment",
+                    text  = "Add Payment",
                     style = titleM,
                     color = AppColor.text,
                 )
@@ -182,7 +182,7 @@ fun PaymentDialogFull(
                     trailingIcon  = {
                         Icon(
                             imageVector        = Icons.Rounded.DateRange,
-                            contentDescription = "Pick date",
+                            contentDescription = "Pick Date",
                             tint               = AppColor.primary,
                             modifier           = Modifier.clickable {
                                 val cal = Calendar.getInstance()
@@ -225,8 +225,8 @@ fun PaymentDialogFull(
                 OutlinedTextField(
                     value         = state.note,
                     onValueChange = onNoteChange,
-                    label         = { Text("Note (optional)", style = bodyM) },
-                    placeholder   = { Text("e.g. Advance payment", style = bodyM, color = AppColor.text3) },
+                    label         = { Text("Note (Optional)", style = bodyM) },
+                    placeholder   = { Text("e.g. Advance Payment", style = bodyM, color = AppColor.text3) },
                     modifier      = Modifier.fillMaxWidth(),
                     singleLine    = true,
                     shape         = RoundedCornerShape(Radius.field),
@@ -262,7 +262,7 @@ private fun paymentFieldColors() = OutlinedTextFieldDefaults.colors(
 private fun PaymentDialogPreview() {
     AppTheme {
         PaymentDialogFull(
-            state          = PaymentDialogState.Add(bookingId = "bk-1", amountPaise = 5_000_00L, note = "Advance payment"),
+            state          = PaymentDialogState.Add(bookingId = "bk-1", amountPaise = 5_000_00L, note = "Advance Payment"),
             onDismiss      = {},
             onDateChange   = {},
             onAmountChange = {},

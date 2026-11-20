@@ -141,7 +141,7 @@ fun ExpensesContent(
                 val list = uiState.filteredDisplayExpenses
                 if (list.isEmpty()) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("No expenses found", style = titleL, color = AppColor.text2)
+                        Text("No Expenses Found", style = titleL, color = AppColor.text2)
                     }
                 } else {
                     ExpenseListContent(
@@ -242,7 +242,7 @@ private fun ExpenseSearchAndFilterBar(
         OutlinedTextField(
             value          = searchQuery,
             onValueChange  = onSearchQueryChange,
-            placeholder    = { Text("Search expense...", style = bodyM, color = AppColor.text3) },
+            placeholder    = { Text("Search Expense...", style = bodyM, color = AppColor.text3) },
             leadingIcon    = { Icon(Icons.Rounded.Search, null, tint = AppColor.text3) },
             trailingIcon   = {
                 if (searchQuery.isNotEmpty()) {
@@ -377,7 +377,7 @@ private fun SummaryFooter(
                     horizontalAlignment = Alignment.Start,
                 ) {
                     Text(
-                        text       = "Total items $totalItemsCount",
+                        text       = "Total Items $totalItemsCount",
                         style      = labelL,
                         fontWeight = FontWeight.Bold,
                         color      = AppColor.onPrimaryContainer,
@@ -435,7 +435,7 @@ private fun SummaryFooter(
                         )
                         Spacer(Modifier.height(2.dp))
                         Text(
-                            text      = "Total paid",
+                            text      = "Total Paid",
                             style     = bodyM.copy(fontSize = 12.5.sp),
                             color     = AppColor.onSuccessContainer,
                             maxLines  = 1,
@@ -458,7 +458,7 @@ private fun SummaryFooter(
                         )
                         Spacer(Modifier.height(2.dp))
                         Text(
-                            text      = "Total due",
+                            text      = "Total Due",
                             style     = bodyM.copy(fontSize = 12.5.sp),
                             color     = AppColor.onWarningContainer,
                             maxLines  = 1,
@@ -604,7 +604,7 @@ private fun ExpenseRowCard(
                             )
                             Spacer(Modifier.height(1.dp)) // +20% gap (implicit → 1dp)
                             Text(
-                                text      = "paid",
+                                text      = "Paid",
                                 style     = bodyM.copy(fontSize = 12.5.sp),
                                 color     = AppColor.onSuccessContainer,
                                 maxLines  = 1,
@@ -627,7 +627,7 @@ private fun ExpenseRowCard(
                             )
                             Spacer(Modifier.height(1.dp)) // +20% gap (implicit → 1dp)
                             Text(
-                                text      = "due",
+                                text      = "Due",
                                 style     = bodyM.copy(fontSize = 12.5.sp),
                                 color     = AppColor.onWarningContainer,
                                 maxLines  = 1,

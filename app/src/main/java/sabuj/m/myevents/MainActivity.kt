@@ -101,28 +101,35 @@ class MainActivity : FragmentActivity() {
                     CustomSplashScreen()
                 } else {
                     when {
-                        state.isUnlocked -> {
+                        state.isUnlocked || state.authStep == sabuj.m.myevents.feature.lock.AuthStep.UNLOCKED -> {
                             AppNavHost(modifier = Modifier.fillMaxSize())
                         }
-                        !lockViewModel.isPinSetup -> {
-                            // First launch — two-step PIN creation
+                        state.authStep == sabuj.m.myevents.feature.lock.AuthStep.NEED_SIGN_IN -> {
                             PinScreen(
-                                title    = if (state.isConfirming) "Confirm your PIN" else "Create your PIN",
-                                subtitle = if (state.isConfirming)
-                                    "Enter the same PIN again"
-                                else
-                                    "4 digits to protect your data",
-                                pinLength       = state.pin.length,
-                                hasError        = state.error != null,
-                                errorMessage    = state.error,
-                                showFingerprint = false,
-                                onDigit         = { lockViewModel.onEvent(LockEvent.DigitPressed(it)) },
-                                onBackspace     = { lockViewModel.onEvent(LockEvent.BackspacePressed) },
+                                title             = "Sign In",
+                                subtitle          = "Sign in with your email or Google account to continue",
+                                pinLength         = 0,
+                                needSignIn        = true,
+                                errorMessage      = state.error,
                                 onSignInWithEmail = { email, pass -> lockViewModel.signInWithEmail(email, pass) },
                             )
                         }
+                        state.authStep == sabuj.m.myevents.feature.lock.AuthStep.NEED_PIN_SETUP -> {
+                            PinScreen(
+                                title             = if (state.isConfirming) "Confirm your PIN" else "Create your PIN",
+                                subtitle          = if (state.isConfirming) "Enter the same PIN again" else "4 digits to protect your data",
+                                pinLength         = state.pin.length,
+                                userEmail         = state.userEmail,
+                                userName          = state.userName,
+                                hasError          = state.error != null,
+                                errorMessage      = state.error,
+                                showFingerprint   = false,
+                                onDigit           = { lockViewModel.onEvent(LockEvent.DigitPressed(it)) },
+                                onBackspace       = { lockViewModel.onEvent(LockEvent.BackspacePressed) },
+                            )
+                        }
                         else -> {
-                            // Unlock screen — automatically trigger fingerprint prompt ONLY if biometric is enabled
+                            // NEED_PIN_UNLOCK
                             val bioEnabled = pinStore.isBiometricEnabled && settings.fingerprintEnabled
                             androidx.compose.runtime.LaunchedEffect(bioEnabled) {
                                 if (bioEnabled && isBiometricAvailable()) {
@@ -131,9 +138,11 @@ class MainActivity : FragmentActivity() {
                             }
 
                             PinScreen(
-                                title    = "Enter PIN",
-                                subtitle = if (bioEnabled) "Use your PIN or fingerprint to unlock" else "Enter your 4-digit PIN to unlock",
+                                title            = "Enter PIN",
+                                subtitle         = if (bioEnabled) "Use your PIN or fingerprint to unlock" else "Enter your 4-digit PIN to unlock",
                                 pinLength        = state.pin.length,
+                                userEmail        = state.userEmail,
+                                userName         = state.userName,
                                 hasError         = state.error != null,
                                 errorMessage     = state.error,
                                 isLockedOut      = state.isLockedOut,
@@ -142,7 +151,6 @@ class MainActivity : FragmentActivity() {
                                 onDigit          = { lockViewModel.onEvent(LockEvent.DigitPressed(it)) },
                                 onBackspace      = { lockViewModel.onEvent(LockEvent.BackspacePressed) },
                                 onFingerprint    = { if (bioEnabled && isBiometricAvailable()) showBiometricPrompt() },
-                                onSignInWithEmail = { email, pass -> lockViewModel.signInWithEmail(email, pass) },
                             )
                         }
                     }
