@@ -58,7 +58,7 @@ fun ExportCsvDialog(
                 verticalArrangement = Arrangement.spacedBy(Spacing.md),
             ) {
                 Text(text = "Export Event Data (CSV)", style = titleM, color = AppColor.text)
-                Text(text = "Exports Expenses & Invitees for Excel in UTF-8 BOM CSV format.", style = bodyM, color = AppColor.text2)
+                Text(text = "Exports Event Bookings, Item Lits Expenses & Guests for Excel in UTF-8 BOM CSV format.", style = bodyM, color = AppColor.text2)
 
                 ExposedDropdownMenuBox(
                     expanded         = expanded,

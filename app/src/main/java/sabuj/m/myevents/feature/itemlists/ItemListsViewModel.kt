@@ -115,8 +115,8 @@ class ItemListsViewModel @Inject constructor(
                     )
                     when (result) {
                         TaskSaveResult.Success -> hideSheet()
-                        TaskSaveResult.TitleBlank -> applySheetError(sheet, titleError = "Enter item list title")
-                        TaskSaveResult.EventBlank -> applySheetError(sheet, eventError = "Select an event")
+                        TaskSaveResult.TitleBlank -> applySheetError(sheet, titleError = "Enter Item List Title")
+                        TaskSaveResult.EventBlank -> applySheetError(sheet, eventError = "Select an Event")
                     }
                 }
                 is TaskSheetState.Edit -> {
@@ -132,7 +132,7 @@ class ItemListsViewModel @Inject constructor(
                     )
                     when (result) {
                         TaskSaveResult.Success -> hideSheet()
-                        TaskSaveResult.TitleBlank -> applySheetError(sheet, titleError = "Enter item list title")
+                        TaskSaveResult.TitleBlank -> applySheetError(sheet, titleError = "Enter Item List Title")
                         else -> Unit
                     }
                 }
@@ -193,7 +193,7 @@ class ItemListsViewModel @Inject constructor(
 
     fun confirmDeleteTask() {
         val id = uiState.value.deleteTaskId ?: return
-        val title = uiState.value.tasks.find { it.id == id }?.title ?: "Item list"
+        val title = uiState.value.tasks.find { it.id == id }?.title ?: "Item List"
         _uiState.update { it.copy(deleteTaskId = null, isDeleteMode = false) }
         viewModelScope.launch {
             deleteTasks(id)
@@ -219,7 +219,7 @@ class ItemListsViewModel @Inject constructor(
                 it.copy(
                     isDeleteMode      = false,
                     selectedForDelete = emptySet(),
-                    snackbarMessage   = "${ids.size} item lists deleted",
+                    snackbarMessage   = "${ids.size} Item List deleted",
                 )
             }
         }

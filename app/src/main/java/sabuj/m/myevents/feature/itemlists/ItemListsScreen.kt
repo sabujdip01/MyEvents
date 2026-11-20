@@ -254,7 +254,7 @@ fun ItemListsScreen(
         val task = uiState.tasks.find { it.id == deleteTaskId }
         AppDeleteDialog(
             title     = "Delete Item List?",
-            message   = "\"${task?.title ?: "This item list"}\" will be permanently deleted.",
+            message   = "\"${task?.title ?: "This item list"}\" will be Permanently Deleted.",
             onDismiss = { viewModel.cancelDeleteTask() },
             onConfirm = { viewModel.confirmDeleteTask() },
         )
@@ -525,9 +525,9 @@ internal fun ItemListCard(
                 // Middle 1/3: Pending items / All collected Pill
                 val isAllCollected = remItems == 0 || task.completed || progress >= 1f
                 val collectedText = if (isAllCollected) {
-                    if (totalItems <= 1) "All item collected" else "All items collected"
+                    if (totalItems <= 1) "All Item collected" else "All Items collected"
                 } else {
-                    if (remItems == 1) "1 item pending" else "$remItems items pending"
+                    if (remItems == 1) "1 Item pending" else "$remItems Items pending"
                 }
                 val collectedVariant = if (isAllCollected) PillVariant.Success else PillVariant.Warning
                 Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {

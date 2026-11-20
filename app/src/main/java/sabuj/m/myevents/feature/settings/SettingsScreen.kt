@@ -216,7 +216,7 @@ fun SettingsScreenContent(
                         HorizontalDivider(color = AppColor.outlineVariant)
                         Spacer(Modifier.height(Spacing.md))
 
-                        Text("Colour scheme", style = bodyM, color = AppColor.text2)
+                        Text("Colour Scheme", style = bodyM, color = AppColor.text2)
                         Spacer(Modifier.height(Spacing.xs))
 
                         Row(
@@ -294,7 +294,7 @@ fun SettingsScreenContent(
                         }
                         HorizontalDivider(color = AppColor.outlineVariant)
                         SettingsToggleRow(
-                            label     = "Fingerprint unlock",
+                            label     = "Fingerprint Unlock",
                             subtext   = "Use biometric authentication if available",
                             isChecked = uiState.settings.fingerprintEnabled,
                             onToggle  = onFingerprint,
@@ -307,19 +307,19 @@ fun SettingsScreenContent(
                     SettingsSection("NOTIFICATIONS") {
                         SettingsToggleRow(
                             label     = "Enable notifications",
-                            subtext   = "Master switch for all reminders",
+                            subtext   = "Master switch for All Reminders",
                             isChecked = uiState.settings.notificationsMaster,
                             onToggle  = onNotificationsMaster,
                         )
                         if (uiState.settings.notificationsMaster) {
                             HorizontalDivider(color = AppColor.outlineVariant)
-                            SettingsToggleRow("Event countdowns", "30, 7, and 1 day reminders", uiState.settings.notifyEventCountdowns, onNotifyCountdowns)
+                            SettingsToggleRow("Event countdowns", "30, 7, and 1 day Reminders", uiState.settings.notifyEventCountdowns, onNotifyCountdowns)
                             HorizontalDivider(color = AppColor.outlineVariant)
-                            SettingsToggleRow("Payment dues", "Booking and expense due alerts", uiState.settings.notifyPaymentDues, onNotifyPaymentDues)
+                            SettingsToggleRow("Payment dues", "Booking and Expense Due Alerts", uiState.settings.notifyPaymentDues, onNotifyPaymentDues)
                             HorizontalDivider(color = AppColor.outlineVariant)
-                            SettingsToggleRow("Task reminders", "Item list due date reminders", uiState.settings.notifyTasks, onNotifyTasks)
+                            SettingsToggleRow("Task reminders", "Item list Due Date Reminders", uiState.settings.notifyTasks, onNotifyTasks)
                             HorizontalDivider(color = AppColor.outlineVariant)
-                            SettingsToggleRow("Budget warnings", "Alerts at 80% and 100% budget spent", uiState.settings.notifyBudgetAlerts, onNotifyBudgetAlerts)
+                            SettingsToggleRow("Budget warnings", "Alerts at 80% and 100% Budget spent", uiState.settings.notifyBudgetAlerts, onNotifyBudgetAlerts)
                         }
                     }
 

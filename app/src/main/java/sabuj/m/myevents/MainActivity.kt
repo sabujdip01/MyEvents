@@ -5,6 +5,8 @@ import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -208,12 +210,12 @@ class MainActivity : FragmentActivity() {
             .canAuthenticate(BS) == BiometricManager.BIOMETRIC_SUCCESS
 
     private fun launchGoogleSignIn() {
-        androidx.lifecycle.lifecycleScope.launch {
+        lifecycleScope.launch {
             try {
                 val credentialManager = androidx.credentials.CredentialManager.create(this@MainActivity)
 
                 val resId = resources.getIdentifier("default_web_client_id", "string", packageName)
-                val webClientId = if (resId != 0) getString(resId) else "10902216485-dummy.apps.googleusercontent.com"
+                val webClientId = if (resId != 0) getString(resId) else "10902216485-7fslbbbrv1gj1ukspn1eph8d6l34t0bn.apps.googleusercontent.com"
 
                 val googleIdOption = com.google.android.libraries.identity.googleid.GetGoogleIdOption.Builder()
                     .setFilterByAuthorizedAccounts(false)
