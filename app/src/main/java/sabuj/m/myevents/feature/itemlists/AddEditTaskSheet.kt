@@ -347,7 +347,7 @@ fun AddEditTaskSheet(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text     = "All item(s) Collected?",
+                    text     = "All Item(s) Collected?",
                     style    = labelL,
                     color    = AppColor.text,
                     modifier = Modifier.weight(1f),

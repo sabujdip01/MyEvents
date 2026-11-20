@@ -218,8 +218,8 @@ fun EventDetailsContent(
         // ── Detail list ─────────────────────────────────────────
         DetailRow(
             icon  = Icons.Rounded.Label,
-            label = "Event",
-            value = event.eventName,
+            label = "Event Type",
+            value = event.eventName.lowercase().replaceFirstChar { it.uppercase() },
         )
         HorizontalDivider(color = AppColor.outlineVariant, thickness = 0.5.dp)
         DetailRow(

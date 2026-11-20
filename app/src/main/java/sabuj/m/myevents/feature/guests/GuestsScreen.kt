@@ -159,7 +159,7 @@ fun GuestsScreen(
                 // Guest list
                 val list = uiState.filteredInvitees
                 if (list.isEmpty()) {
-                    EmptyListNotice(text = "No Guests added yet")
+                    EmptyListNotice(text = "No Guest added yet")
                 } else {
                     GuestsTableContent(
                         invitees               = list,
@@ -773,7 +773,7 @@ private fun ExtraCardsDialog(
                         countText = text
                         count     = text.toIntOrNull()?.coerceAtLeast(0) ?: 0
                     },
-                    label         = { Text("Number of extra Cards", style = bodyM) },
+                    label         = { Text("Number of Extra Cards", style = bodyM) },
                     placeholder   = { Text("0", style = bodyM, color = AppColor.text2) },
                     modifier      = Modifier.fillMaxWidth(),
                     singleLine    = true,

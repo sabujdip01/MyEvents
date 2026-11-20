@@ -401,7 +401,7 @@ private fun BookingAmountCard(paidPaise: Long, totalPaise: Long, modifier: Modif
                     )
                     Spacer(Modifier.height(2.dp))
                     Text(
-                        text      = "aid of ${MoneyFormatter.format(totalPaise)}",
+                        text      = "Paid of ${MoneyFormatter.format(totalPaise)}",
                         style     = bodyM,
                         color     = AppColor.text2,
                         textAlign = TextAlign.Center,
@@ -438,7 +438,7 @@ private fun BudgetCard(spentPaise: Long, totalPaise: Long) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CardIcon(icon = AppIcon.Budget.fallback)
                     Spacer(Modifier.width(Spacing.md))
-                    Text("Budget vs Spent", style = titleM, color = AppColor.text, modifier = Modifier.weight(1f))
+                    Text("Budget vs Spend", style = titleM, color = AppColor.text, modifier = Modifier.weight(1f))
                 }
                 Spacer(Modifier.height(Spacing.xs))
                 Row {
@@ -510,7 +510,7 @@ private fun PendingDuesCard(paise: Long, modifier: Modifier) {
                     )
                     Spacer(Modifier.height(2.dp))
                     Text(
-                        text      = "unpaid balance",
+                        text      = "Unpaid balance",
                         style     = bodyM,
                         color     = AppColor.text2,
                         textAlign = TextAlign.Center,
@@ -586,7 +586,7 @@ private fun InviteesCard(
                             )
                             Spacer(Modifier.height(2.dp))
                             Text(
-                                text     = "guests invited",
+                                text     = "Guests invited",
                                 style    = bodyM,
                                 color    = AppColor.text2,
                                 maxLines = 1,
@@ -614,7 +614,7 @@ private fun InviteesCard(
                             )
                             Spacer(Modifier.height(2.dp))
                             Text(
-                                text     = "families invited",
+                                text     = "Families invited",
                                 style    = bodyM,
                                 color    = AppColor.text2,
                                 maxLines = 1,
@@ -634,7 +634,7 @@ private fun InviteesCard(
                             )
                             Spacer(Modifier.height(2.dp))
                             Text(
-                                text     = "cards required",
+                                text     = "Cards required",
                                 style    = bodyM,
                                 color    = AppColor.text2,
                                 maxLines = 1,
@@ -666,7 +666,7 @@ private fun ItemsPendingCard(count: Int, modifier: Modifier = Modifier) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CardIcon(icon = AppIcon.ItemLists.fallback)
                     Spacer(Modifier.width(Spacing.md))
-                    Text("Pending Item(s)", style = titleM, color = AppColor.text, modifier = Modifier.weight(1f))
+                    Text("Pending Items", style = titleM, color = AppColor.text, modifier = Modifier.weight(1f))
                 }
                 Column(
                     modifier            = Modifier.fillMaxWidth().weight(1f),
@@ -681,7 +681,7 @@ private fun ItemsPendingCard(count: Int, modifier: Modifier = Modifier) {
                     )
                     Spacer(Modifier.height(2.dp))
                     Text(
-                        text      = "items left",
+                        text      = "Items left",
                         style     = bodyM,
                         color     = AppColor.text2,
                         textAlign = TextAlign.Center,

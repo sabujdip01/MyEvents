@@ -299,7 +299,7 @@ fun EventsContent(
             },
         )
         is SheetMode.ConfirmDelete -> sabuj.m.myevents.core.ui.AppDeleteDialog(
-            title     = "Delete event?",
+            title     = "Delete Event?",
             message   = "\"${mode.event.title}\" and all its linked Bookings, Expenses and Guests will be Permanently Deleted.",
             onDismiss = { onEvent(EventsUiEvent.SheetDismissed) },
             onConfirm = { onEvent(EventsUiEvent.DeleteConfirmed) },

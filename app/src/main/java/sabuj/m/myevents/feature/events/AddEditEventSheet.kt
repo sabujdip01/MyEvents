@@ -238,7 +238,7 @@ fun AddEditEventSheet(
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(text = "Event icon", style = labelM, color = AppColor.text2)
+                Text(text = "Event Icon", style = labelM, color = AppColor.text2)
                 categoryIconPairs.chunked(5).forEach { rowPairs ->
                     Row(
                         modifier              = Modifier.fillMaxWidth(),

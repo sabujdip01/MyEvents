@@ -278,12 +278,15 @@ fun AddEditBookingSheet(
             Spacer(Modifier.height(8.dp))
 
             // Phone
+            val phoneError = if (phone.isNotEmpty() && phone.length != 10) "Enter 10-digit Phone Number" else null
             BookingTextField(
                 value         = phone,
-                onValueChange = onPhoneChange,
+                onValueChange = { input -> onPhoneChange(input.filter { it.isDigit() }.take(10)) },
                 label         = "Phone", // TODO strings.xml
-                placeholder   = "10-digit number",
+                placeholder   = "10-digit Number",
                 keyboardType  = KeyboardType.Phone,
+                isError       = phoneError != null,
+                supportingText = phoneError,
             )
 
             Spacer(Modifier.height(8.dp))
