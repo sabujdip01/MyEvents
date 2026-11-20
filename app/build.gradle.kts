@@ -23,6 +23,13 @@ fun readAppVersion(): String {
         ?: "V0.0.0"
 }
 
+// Room schema export directory configuration
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+    arg("room.incremental", "true")
+    arg("room.generateKotlin", "true")
+}
+
 android {
     namespace = "sabuj.m.myevents"
     compileSdk = 37
@@ -38,18 +45,34 @@ android {
         buildConfigField("String", "APP_VERSION", "\"${readAppVersion()}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
 
-        // Room schema export directory
-        ksp {
-            arg("room.schemaLocation", "$projectDir/schemas")
-            arg("room.incremental", "true")
-            arg("room.generateKotlin", "true")
+    signingConfigs {
+        create("release") {
+            val keystoreFile = rootProject.file("MyEventSigner")
+            if (keystoreFile.exists()) {
+                storeFile = keystoreFile
+                storePassword = "Pass@1234"
+                keyAlias = "key0"
+                keyPassword = "Pass@1234"
+            }
         }
     }
 
     buildTypes {
+        debug {
+            val keystoreFile = rootProject.file("MyEventSigner")
+            if (keystoreFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
         release {
+            val keystoreFile = rootProject.file("MyEventSigner")
+            if (keystoreFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
