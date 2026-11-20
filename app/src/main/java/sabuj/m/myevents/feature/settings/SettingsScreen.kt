@@ -13,15 +13,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarHostState
@@ -49,7 +46,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import sabuj.m.myevents.core.preview.LightDarkPreviews
 import sabuj.m.myevents.core.theme.AppColor
@@ -61,10 +57,7 @@ import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.labelM
 import sabuj.m.myevents.core.theme.paletteColors
-import sabuj.m.myevents.core.theme.titleM
-import sabuj.m.myevents.core.ui.AppButton
 import sabuj.m.myevents.core.ui.AppButtonTonal
-import sabuj.m.myevents.core.ui.AppField
 import sabuj.m.myevents.core.ui.AppSnackbar
 import sabuj.m.myevents.core.ui.AppTopBar
 import sabuj.m.myevents.core.ui.ScreenScaffold
@@ -117,10 +110,6 @@ fun SettingsScreen(
         },
         onExportDismiss      = viewModel::hideExportDialog,
         onImportCsv          = { uri -> viewModel.importCsvData(context, uri) },
-        onShowAuthDialog     = viewModel::showAuthDialog,
-        onHideAuthDialog     = viewModel::hideAuthDialog,
-        onSignIn             = viewModel::signInWithEmail,
-        onSignUp             = viewModel::signUpWithEmail,
         onSignOut            = viewModel::signOut,
         modifier             = modifier,
     )
@@ -147,10 +136,6 @@ fun SettingsScreenContent(
     onExportConfirm: (String, String) -> Unit = { _, _ -> },
     onExportDismiss: () -> Unit = {},
     onImportCsv: (android.net.Uri) -> Unit = {},
-    onShowAuthDialog: () -> Unit = {},
-    onHideAuthDialog: () -> Unit = {},
-    onSignIn: (String, String) -> Unit = { _, _ -> },
-    onSignUp: (String, String) -> Unit = { _, _ -> },
     onSignOut: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
@@ -260,8 +245,31 @@ fun SettingsScreenContent(
 
                     Spacer(Modifier.height(Spacing.lg))
 
-                    // DATA SYNC AND EXPORT
-                    SettingsSection("SYNC AND EXPORT") {
+                    // ACCOUNT & CLOUD SYNC
+                    SettingsSection("ACCOUNT & CLOUD SYNC") {
+                        val currentUser = remember {
+                            runCatching { com.google.firebase.auth.FirebaseAuth.getInstance().currentUser }.getOrNull()
+                        }
+                        val name = currentUser?.displayName?.ifBlank { null }
+                            ?: currentUser?.email?.substringBefore("@")?.replaceFirstChar { it.uppercase() }
+                            ?: "User"
+                        val email = currentUser?.email?.ifBlank { null } ?: "Not signed in"
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.xs),
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(text = name, style = bodyM, color = AppColor.text, fontWeight = FontWeight.Bold)
+                                Text(text = email, style = labelM, color = AppColor.text3)
+                            }
+                            AppButtonTonal("Sign Out", onClick = onSignOut)
+                        }
+
+                        Spacer(Modifier.height(Spacing.sm))
+                        HorizontalDivider(color = AppColor.outlineVariant)
+                        Spacer(Modifier.height(Spacing.sm))
+
                         val lastSync = uiState.settings.lastSyncTimestamp
                         val syncText = if (lastSync == 0L) "Never synced" else formatSyncTime(lastSync)
 
@@ -341,15 +349,6 @@ fun SettingsScreenContent(
         )
     }
 
-    // Auth Dialog
-    if (uiState.isAuthDialogOpen) {
-        AuthDialog(
-            onDismiss = onHideAuthDialog,
-            onSignIn  = onSignIn,
-            onSignUp  = onSignUp,
-        )
-    }
-
     // Change PIN Dialog
     if (uiState.isChangePinOpen) {
         ChangePinDialog(
@@ -365,78 +364,6 @@ fun SettingsScreenContent(
             onDismiss = onExportDismiss,
             onExport  = onExportConfirm,
         )
-    }
-}
-
-@Composable
-private fun AuthDialog(
-    onDismiss: () -> Unit,
-    onSignIn: (String, String) -> Unit,
-    onSignUp: (String, String) -> Unit,
-) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var isSignUpMode by remember { mutableStateOf(false) }
-
-    Dialog(onDismissRequest = onDismiss) {
-        Card(
-            shape    = RoundedCornerShape(Radius.dialog),
-            colors   = CardDefaults.cardColors(containerColor = AppColor.surface),
-            modifier = Modifier.width(374.dp).padding(Spacing.sm),
-        ) {
-            Column(
-                modifier = Modifier.padding(Spacing.lg),
-                verticalArrangement = Arrangement.spacedBy(Spacing.sm),
-            ) {
-                Text(if (isSignUpMode) "Create Account" else "Sign In", style = titleM, color = AppColor.text)
-                Text(
-                    text = if (isSignUpMode) "Sign up to sync your events with cloud" else "Sign in with your email to pull your cloud data",
-                    style = labelM,
-                    color = AppColor.text2,
-                )
-                Spacer(Modifier.height(Spacing.xs))
-                AppField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = "Email Address",
-                    placeholder = "you@example.com",
-                )
-                AppField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = "Password",
-                    placeholder = "••••••••",
-                )
-                Spacer(Modifier.height(Spacing.xs))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    AppButtonTonal(
-                        text = "Cancel",
-                        onClick = onDismiss,
-                        modifier = Modifier.weight(1f),
-                    )
-                    AppButton(
-                        text = if (isSignUpMode) "Sign Up" else "Sign In",
-                        onClick = {
-                            if (email.isNotBlank() && password.isNotBlank()) {
-                                if (isSignUpMode) onSignUp(email.trim(), password)
-                                else onSignIn(email.trim(), password)
-                            }
-                        },
-                        modifier = Modifier.weight(1f),
-                    )
-                }
-                Spacer(Modifier.height(Spacing.xs))
-                Text(
-                    text = if (isSignUpMode) "Already have an account? Sign In" else "Don't have an account? Sign Up",
-                    style = labelM,
-                    color = AppColor.primary,
-                    modifier = Modifier.clickable { isSignUpMode = !isSignUpMode }.align(Alignment.CenterHorizontally),
-                )
-            }
-        }
     }
 }
 
