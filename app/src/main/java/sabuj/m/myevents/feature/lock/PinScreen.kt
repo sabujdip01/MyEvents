@@ -4,6 +4,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,17 +18,23 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Backspace
 import androidx.compose.material.icons.rounded.Fingerprint
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,33 +42,28 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.launch
 import sabuj.m.myevents.core.preview.LightDarkPreviews
 import sabuj.m.myevents.core.theme.AppColor
 import sabuj.m.myevents.core.theme.AppTheme
+import sabuj.m.myevents.core.theme.Radius
 import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.display
+import sabuj.m.myevents.core.theme.labelM
 import sabuj.m.myevents.core.theme.numberL
 import sabuj.m.myevents.core.theme.titleL
+import sabuj.m.myevents.core.theme.titleM
+import sabuj.m.myevents.core.ui.AppButton
+import sabuj.m.myevents.core.ui.AppButtonTonal
+import sabuj.m.myevents.core.ui.AppField
 import sabuj.m.myevents.core.ui.doodles.BgBlobs
 import kotlin.math.roundToInt
 
 /**
  * Shared PIN screen composable — used for both setup and unlock.
  * Design.md section 6.2.
- *
- * @param title         e.g. "Create your PIN" or "Enter PIN"
- * @param subtitle      Helper text below the title
- * @param pinLength     Current number of filled dots (0–4)
- * @param hasError      Whether to show the error shake animation
- * @param errorMessage  Error text shown below the dots
- * @param isLockedOut   When true the keypad is disabled, [lockedOutMessage] shown
- * @param lockedOutMessage  Countdown text
- * @param showFingerprint   Whether to show the fingerprint key (unlock only)
- * @param onDigit       Called when a digit key is pressed
- * @param onBackspace   Called when backspace is pressed
- * @param onFingerprint Called when the fingerprint key is pressed
  */
 @Composable
 fun PinScreen(
@@ -77,9 +79,12 @@ fun PinScreen(
     onDigit: (Int) -> Unit = {},
     onBackspace: () -> Unit = {},
     onFingerprint: () -> Unit = {},
+    onSignInWithEmail: ((String, String) -> Unit)? = null,
+    onSignInWithGoogle: (() -> Unit)? = null,
 ) {
-    // Shake animation for error — shakeKey increments on every new error so
-    // the effect fires even if hasError stays true (two wrong PINs in a row)
+    var showSignInDialog by remember { mutableStateOf(false) }
+
+    // Shake animation for error
     val shakeKey = remember(hasError) { if (hasError) System.currentTimeMillis() else 0L }
     val shakeOffset = remember { Animatable(0f) }
     LaunchedEffect(shakeKey) {
@@ -107,7 +112,7 @@ fun PinScreen(
                 .padding(horizontal = Spacing.lg),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(Modifier.fillMaxSize(0.18f))
+            Spacer(Modifier.fillMaxSize(0.14f))
 
             // Title
             Text(
@@ -116,7 +121,7 @@ fun PinScreen(
                 color     = AppColor.text,
                 textAlign = TextAlign.Center,
             )
-            Spacer(Modifier.height(Spacing.sm))
+            Spacer(Modifier.height(Spacing.xs))
 
             // Subtitle
             Text(
@@ -126,18 +131,30 @@ fun PinScreen(
                 textAlign = TextAlign.Center,
             )
 
-            // User Identity (if signed in)
+            // User Identity & Sign-In prompt
             val currentUser = remember {
                 runCatching { com.google.firebase.auth.FirebaseAuth.getInstance().currentUser }.getOrNull()
             }
-            val userEmail = currentUser?.email?.ifBlank { null } ?: currentUser?.displayName?.ifBlank { null }
+            val userName = currentUser?.displayName?.ifBlank { null }
+                ?: currentUser?.email?.substringBefore("@")?.replaceFirstChar { it.uppercase() }
+            val userEmail = currentUser?.email?.ifBlank { null }
+
             if (!userEmail.isNullOrEmpty()) {
                 Spacer(Modifier.height(Spacing.xs))
                 Text(
-                    text      = "Account: $userEmail",
-                    style     = sabuj.m.myevents.core.theme.labelM,
+                    text      = "Account: ${userName ?: ""} ($userEmail)",
+                    style     = labelM,
                     color     = AppColor.primary,
                     textAlign = TextAlign.Center,
+                )
+            } else if (onSignInWithEmail != null) {
+                Spacer(Modifier.height(Spacing.sm))
+                Text(
+                    text      = "Sign in with Email or Google",
+                    style     = labelM,
+                    color     = AppColor.primary,
+                    textAlign = TextAlign.Center,
+                    modifier  = Modifier.clickable { showSignInDialog = true },
                 )
             }
 
@@ -196,6 +213,89 @@ fun PinScreen(
             )
         }
     }
+
+    if (showSignInDialog && onSignInWithEmail != null) {
+        PinSignInDialog(
+            onDismiss          = { showSignInDialog = false },
+            onSignInWithEmail  = onSignInWithEmail,
+            onSignInWithGoogle = onSignInWithGoogle,
+        )
+    }
+}
+
+@Composable
+private fun PinSignInDialog(
+    onDismiss: () -> Unit,
+    onSignInWithEmail: (String, String) -> Unit,
+    onSignInWithGoogle: (() -> Unit)?,
+) {
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            shape    = RoundedCornerShape(Radius.dialog),
+            colors   = CardDefaults.cardColors(containerColor = AppColor.surface),
+            modifier = Modifier.width(374.dp).padding(Spacing.sm),
+        ) {
+            Column(
+                modifier = Modifier.padding(Spacing.lg),
+                verticalArrangement = Arrangement.spacedBy(Spacing.sm),
+            ) {
+                Text("Sign In", style = titleM, color = AppColor.text)
+                Text(
+                    text = "Sign in with your Email & Password or Google account to pull your data",
+                    style = labelM,
+                    color = AppColor.text2,
+                )
+                Spacer(Modifier.height(Spacing.xs))
+                AppField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = "Email Address",
+                    placeholder = "you@example.com",
+                )
+                AppField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = "Password",
+                    placeholder = "••••••••",
+                )
+                Spacer(Modifier.height(Spacing.xs))
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    AppButtonTonal(
+                        text = "Cancel",
+                        onClick = onDismiss,
+                        modifier = Modifier.weight(1f),
+                    )
+                    AppButton(
+                        text = "Sign In",
+                        onClick = {
+                            if (email.isNotBlank() && password.isNotBlank()) {
+                                onSignInWithEmail(email.trim(), password)
+                                onDismiss()
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                if (onSignInWithGoogle != null) {
+                    Spacer(Modifier.height(Spacing.xs))
+                    AppButtonTonal(
+                        text = "Continue with Google",
+                        onClick = {
+                            onSignInWithGoogle()
+                            onDismiss()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            }
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -234,7 +334,6 @@ private fun PinKeypad(
         }
         // Bottom row: fingerprint | 0 | backspace
         Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xl3)) {
-            // Fingerprint (unlock) or empty (setup)
             PinKey(
                 icon    = if (showFingerprint) Icons.Rounded.Fingerprint else null,
                 label   = "",

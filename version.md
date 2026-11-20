@@ -4,7 +4,8 @@ Current: 1.0.0
 
 | Version   | Phase              | Build | Commit    | Summary                                                                                             |
 | --------- | ------------------ | ----- | --------- | --------------------------------------------------------------------------------------------------- |
-| 1.0.0     | Release            | 8     | -         | feat(sync): add email/pass & google auth, remote pin sync, full data pull from cloud                |
+| 1.0.0     | Release            | 9     | -         | feat(auth/ui): show user name & email in drawer footer, add sign in on pin screen                   |
+| 1.0.0     | Release            | 8     | 480f91b   | feat(sync): add email/pass & google auth, remote pin sync, full data pull from cloud                |
 | 1.0.0     | Release            | 7     | e0be562   | feat(ui): display user details in nav drawer footer & pin screen, fix web softDeleteEvent           |
 | 1.0.0     | Release            | 6     | -         | fix(events): fix calendar grid offset for Sunday-first day of week headers                          |
 | 1.0.0     | Release            | 5     | 1867125   | docs(release): add official RELEASE_NOTES_v1.0.0.md for My Events 1.0.0 release                     |

@@ -201,14 +201,14 @@ fun EventDetailsContent(
                 icon      = AppIcon.Bookings.fallback,
                 label     = "Booking / Contracts",
                 value     = bookingCount.toString(),
-                caption   = if (bookingCount == 1) "contract" else "contracts",
+                caption   = if (bookingCount == 1) "Contract" else "Contracts",
                 modifier  = Modifier.weight(1f),
             )
             StatTile(
                 icon    = Icons.Rounded.Group,
                 label   = "Guests",
                 value   = inviteeCount.toString(),
-                caption = if (inviteeCount == 1) "person" else "people",
+                caption = if (inviteeCount == 1) "Person" else "People",
                 modifier = Modifier.weight(1f),
             )
         }

@@ -71,6 +71,24 @@ class LockViewModel @Inject constructor(
 
     val isBiometricEnabled: Boolean get() = pinStore.isBiometricEnabled
 
+    fun signInWithEmail(email: String, pass: String) {
+        viewModelScope.launch {
+            _state.update { it.copy(error = "Signing in...") }
+            val res = authManager.signInWithEmail(email, pass)
+            if (res.isSuccess) {
+                val uid = res.getOrNull()?.uid
+                if (uid != null) {
+                    syncRepo.syncRemotePin(uid)
+                    syncRepo.performSync()
+                }
+                _state.update { it.copy(error = "Signed in as ${res.getOrNull()?.email}") }
+            } else {
+                val err = res.exceptionOrNull()?.localizedMessage ?: "Sign in failed"
+                _state.update { it.copy(error = err) }
+            }
+        }
+    }
+
     // -----------------------------------------------------------------------
     // Events
     // -----------------------------------------------------------------------

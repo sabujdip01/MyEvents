@@ -226,8 +226,10 @@ private fun UserDrawerFooter() {
     val currentUser = androidx.compose.runtime.remember {
         runCatching { com.google.firebase.auth.FirebaseAuth.getInstance().currentUser }.getOrNull()
     }
-    val emailText = currentUser?.email?.ifBlank { null }
-        ?: currentUser?.displayName?.ifBlank { null }
+    val name = currentUser?.displayName?.ifBlank { null }
+        ?: currentUser?.email?.substringBefore("@")?.replaceFirstChar { it.uppercase() }
+        ?: "User"
+    val email = currentUser?.email?.ifBlank { null }
         ?: currentUser?.uid?.let { "UID: ${it.take(12)}…" }
         ?: "Web Companion Connected"
 
@@ -254,14 +256,16 @@ private fun UserDrawerFooter() {
             Spacer(Modifier.width(Spacing.md))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Signed in as",
-                    style = sabuj.m.myevents.core.theme.labelM,
-                    color = AppColor.text3,
-                )
-                Text(
-                    text = emailText,
+                    text = name,
                     style = titleS,
                     color = AppColor.text,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                )
+                Text(
+                    text = email,
+                    style = sabuj.m.myevents.core.theme.labelM,
+                    color = AppColor.text2,
                     maxLines = 1,
                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                 )

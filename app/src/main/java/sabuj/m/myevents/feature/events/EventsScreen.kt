@@ -238,7 +238,7 @@ fun EventsContent(
                         }
                     } else {
                         Text(
-                            text     = "No events planned for this month",
+                            text     = "No event planned for this month",
                             style    = bodyM,
                             color    = AppColor.text2,
                             modifier = Modifier.padding(vertical = Spacing.xs),

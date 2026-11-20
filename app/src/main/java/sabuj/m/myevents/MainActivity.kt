@@ -118,6 +118,7 @@ class MainActivity : FragmentActivity() {
                                 showFingerprint = false,
                                 onDigit         = { lockViewModel.onEvent(LockEvent.DigitPressed(it)) },
                                 onBackspace     = { lockViewModel.onEvent(LockEvent.BackspacePressed) },
+                                onSignInWithEmail = { email, pass -> lockViewModel.signInWithEmail(email, pass) },
                             )
                         }
                         else -> {
@@ -141,6 +142,7 @@ class MainActivity : FragmentActivity() {
                                 onDigit          = { lockViewModel.onEvent(LockEvent.DigitPressed(it)) },
                                 onBackspace      = { lockViewModel.onEvent(LockEvent.BackspacePressed) },
                                 onFingerprint    = { if (bioEnabled && isBiometricAvailable()) showBiometricPrompt() },
+                                onSignInWithEmail = { email, pass -> lockViewModel.signInWithEmail(email, pass) },
                             )
                         }
                     }
