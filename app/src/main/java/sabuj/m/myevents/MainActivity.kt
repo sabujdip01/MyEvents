@@ -51,12 +51,9 @@ import androidx.compose.runtime.Composable
 /**
  * Single Activity. Flow:
  *  1. System splash screen (~500 ms via SplashScreen API)
- *  2. No PIN set   → PIN setup screen
- *  3. PIN set      → PIN unlock screen (biometric prompt on fingerprint tap, PIN fallback)
+ *  2. Mandatory Sign-In / PIN setup
+ *  3. PIN unlock screen (biometric prompt on fingerprint tap, PIN fallback)
  *  4. Authenticated → NavHost (drawer + all screens)
- *
- * Re-lock rule (S1-05): if the app is in the background for more than
- * [RE_LOCK_THRESHOLD_MS] (60 s), the unlock state is cleared on resume.
  */
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
@@ -85,14 +82,28 @@ class MainActivity : FragmentActivity() {
                 sabuj.m.myevents.data.settings.ThemeMode.System -> isSystemInDarkTheme()
             }
 
-            // A1 & A2: Splash duration increased by 100% (1.2s), persisted via rememberSaveable
-            // so theme/configuration changes never re-trigger a glimpse of the splash screen.
             var showSplash by rememberSaveable { mutableStateOf(true) }
 
             LaunchedEffect(Unit) {
                 if (showSplash) {
                     delay(1200.milliseconds)
                     showSplash = false
+                }
+            }
+
+            val googleSignInLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+                contract = androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
+            ) { result ->
+                try {
+                    val task = com.google.android.gms.auth.api.signin.GoogleSignIn.getSignedInAccountFromIntent(result.data)
+                    val account = task.getResult(com.google.android.gms.common.api.ApiException::class.java)
+                    val idToken = account?.idToken
+                    if (idToken != null) {
+                        val credential = com.google.firebase.auth.GoogleAuthProvider.getCredential(idToken, null)
+                        lockViewModel.signInWithCredential(credential)
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("GoogleSignIn", "Google Sign-In Intent result failed: ${e.message}", e)
                 }
             }
 
@@ -114,7 +125,7 @@ class MainActivity : FragmentActivity() {
                                 needSignIn        = true,
                                 errorMessage      = state.error,
                                 onSignInWithEmail = { email, pass -> lockViewModel.signInWithEmail(email, pass) },
-                                onSignInWithGoogle = { launchGoogleSignIn() },
+                                onSignInWithGoogle = { launchGoogleSignIn(googleSignInLauncher) },
                             )
                         }
                         state.authStep == sabuj.m.myevents.feature.lock.AuthStep.NEED_PIN_SETUP -> {
@@ -209,13 +220,13 @@ class MainActivity : FragmentActivity() {
         BiometricManager.from(this)
             .canAuthenticate(BS) == BiometricManager.BIOMETRIC_SUCCESS
 
-    private fun launchGoogleSignIn() {
+    private fun launchGoogleSignIn(launcher: androidx.activity.result.ActivityResultLauncher<android.content.Intent>) {
         lifecycleScope.launch {
+            val resId = resources.getIdentifier("default_web_client_id", "string", packageName)
+            val webClientId = if (resId != 0) getString(resId) else "10902216485-7fslbbbrv1gj1ukspn1eph8d6l34t0bn.apps.googleusercontent.com"
+
             try {
                 val credentialManager = androidx.credentials.CredentialManager.create(this@MainActivity)
-
-                val resId = resources.getIdentifier("default_web_client_id", "string", packageName)
-                val webClientId = if (resId != 0) getString(resId) else "10902216485-7fslbbbrv1gj1ukspn1eph8d6l34t0bn.apps.googleusercontent.com"
 
                 val googleIdOption = com.google.android.libraries.identity.googleid.GetGoogleIdOption.Builder()
                     .setFilterByAuthorizedAccounts(false)
@@ -236,10 +247,31 @@ class MainActivity : FragmentActivity() {
                     val googleIdTokenCredential = com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.createFrom(credential.data)
                     val firebaseCredential = com.google.firebase.auth.GoogleAuthProvider.getCredential(googleIdTokenCredential.idToken, null)
                     lockViewModel.signInWithCredential(firebaseCredential)
+                } else {
+                    fallbackGoogleSignIn(webClientId, launcher)
                 }
             } catch (e: Exception) {
-                android.util.Log.e("GoogleSignIn", "Google Sign-In failed: ${e.message}", e)
+                android.util.Log.w("GoogleSignIn", "CredentialManager failed, falling back: ${e.message}")
+                fallbackGoogleSignIn(webClientId, launcher)
             }
+        }
+    }
+
+    private fun fallbackGoogleSignIn(webClientId: String, launcher: androidx.activity.result.ActivityResultLauncher<android.content.Intent>) {
+        try {
+            val gso = com.google.android.gms.auth.api.signin.GoogleSignInOptions.Builder(
+                com.google.android.gms.auth.api.signin.GoogleSignInOptions.DEFAULT_SIGN_IN
+            )
+                .requestIdToken(webClientId)
+                .requestEmail()
+                .build()
+
+            val googleSignInClient = com.google.android.gms.auth.api.signin.GoogleSignIn.getClient(this, gso)
+            googleSignInClient.signOut().addOnCompleteListener {
+                launcher.launch(googleSignInClient.signInIntent)
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("GoogleSignIn", "Fallback Google Sign-In failed: ${e.message}", e)
         }
     }
 
