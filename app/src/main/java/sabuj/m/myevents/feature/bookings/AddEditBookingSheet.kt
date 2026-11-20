@@ -504,7 +504,7 @@ private fun EventDropdown(
         modifier            = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        Text(text = "For event", style = labelM, color = AppColor.text2)
+        Text(text = "For Event", style = labelM, color = AppColor.text2)
         if (isError && errorText != null) {
             Text(text = errorText, style = bodyM, color = AppColor.danger)
         }

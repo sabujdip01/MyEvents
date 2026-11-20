@@ -124,7 +124,7 @@ private fun HomeContent(
         Column(
             modifier = Modifier.fillMaxSize(),
         ) {
-            // Fixed Top Bar with Nav Icon & "My Events" title (does not scroll off screen)
+            // Fixed Top Bar with Nav Icon & "My Events" title (does not scroll off-screen)
             Box(modifier = Modifier.padding(horizontal = Spacing.lg)) {
                 sabuj.m.myevents.core.ui.AppTopBar(
                     titleText   = "My Events",
@@ -258,7 +258,7 @@ private fun UpcomingEventsCard(
                 CardIcon(icon = AppIcon.Events.fallback, contentDescription = "")
                 Spacer(Modifier.width(Spacing.md))
                 Text("Upcoming Events", style = titleM, color = AppColor.text, modifier = Modifier.weight(1f))
-                Pill(text = "${activeEvents.size} events")
+                Pill(text = "${activeEvents.size} Events")
             }
             HorizontalDivider(modifier = Modifier.padding(vertical = Spacing.sm), color = AppColor.outlineVariant)
 
@@ -267,9 +267,9 @@ private fun UpcomingEventsCard(
                     modifier                = Modifier.fillMaxWidth().padding(vertical = Spacing.md),
                     horizontalAlignment     = Alignment.CenterHorizontally,
                 ) {
-                    Text("No events yet", style = titleS, color = AppColor.text2)
+                    Text("No Events yet", style = titleS, color = AppColor.text2)
                     Spacer(Modifier.height(Spacing.sm))
-                    AppButtonTonal("Add event", onClick = onAddEvent, leadingIcon = Icons.Rounded.Add)
+                    AppButtonTonal("Add Event", onClick = onAddEvent, leadingIcon = Icons.Rounded.Add)
                 }
             } else {
                 activeEvents.forEach { event ->
@@ -292,7 +292,7 @@ private fun EventRow(event: EventSummary, onClick: () -> Unit) {
     val pillText = when {
         daysLeft == 0L -> "Today"
         daysLeft < 0L  -> "Passed"
-        else           -> "$daysLeft days left"
+        else           -> "$daysLeft Days left"
     }
     Surface(
         onClick  = onClick,
@@ -357,7 +357,7 @@ private fun BookingsDoneCard(done: Int, total: Int, modifier: Modifier) {
                     )
                     Spacer(Modifier.height(2.dp))
                     Text(
-                        text      = "bookings made",
+                        text      = "Bookings made",
                         style     = bodyM,
                         color     = AppColor.text2,
                         textAlign = TextAlign.Center,
@@ -401,7 +401,7 @@ private fun BookingAmountCard(paidPaise: Long, totalPaise: Long, modifier: Modif
                     )
                     Spacer(Modifier.height(2.dp))
                     Text(
-                        text      = "paid of ${MoneyFormatter.format(totalPaise)}",
+                        text      = "aid of ${MoneyFormatter.format(totalPaise)}",
                         style     = bodyM,
                         color     = AppColor.text2,
                         textAlign = TextAlign.Center,

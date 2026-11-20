@@ -123,8 +123,8 @@ class GuestsViewModel @Inject constructor(
                     )
                     when (result) {
                         InviteeSaveResult.Success     -> hideSheet()
-                        InviteeSaveResult.NameBlank   -> applyInviteeError(sheet, nameError = "Enter guest name")
-                        InviteeSaveResult.EventsEmpty -> applyInviteeError(sheet, eventsError = "Select at least one event")
+                        InviteeSaveResult.NameBlank   -> applyInviteeError(sheet, nameError = "Enter Guest Name")
+                        InviteeSaveResult.EventsEmpty -> applyInviteeError(sheet, eventsError = "Select at least one Event")
                     }
                 }
                 is GuestSheetState.EditGuest -> {
@@ -140,7 +140,7 @@ class GuestsViewModel @Inject constructor(
                     )
                     when (result) {
                         InviteeSaveResult.Success   -> hideSheet()
-                        InviteeSaveResult.NameBlank -> applyInviteeError(sheet, nameError = "Enter guest name")
+                        InviteeSaveResult.NameBlank -> applyInviteeError(sheet, nameError = "Enter Guest Name")
                         else                        -> Unit
                     }
                 }
@@ -204,7 +204,7 @@ class GuestsViewModel @Inject constructor(
                 it.copy(
                     isDeleteMode      = false,
                     selectedForDelete = emptySet(),
-                    snackbarMessage   = "${ids.size} guests deleted",
+                    snackbarMessage   = "${ids.size} Guests deleted",
                 )
             }
         }

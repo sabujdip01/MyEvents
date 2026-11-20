@@ -285,7 +285,7 @@ fun AddEditGuestSheet(
 
             // Invitation type picker — Call and Card only
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(text = "Invitation through", style = labelM, color = AppColor.text2)
+                Text(text = "Invitation Through", style = labelM, color = AppColor.text2)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf(InvitationType.Call, InvitationType.Card).forEach { type ->
                         val isSelected = invitationType == type

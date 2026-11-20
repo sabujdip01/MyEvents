@@ -15,7 +15,7 @@ private fun AddGuestSheetPreview() {
                 name             = "Sharma Family",
                 selectedEventIds = setOf(PreviewData.sampleEvents.first().id),
                 expectedCount    = 4,
-                address          = "123 MG Road, Bengaluru",
+                address          = "123 MG Road, Kolkata",
                 invited          = true,
                 invitationType   = InvitationType.Card,
                 note             = "Needs hotel room",

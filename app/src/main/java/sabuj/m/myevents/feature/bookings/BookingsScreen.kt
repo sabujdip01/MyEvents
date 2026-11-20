@@ -140,7 +140,7 @@ fun BookingsScreen(
                             )
                             Spacer(Modifier.height(Spacing.sm))
                             Text(
-                                text  = "Tap + to add your First Booking", // TODO strings.xml
+                                text  = "Tap + to add your first Booking", // TODO strings.xml
                                 style = labelM,
                                 color = AppColor.text3,
                             )
@@ -176,7 +176,7 @@ fun BookingsScreen(
         sabuj.m.myevents.core.ui.AppFab(
             onClick = { viewModel.openAddSheet() },
             icon    = Icons.Rounded.Add,
-            contentDescription = "Add booking",
+            contentDescription = "Add Booking",
             enabled = uiState.mode != BookingsMode.Edit,
             modifier = Modifier.align(Alignment.BottomEnd),
         )
@@ -252,7 +252,7 @@ fun BookingsScreen(
         val booking = uiState.bookings.find { it.id == deleteId }
         sabuj.m.myevents.core.ui.AppDeleteDialog(
             title     = "Delete booking?",
-            message   = "\"${booking?.title ?: ""}\" and all its payments will be permanently removed.",
+            message   = "\"${booking?.title ?: ""}\" and all its Payments will be Permanently Deleted.",
             onDismiss = { viewModel.dismissDeleteDialog() },
             onConfirm = { viewModel.confirmDelete() },
         )

@@ -178,7 +178,7 @@ fun AddEditTaskSheet(
                 TaskTextField(
                     value          = title,
                     onValueChange  = onTitleChange,
-                    label          = "Item list title",
+                    label          = "Item List Title",
                     placeholder    = "e.g. Mandap decoration items",
                     isError        = titleError != null,
                     supportingText = titleError,
@@ -197,14 +197,14 @@ fun AddEditTaskSheet(
                     if (selIcon.customRes != null) {
                         Image(
                             painter            = painterResource(selIcon.customRes!!),
-                            contentDescription = "Select icon",
+                            contentDescription = "Select Icon",
                             modifier           = Modifier.size(38.dp),
                             contentScale       = ContentScale.Fit,
                         )
                     } else {
                         Icon(
                             imageVector        = selIcon.fallback,
-                            contentDescription = "Select icon",
+                            contentDescription = "Select Icon",
                             tint               = AppColor.primary,
                             modifier           = Modifier.size(38.dp),
                         )
@@ -235,7 +235,7 @@ fun AddEditTaskSheet(
                 trailingIcon  = {
                     Icon(
                         imageVector        = Icons.Rounded.DateRange,
-                        contentDescription = "Pick date",
+                        contentDescription = "Pick Date",
                         tint               = AppColor.primary,
                         modifier           = Modifier.clickable {
                             val cal = Calendar.getInstance()
@@ -289,7 +289,7 @@ fun AddEditTaskSheet(
                             onValueChange = { newName ->
                                 onItemChange(index, newName, item.pricePaise, item.checked)
                             },
-                            placeholder   = { Text("Item name", style = labelM, color = AppColor.text3) },
+                            placeholder   = { Text("Item Name", style = labelM, color = AppColor.text3) },
                             textStyle     = labelM.copy(color = AppColor.text),
                             modifier      = Modifier.weight(1f).height(48.dp),
                             singleLine    = true,
@@ -335,7 +335,7 @@ fun AddEditTaskSheet(
             TaskTextField(
                 value         = MoneyFormatter.format(calculatedTotalPaise),
                 onValueChange = {},
-                label         = "Total amount",
+                label         = "Total Amount",
                 readOnly      = true,
             )
 
@@ -347,7 +347,7 @@ fun AddEditTaskSheet(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text     = "All item(s) collected?",
+                    text     = "All item(s) Collected?",
                     style    = labelL,
                     color    = AppColor.text,
                     modifier = Modifier.weight(1f),
@@ -419,7 +419,7 @@ private fun TaskEventDropdownSelector(
         modifier            = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        Text(text = "For event", style = labelM, color = AppColor.text2)
+        Text(text = "For Event", style = labelM, color = AppColor.text2)
         if (isError && errorText != null) {
             Text(text = errorText, style = bodyM, color = AppColor.danger)
         }

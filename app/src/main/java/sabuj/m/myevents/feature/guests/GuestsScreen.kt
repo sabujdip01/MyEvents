@@ -159,7 +159,7 @@ fun GuestsScreen(
                 // Guest list
                 val list = uiState.filteredInvitees
                 if (list.isEmpty()) {
-                    EmptyListNotice(text = "No guests added yet")
+                    EmptyListNotice(text = "No Guests added yet")
                 } else {
                     GuestsTableContent(
                         invitees               = list,
@@ -226,7 +226,7 @@ fun GuestsScreen(
     uiState.pendingDeleteInvitee?.let { inv ->
         AppDeleteDialog(
             title     = "Delete Guest?",
-            message   = "\"${inv.name}\" will be permanently deleted.",
+            message   = "\"${inv.name}\" will be Permanently Deleted.",
             onDismiss = { viewModel.cancelDeleteSingleInvitee() },
             onConfirm = { viewModel.confirmDeleteSingleInvitee() },
         )
@@ -271,7 +271,7 @@ private fun GuestsTopBar(
             ) {
                 Icon(
                     imageVector        = Icons.Rounded.MailOutline,
-                    contentDescription = "Extra invitation cards",
+                    contentDescription = "Extra Invitation Cards",
                     tint               = AppColor.primary,
                     modifier           = Modifier.size(20.dp),
                 )
@@ -380,7 +380,7 @@ private fun GuestSearchAndFilterBar(
         OutlinedTextField(
             value          = searchQuery,
             onValueChange  = onSearchQueryChange,
-            placeholder    = { Text("Search guest or address...", style = bodyM, color = AppColor.text3) },
+            placeholder    = { Text("Search Guest or Address...", style = bodyM, color = AppColor.text3) },
             leadingIcon    = { Icon(Icons.Rounded.Search, null, tint = AppColor.text3) },
             trailingIcon   = {
                 if (searchQuery.isNotEmpty()) {
@@ -674,7 +674,7 @@ fun GuestSummaryFooter(
                     )
                     Spacer(Modifier.height(2.dp))
                     Text(
-                        text      = "Invited guests",
+                        text      = "Invited Guests",
                         style     = bodyM.copy(fontSize = 12.5.sp),
                         color     = AppColor.onSuccessContainer,
                         maxLines  = 1,
@@ -720,7 +720,7 @@ fun GuestSummaryFooter(
                     )
                     Spacer(Modifier.height(2.dp))
                     Text(
-                        text      = "Invited families",
+                        text      = "Invited Families",
                         style     = bodyM.copy(fontSize = 12.5.sp),
                         color     = AppColor.text2,
                         maxLines  = 1,
@@ -761,7 +761,7 @@ private fun ExtraCardsDialog(
                 verticalArrangement = Arrangement.spacedBy(Spacing.md),
             ) {
                 Text(
-                    text  = "Extra invitation cards",
+                    text  = "Extra Invitation Cards",
                     style = titleM,
                     color = AppColor.text,
                 )
@@ -773,7 +773,7 @@ private fun ExtraCardsDialog(
                         countText = text
                         count     = text.toIntOrNull()?.coerceAtLeast(0) ?: 0
                     },
-                    label         = { Text("Number of extra cards", style = bodyM) },
+                    label         = { Text("Number of extra Cards", style = bodyM) },
                     placeholder   = { Text("0", style = bodyM, color = AppColor.text2) },
                     modifier      = Modifier.fillMaxWidth(),
                     singleLine    = true,

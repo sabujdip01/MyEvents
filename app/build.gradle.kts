@@ -118,6 +118,12 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
 
+    // --- Credential Manager & Google Sign-In ---
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.google.identity.googleid)
+    implementation(libs.play.services.auth)
+
     // --- Security & Biometrics ---
     implementation(libs.androidx.security.crypto)
     implementation(libs.androidx.biometric)

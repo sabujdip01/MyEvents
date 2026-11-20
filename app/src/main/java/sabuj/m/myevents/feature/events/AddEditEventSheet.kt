@@ -203,7 +203,7 @@ fun AddEditEventSheet(
                     ) {
                         Icon(
                             imageVector        = Icons.Rounded.DateRange,
-                            contentDescription = "Event date",
+                            contentDescription = "Event Date",
                             modifier           = Modifier.size(20.dp),
                         )
                         Spacer(Modifier.width(4.dp))

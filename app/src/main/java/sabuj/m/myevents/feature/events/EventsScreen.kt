@@ -217,7 +217,7 @@ fun EventsContent(
                         .padding(bottom = 32.dp),
                 ) {
                     Text(
-                        text       = "Event(s) in this month:",
+                        text       = "Event(s) in this Month:",
                         style      = titleM,
                         fontWeight = FontWeight.Bold,
                         color      = AppColor.text,
@@ -238,7 +238,7 @@ fun EventsContent(
                         }
                     } else {
                         Text(
-                            text     = "No event planned for this month",
+                            text     = "No Event in this Month",
                             style    = bodyM,
                             color    = AppColor.text2,
                             modifier = Modifier.padding(vertical = Spacing.xs),
@@ -300,7 +300,7 @@ fun EventsContent(
         )
         is SheetMode.ConfirmDelete -> sabuj.m.myevents.core.ui.AppDeleteDialog(
             title     = "Delete event?",
-            message   = "\"${mode.event.title}\" and all its linked bookings, expenses, invitees and tasks will be completely removed.",
+            message   = "\"${mode.event.title}\" and all its linked Bookings, Expenses and Guests will be Permanently Deleted.",
             onDismiss = { onEvent(EventsUiEvent.SheetDismissed) },
             onConfirm = { onEvent(EventsUiEvent.DeleteConfirmed) },
         )

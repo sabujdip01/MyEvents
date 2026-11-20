@@ -148,9 +148,9 @@ fun ItemListsScreen(
                         contentAlignment = Alignment.Center,
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(text = "No item lists yet", style = titleL, color = AppColor.text2)
+                            Text(text = "No Item List yet", style = titleL, color = AppColor.text2)
                             Spacer(Modifier.height(Spacing.sm))
-                            Text(text = "Tap + to add an item list", style = labelM, color = AppColor.text3)
+                            Text(text = "Tap + to add an Item List", style = labelM, color = AppColor.text3)
                         }
                     }
                 } else {

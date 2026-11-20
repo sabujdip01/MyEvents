@@ -17,7 +17,9 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Backspace
 import androidx.compose.material.icons.rounded.Fingerprint
@@ -34,25 +36,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.IntOffset
+import sabuj.m.myevents.R
 import sabuj.m.myevents.core.preview.LightDarkPreviews
 import sabuj.m.myevents.core.theme.AppColor
 import sabuj.m.myevents.core.theme.AppTheme
+import sabuj.m.myevents.core.theme.Radius
 import sabuj.m.myevents.core.theme.Spacing
 import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.display
 import sabuj.m.myevents.core.theme.labelM
 import sabuj.m.myevents.core.theme.numberL
+import sabuj.m.myevents.core.theme.titleS
 import sabuj.m.myevents.core.ui.AppButton
-import sabuj.m.myevents.core.ui.AppButtonTonal
 import sabuj.m.myevents.core.ui.AppField
 import sabuj.m.myevents.core.ui.doodles.BgBlobs
 import kotlin.math.roundToInt
 
 /**
- * Shared PIN & Login screen composable.
+ * Shared PIN & Mandatory Sign-In screen composable.
  */
 @Composable
 fun PinScreen(
@@ -102,7 +107,7 @@ fun PinScreen(
                 .padding(horizontal = Spacing.lg),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(Modifier.fillMaxSize(0.12f))
+            Spacer(Modifier.fillMaxSize(0.10f))
 
             if (needSignIn) {
                 // ── MANDATORY SIGN-IN LAYOUT ──
@@ -119,7 +124,7 @@ fun PinScreen(
                     color     = AppColor.text2,
                     textAlign = TextAlign.Center,
                 )
-                Spacer(Modifier.height(Spacing.xl))
+                Spacer(Modifier.height(Spacing.lg))
 
                 var emailInput by remember { mutableStateOf("") }
                 var passwordInput by remember { mutableStateOf("") }
@@ -163,11 +168,32 @@ fun PinScreen(
                         modifier = Modifier.fillMaxWidth(),
                     )
 
-                    AppButtonTonal(
-                        text = "Continue with Google",
+                    // Continue with Google Button featuring official Google Logo icon
+                    Surface(
                         onClick = onSignInWithGoogle,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                        shape = RoundedCornerShape(Radius.card),
+                        color = AppColor.surfaceVariant,
+                        modifier = Modifier.fillMaxWidth().height(52.dp),
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxSize(),
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_google_logo),
+                                contentDescription = "Google Logo",
+                                tint = Color.Unspecified,
+                                modifier = Modifier.size(22.dp),
+                            )
+                            Spacer(Modifier.width(Spacing.md))
+                            Text(
+                                text = "Continue with Google",
+                                style = titleS,
+                                color = AppColor.text,
+                            )
+                        }
+                    }
                 }
             } else {
                 // ── PIN SETUP / UNLOCK LAYOUT ──

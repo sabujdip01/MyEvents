@@ -4,7 +4,8 @@ Current: 1.0.0
 
 | Version   | Phase              | Build | Commit    | Summary                                                                                             |
 | --------- | ------------------ | ----- | --------- | --------------------------------------------------------------------------------------------------- |
-| 1.0.0     | Release            | 11    | -         | fix(auth): restore signUpWithEmail method in FirebaseAuthManager for SettingsViewModel              |
+| 1.0.0     | Release            | 12    | -         | feat(auth/google): add credential manager google sign-in with google logo & navbar user details     |
+| 1.0.0     | Release            | 11    | c0682e7   | fix(auth): restore signUpWithEmail method in FirebaseAuthManager for SettingsViewModel              |
 | 1.0.0     | Release            | 10    | 3064b54   | feat(auth/sync): mandatory login flow, existing/new user firestore pin check & cloud data pull       |
 | 1.0.0     | Release            | 9     | b2d2cd2   | feat(auth/ui): show user name & email in drawer footer, add sign in on pin screen                   |
 | 1.0.0     | Release            | 8     | 480f91b   | feat(sync): add email/pass & google auth, remote pin sync, full data pull from cloud                |

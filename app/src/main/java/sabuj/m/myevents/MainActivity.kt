@@ -112,6 +112,7 @@ class MainActivity : FragmentActivity() {
                                 needSignIn        = true,
                                 errorMessage      = state.error,
                                 onSignInWithEmail = { email, pass -> lockViewModel.signInWithEmail(email, pass) },
+                                onSignInWithGoogle = { launchGoogleSignIn() },
                             )
                         }
                         state.authStep == sabuj.m.myevents.feature.lock.AuthStep.NEED_PIN_SETUP -> {
@@ -205,6 +206,40 @@ class MainActivity : FragmentActivity() {
     private fun isBiometricAvailable(): Boolean =
         BiometricManager.from(this)
             .canAuthenticate(BS) == BiometricManager.BIOMETRIC_SUCCESS
+
+    private fun launchGoogleSignIn() {
+        androidx.lifecycle.lifecycleScope.launch {
+            try {
+                val credentialManager = androidx.credentials.CredentialManager.create(this@MainActivity)
+
+                val resId = resources.getIdentifier("default_web_client_id", "string", packageName)
+                val webClientId = if (resId != 0) getString(resId) else "10902216485-dummy.apps.googleusercontent.com"
+
+                val googleIdOption = com.google.android.libraries.identity.googleid.GetGoogleIdOption.Builder()
+                    .setFilterByAuthorizedAccounts(false)
+                    .setServerClientId(webClientId)
+                    .setAutoSelectEnabled(false)
+                    .build()
+
+                val request = androidx.credentials.GetCredentialRequest.Builder()
+                    .addCredentialOption(googleIdOption)
+                    .build()
+
+                val result = credentialManager.getCredential(context = this@MainActivity, request = request)
+                val credential = result.credential
+
+                if (credential is androidx.credentials.CustomCredential &&
+                    credential.type == com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+                ) {
+                    val googleIdTokenCredential = com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.createFrom(credential.data)
+                    val firebaseCredential = com.google.firebase.auth.GoogleAuthProvider.getCredential(googleIdTokenCredential.idToken, null)
+                    lockViewModel.signInWithCredential(firebaseCredential)
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("GoogleSignIn", "Google Sign-In failed: ${e.message}", e)
+            }
+        }
+    }
 
     /** Launches the system BiometricPrompt dialog. */
     private fun showBiometricPrompt() {
