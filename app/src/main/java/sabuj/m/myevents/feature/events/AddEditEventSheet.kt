@@ -172,8 +172,8 @@ fun AddEditEventSheet(
             AppTextField(
                 value         = eventName,
                 onValueChange = { eventName = it },
-                label         = "Event name",
-                placeholder   = "e.g. Wedding, Engagement",
+                label         = "Event Name",
+                placeholder   = "e.g. Priya & Raj Wedding",
             )
 
             Spacer(Modifier.height(8.dp))
@@ -188,7 +188,7 @@ fun AddEditEventSheet(
                     AppTextField(
                         value         = DateUtils.formatDisplay(selectedDate),
                         onValueChange = {},
-                        label         = "Date",
+                        label         = "Event Date",
                         readOnly      = true,
                         modifier      = Modifier.weight(1f),
                     )
@@ -203,7 +203,7 @@ fun AddEditEventSheet(
                     ) {
                         Icon(
                             imageVector        = Icons.Rounded.DateRange,
-                            contentDescription = "Change date",
+                            contentDescription = "Event date",
                             modifier           = Modifier.size(20.dp),
                         )
                         Spacer(Modifier.width(4.dp))
@@ -214,7 +214,7 @@ fun AddEditEventSheet(
                 AppTextField(
                     value         = DateUtils.formatDisplay(selectedDate),
                     onValueChange = {},
-                    label         = "Date",
+                    label         = "Event  Date",
                     readOnly      = true,
                 )
             }

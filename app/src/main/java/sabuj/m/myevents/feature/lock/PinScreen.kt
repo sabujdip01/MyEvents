@@ -125,6 +125,22 @@ fun PinScreen(
                 color     = AppColor.text2,
                 textAlign = TextAlign.Center,
             )
+
+            // User Identity (if signed in)
+            val currentUser = remember {
+                runCatching { com.google.firebase.auth.FirebaseAuth.getInstance().currentUser }.getOrNull()
+            }
+            val userEmail = currentUser?.email?.ifBlank { null } ?: currentUser?.displayName?.ifBlank { null }
+            if (!userEmail.isNullOrEmpty()) {
+                Spacer(Modifier.height(Spacing.xs))
+                Text(
+                    text      = "Account: $userEmail",
+                    style     = sabuj.m.myevents.core.theme.labelM,
+                    color     = AppColor.primary,
+                    textAlign = TextAlign.Center,
+                )
+            }
+
             Spacer(Modifier.height(Spacing.xl2))
 
             // PIN dots

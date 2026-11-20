@@ -54,12 +54,12 @@ object DateUtils {
 
     /**
      * All dates in [yearMonth] as a list, with leading nulls so the first
-     * day falls on the correct column (Mon=0 … Sun=6 grid).
+     * day falls on the correct column (Sun=0 … Sat=6 grid).
      */
     fun calendarGrid(yearMonth: YearMonth): List<LocalDate?> {
         val first = yearMonth.atDay(1)
-        // Monday = 1 in ISO, so offset = dayOfWeek.value - 1
-        val offset = first.dayOfWeek.value - 1
+        // Sunday = 7 in ISO (Mon=1 ... Sun=7), so offset for Sun=0 grid is dayOfWeek.value % 7
+        val offset = first.dayOfWeek.value % 7
         val days = (1..yearMonth.lengthOfMonth()).map { yearMonth.atDay(it) }
         return List(offset) { null } + days
     }

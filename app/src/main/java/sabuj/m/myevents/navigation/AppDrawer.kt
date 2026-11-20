@@ -151,6 +151,11 @@ private fun DrawerSheet(
 
                 Spacer(Modifier.weight(1f))
 
+                // Logged in user details (end of nav menu, before art)
+                UserDrawerFooter()
+
+                Spacer(Modifier.height(Spacing.md))
+
                 // Bottom hero illustration
                 Box(
                     modifier = Modifier
@@ -212,6 +217,55 @@ private fun DrawerNavItem(
                     .clip(RoundedCornerShape(2.dp))
                     .background(AppColor.primary),
             )
+        }
+    }
+}
+
+@Composable
+private fun UserDrawerFooter() {
+    val currentUser = androidx.compose.runtime.remember {
+        runCatching { com.google.firebase.auth.FirebaseAuth.getInstance().currentUser }.getOrNull()
+    }
+    val emailText = currentUser?.email?.ifBlank { null }
+        ?: currentUser?.displayName?.ifBlank { null }
+        ?: currentUser?.uid?.let { "UID: ${it.take(12)}…" }
+        ?: "Web Companion Connected"
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = Spacing.md),
+        shape = RoundedCornerShape(Radius.card),
+        color = AppColor.primaryContainer.copy(alpha = 0.5f),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Spacing.md, vertical = Spacing.sm),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            IconChip(
+                icon               = AppIcon.Guests.fallback,
+                contentDescription = "User Profile",
+                size               = IconChipSize.Sm,
+                containerColor     = AppColor.primaryContainer,
+                iconColor          = AppColor.primary,
+            )
+            Spacer(Modifier.width(Spacing.md))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Signed in as",
+                    style = sabuj.m.myevents.core.theme.labelM,
+                    color = AppColor.text3,
+                )
+                Text(
+                    text = emailText,
+                    style = titleS,
+                    color = AppColor.text,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                )
+            }
         }
     }
 }

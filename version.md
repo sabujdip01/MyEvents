@@ -4,6 +4,12 @@ Current: 1.0.0
 
 | Version   | Phase              | Build | Commit    | Summary                                                                                             |
 | --------- | ------------------ | ----- | --------- | --------------------------------------------------------------------------------------------------- |
+| 1.0.0     | Release            | 7     | -         | feat(ui): display user details in nav drawer footer & pin screen, fix web softDeleteEvent           |
+| 1.0.0     | Release            | 6     | -         | fix(events): fix calendar grid offset for Sunday-first day of week headers                          |
+| 1.0.0     | Release            | 5     | 1867125   | docs(release): add official RELEASE_NOTES_v1.0.0.md for My Events 1.0.0 release                     |
+| 1.0.0     | Release            | 4     | d04d4f6   | docs(git): gitignore local project spec files and remove from remote repository                     |
+| 1.0.0     | Release            | 3     | 6fc9be6   | docs(readme): add project README.md with features, architecture, and setup instructions             |
+| 1.0.0     | Release            | 2     | 14d4bd9   | fix(build): fix manifest WorkManager lint error and add proguard-rules.pro                          |
 | 1.0.0     | Release            | 1     | 213e595   | release(v1.0.0): initial stable release with unified design, Room v9 migration, and merged docs       |
 | Final.1.6 | Final Verification | 6     | ee797b0   | refactor(clean): remove obsolete Gift feature & unused core UI components, update Home Guests card layout |
 | Final.1.5 | Final Verification | 5     | -         | style(ui): revert GuestSummaryFooter layout and HomeScreen 'of' font size to 19sp                   |

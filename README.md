@@ -25,7 +25,7 @@ An offline-first, privacy-focused Android application for managing events, vendo
 
 ## 🛠 Tech Stack & Architecture
 
-My Events follows modern Android development best practices and **Clean Architecture** principles with Unidirectional Data Flow (UDF):
+'My Events' follows modern Android development best practices and **Clean Architecture** principles with Unidirectional Data Flow (UDF):
 
 - **Language**: Kotlin 2.0+ (Coroutines, StateFlow, Flows)
 - **UI Framework**: Jetpack Compose, Material 3, Compose BOM
