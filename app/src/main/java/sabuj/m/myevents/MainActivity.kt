@@ -224,44 +224,10 @@ class MainActivity : FragmentActivity() {
             .canAuthenticate(BS) == BiometricManager.BIOMETRIC_SUCCESS
 
     private fun launchGoogleSignIn(launcher: androidx.activity.result.ActivityResultLauncher<android.content.Intent>) {
-        lifecycleScope.launch {
+        try {
             val resId = resources.getIdentifier("default_web_client_id", "string", packageName)
             val webClientId = if (resId != 0) getString(resId) else "10902216485-7fslbbbrv1gj1ukspn1eph8d6l34t0bn.apps.googleusercontent.com"
 
-            try {
-                val credentialManager = androidx.credentials.CredentialManager.create(this@MainActivity)
-
-                val googleIdOption = com.google.android.libraries.identity.googleid.GetGoogleIdOption.Builder()
-                    .setFilterByAuthorizedAccounts(false)
-                    .setServerClientId(webClientId)
-                    .setAutoSelectEnabled(false)
-                    .build()
-
-                val request = androidx.credentials.GetCredentialRequest.Builder()
-                    .addCredentialOption(googleIdOption)
-                    .build()
-
-                val result = credentialManager.getCredential(context = this@MainActivity, request = request)
-                val credential = result.credential
-
-                if (credential is androidx.credentials.CustomCredential &&
-                    credential.type == com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
-                ) {
-                    val googleIdTokenCredential = com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.createFrom(credential.data)
-                    val firebaseCredential = com.google.firebase.auth.GoogleAuthProvider.getCredential(googleIdTokenCredential.idToken, null)
-                    lockViewModel.signInWithCredential(firebaseCredential)
-                } else {
-                    fallbackGoogleSignIn(webClientId, launcher)
-                }
-            } catch (e: Exception) {
-                android.util.Log.w("GoogleSignIn", "CredentialManager failed, falling back: ${e.message}")
-                fallbackGoogleSignIn(webClientId, launcher)
-            }
-        }
-    }
-
-    private fun fallbackGoogleSignIn(webClientId: String, launcher: androidx.activity.result.ActivityResultLauncher<android.content.Intent>) {
-        try {
             val gso = com.google.android.gms.auth.api.signin.GoogleSignInOptions.Builder(
                 com.google.android.gms.auth.api.signin.GoogleSignInOptions.DEFAULT_SIGN_IN
             )
@@ -270,9 +236,11 @@ class MainActivity : FragmentActivity() {
                 .build()
 
             val googleSignInClient = com.google.android.gms.auth.api.signin.GoogleSignIn.getClient(this, gso)
-            launcher.launch(googleSignInClient.signInIntent)
+            googleSignInClient.signOut().addOnCompleteListener {
+                launcher.launch(googleSignInClient.signInIntent)
+            }
         } catch (e: Exception) {
-            android.util.Log.e("GoogleSignIn", "Fallback Google Sign-In failed: ${e.message}", e)
+            android.util.Log.e("GoogleSignIn", "Google Sign-In launch failed: ${e.message}", e)
             lockViewModel.setError("Google Sign-In failed: ${e.localizedMessage}")
         }
     }

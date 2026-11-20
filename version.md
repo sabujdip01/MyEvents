@@ -4,7 +4,8 @@ Current: 1.0.0
 
 | Version   | Phase              | Build | Commit    | Summary                                                                                             |
 | --------- | ------------------ | ----- | --------- | --------------------------------------------------------------------------------------------------- |
-| 1.0.0     | Release            | 18    | -         | fix(build): configure debug build signingConfig with MyEventSigner to resolve status 10             |
+| 1.0.0     | Release            | 19    | -         | fix(auth): streamline Google Sign-In intent launcher with forced account chooser reset              |
+| 1.0.0     | Release            | 18    | fd7e6b1   | fix(build): configure debug build signingConfig with MyEventSigner to resolve status 10             |
 | 1.0.0     | Release            | 17    | 48a8d3f   | fix(auth): fix Google Sign-In intent result handling and display errors on PinScreen                |
 | 1.0.0     | Release            | 16    | 63e050a   | refactor(settings): remove unused inline auth methods and add Sign Out action in SettingsScreen     |
 | 1.0.0     | Release            | 15    | 6b360d3   | refactor(settings): remove unused inline auth methods from SettingsViewModel                        |
