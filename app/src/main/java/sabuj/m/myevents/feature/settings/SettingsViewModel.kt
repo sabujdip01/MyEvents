@@ -36,7 +36,6 @@ data class SettingsUiState(
     val events: List<Event> = emptyList(),
     val isChangePinOpen: Boolean = false,
     val isExportDialogOpen: Boolean = false,
-    val isAuthDialogOpen: Boolean = false,
     val userEmail: String? = null,
     val isSignedIn: Boolean = false,
     val snackbarMessage: String? = null,
@@ -84,46 +83,6 @@ class SettingsViewModel @Inject constructor(
                 userEmail = user?.email?.ifBlank { null } ?: user?.displayName?.ifBlank { null },
                 isSignedIn = user != null && !user.isAnonymous,
             )
-        }
-    }
-
-    fun showAuthDialog() {
-        _uiState.update { it.copy(isAuthDialogOpen = true) }
-    }
-
-    fun hideAuthDialog() {
-        _uiState.update { it.copy(isAuthDialogOpen = false) }
-    }
-
-    fun signInWithEmail(email: String, pass: String) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(snackbarMessage = "Signing in...") }
-            val result = authManager.signInWithEmail(email, pass)
-            if (result.isSuccess) {
-                hideAuthDialog()
-                checkUserAccount()
-                _uiState.update { it.copy(snackbarMessage = "Signed in successfully! Pulling cloud data...") }
-                syncNow()
-            } else {
-                val err = result.exceptionOrNull()?.localizedMessage ?: "Invalid email or password"
-                _uiState.update { it.copy(snackbarMessage = "Sign in failed: $err") }
-            }
-        }
-    }
-
-    fun signUpWithEmail(email: String, pass: String) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(snackbarMessage = "Creating account...") }
-            val result = authManager.signUpWithEmail(email, pass)
-            if (result.isSuccess) {
-                hideAuthDialog()
-                checkUserAccount()
-                _uiState.update { it.copy(snackbarMessage = "Account created! Syncing with cloud...") }
-                syncNow()
-            } else {
-                val err = result.exceptionOrNull()?.localizedMessage ?: "Could not create account"
-                _uiState.update { it.copy(snackbarMessage = "Sign up failed: $err") }
-            }
         }
     }
 
@@ -194,10 +153,10 @@ class SettingsViewModel @Inject constructor(
 
     fun syncNow() {
         viewModelScope.launch {
-            _uiState.update { it.copy(snackbarMessage = "Syncing with cloud...") }
+            _uiState.update { it.copy(snackbarMessage = "Syncing with Cloud...") }
             val result = syncRepo.performSync()
             if (result.isSuccess) {
-                _uiState.update { it.copy(snackbarMessage = "Data sync completed successfully!") }
+                _uiState.update { it.copy(snackbarMessage = "Data Sync completed successfully!") }
             } else {
                 val err = result.exceptionOrNull()?.localizedMessage ?: "Check connection"
                 _uiState.update { it.copy(snackbarMessage = "Sync failed: $err") }
