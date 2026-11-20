@@ -144,7 +144,7 @@ fun AddEditGuestSheet(
             GuestTextField(
                 value          = name,
                 onValueChange  = onNameChange,
-                label          = "Relative / Family name",
+                label          = "Relative / Family Name",
                 placeholder    = "e.g. Sharma Family",
                 isError        = nameError != null,
                 supportingText = nameError,
@@ -154,7 +154,7 @@ fun AddEditGuestSheet(
 
             // For event single-select
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(text = "For event", style = labelM, color = AppColor.text2)
+                Text(text = "For Event", style = labelM, color = AppColor.text2)
                 if (eventsError != null) {
                     Text(text = eventsError, style = bodyM, color = AppColor.danger)
                 }
@@ -200,7 +200,7 @@ fun AddEditGuestSheet(
 
             // Expected guests count stepper
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(text = "Expected no. of guests", style = labelM, color = AppColor.text2)
+                Text(text = "Expected no. of Guests", style = labelM, color = AppColor.text2)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -242,7 +242,7 @@ fun AddEditGuestSheet(
                 value         = address,
                 onValueChange = onAddressChange,
                 label         = "Address",
-                placeholder   = "e.g. 123, MG Road, Bengaluru",
+                placeholder   = "e.g. 123, MG Road, Kolkata",
             )
 
             Spacer(Modifier.height(8.dp))
@@ -252,7 +252,7 @@ fun AddEditGuestSheet(
                 value         = note,
                 onValueChange = onNoteChange,
                 label         = "Note",
-                placeholder   = "e.g. Needs accommodation",
+                placeholder   = "e.g. Vegeterian",
             )
 
             Spacer(Modifier.height(10.dp))
@@ -263,7 +263,7 @@ fun AddEditGuestSheet(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text     = "Invited ?",
+                    text     = "Invited?",
                     style    = labelL,
                     color    = AppColor.text,
                     modifier = Modifier.weight(1f),

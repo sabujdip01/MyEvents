@@ -44,6 +44,11 @@ class FirebaseAuthManager @Inject constructor() {
         }
     }
 
+    suspend fun signUpWithEmail(email: String, pass: String): Result<FirebaseUser> = runCatching {
+        val createResult = auth.createUserWithEmailAndPassword(email, pass).await()
+        createResult.user ?: error("Sign up failed")
+    }
+
     suspend fun signInWithCredential(credential: AuthCredential): Result<FirebaseUser> = runCatching {
         val result = auth.signInWithCredential(credential).await()
         result.user ?: error("Google Sign in failed")
