@@ -1,10 +1,11 @@
 # Version History
 
-Current: 1.0.1
+Current: 1.0.2
 
 | Version   | Phase              | Build | Commit    | Summary                                                                                                                                |
 |-----------|--------------------|-------|-----------|----------------------------------------------------------------------------------------------------------------------------------------|
-| 1.0.1     | Release            | 1     | -         | release(v1.0.1): immediate sign-out re-locking, real-time sync capabilities, and version 1.0.1 bump                                    |
+| 1.0.2     | Release            | 2     | -         | release(v1.0.2): real-time Firestore sync listeners, remove Sync Now button, version 1.0.2 bump                                       |
+| 1.0.1     | Release            | 1     | c1b1a27   | release(v1.0.1): immediate sign-out re-locking, real-time sync capabilities, and version 1.0.1 bump                                    |
 | 1.0.0     | Release            | 20    | 2741490   | fix(auth): add authStateListener in LockViewModel to immediately lock and force sign-in on sign-out                                    |
 | 1.0.0     | Release            | 19    | b268541   | fix(auth): streamline Google Sign-In intent launcher with forced account chooser reset                                                 |
 | 1.0.0     | Release            | 18    | fd7e6b1   | fix(build): configure debug build signingConfig with MyEventSigner to resolve status 10                                                |

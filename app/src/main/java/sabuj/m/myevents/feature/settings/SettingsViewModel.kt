@@ -151,19 +151,6 @@ class SettingsViewModel @Inject constructor(
         } else false
     }
 
-    fun syncNow() {
-        viewModelScope.launch {
-            _uiState.update { it.copy(snackbarMessage = "Syncing with Cloud...") }
-            val result = syncRepo.performSync()
-            if (result.isSuccess) {
-                _uiState.update { it.copy(snackbarMessage = "Data Sync completed successfully!") }
-            } else {
-                val err = result.exceptionOrNull()?.localizedMessage ?: "Check connection"
-                _uiState.update { it.copy(snackbarMessage = "Sync failed: $err") }
-            }
-        }
-    }
-
     fun showExportDialog() {
         _uiState.update { it.copy(isExportDialogOpen = true) }
     }

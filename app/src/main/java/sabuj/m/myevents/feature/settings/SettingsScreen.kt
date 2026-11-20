@@ -99,7 +99,6 @@ fun SettingsScreen(
         onNotifyPaymentDues  = viewModel::setNotifyPaymentDues,
         onNotifyTasks        = viewModel::setNotifyTasks,
         onNotifyBudgetAlerts = viewModel::setNotifyBudgetAlerts,
-        onSyncNow            = viewModel::syncNow,
         onShowExport         = viewModel::showExportDialog,
         onDismissSnackbar    = viewModel::snackbarDismissed,
         onChangePinConfirm   = { currentPin, newPin -> viewModel.changePin(currentPin, newPin) },
@@ -128,7 +127,6 @@ fun SettingsScreenContent(
     onNotifyPaymentDues: (Boolean) -> Unit,
     onNotifyTasks: (Boolean) -> Unit,
     onNotifyBudgetAlerts: (Boolean) -> Unit,
-    onSyncNow: () -> Unit,
     onShowExport: () -> Unit,
     onDismissSnackbar: () -> Unit,
     onChangePinConfirm: (String, String) -> Boolean,
@@ -271,7 +269,7 @@ fun SettingsScreenContent(
                         Spacer(Modifier.height(Spacing.sm))
 
                         val lastSync = uiState.settings.lastSyncTimestamp
-                        val syncText = if (lastSync == 0L) "Never synced" else formatSyncTime(lastSync)
+                        val syncText = if (lastSync == 0L) "Real-time active" else formatSyncTime(lastSync)
 
                         val csvPickerLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
                             contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
@@ -280,13 +278,12 @@ fun SettingsScreenContent(
                         }
 
                         Column(modifier = Modifier.padding(vertical = Spacing.xs)) {
-                            Text(text = "Last synced on: $syncText", style = bodyM, color = AppColor.text2)
+                            Text(text = "Sync status: $syncText", style = bodyM, color = AppColor.text2)
                             Spacer(Modifier.height(Spacing.md))
                             Row(
-                                horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
+                                horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
                                 modifier = Modifier.fillMaxWidth(),
                             ) {
-                                AppButtonTonal("Sync Now", onClick = onSyncNow, modifier = Modifier.weight(1f))
                                 AppButtonTonal("Export CSV", onClick = onShowExport, modifier = Modifier.weight(1f))
                                 AppButtonTonal("Import CSV", onClick = { csvPickerLauncher.launch("text/*") }, modifier = Modifier.weight(1f))
                             }

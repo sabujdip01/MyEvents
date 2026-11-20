@@ -1,7 +1,11 @@
 package sabuj.m.myevents.data.remote
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import sabuj.m.myevents.data.db.dao.BookingDao
 import sabuj.m.myevents.data.db.dao.EventDao
@@ -26,8 +30,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Handles two-way bi-directional sync between Room DB and Firebase Firestore.
- * Pushes pending local changes and pulls remote cloud records for authenticated users.
+ * Handles real-time two-way sync between Room DB and Firebase Firestore.
+ * Subscribes to Firestore snapshot listeners to push remote cloud changes instantly into Room.
  */
 @Singleton
 class FirestoreSyncRepository @Inject constructor(
@@ -46,8 +50,10 @@ class FirestoreSyncRepository @Inject constructor(
     private val taskDao: TaskDao,
 ) {
     private val db: FirebaseFirestore get() = FirebaseFirestore.getInstance()
+    private val activeListeners = mutableListOf<ListenerRegistration>()
+    private val scope = CoroutineScope(Dispatchers.IO)
 
-    /** Runs a full two-way sync (pull remote + push local). Returns Result.success or Result.failure. */
+    /** Runs a full two-way sync (pull remote + push local) and starts real-timeListeners. */
     suspend fun performSync(): Result<Unit> {
         return try {
             val uid = authManager.ensureSignedIn()
@@ -80,13 +86,92 @@ class FirestoreSyncRepository @Inject constructor(
             syncInvitees(uid)
             syncTasks(uid)
 
+            // 4. Start Real-time Snapshot Listeners
+            startRealtimeSync(uid)
+
             settingsDataStore.saveLastSyncTimestamp(timestamp)
-            android.util.Log.d("SyncWorker", "Firebase full sync completed successfully at ${java.util.Date(timestamp)} (uid: $uid)")
+            android.util.Log.d("SyncWorker", "Firebase real-time sync active for uid: $uid")
             Result.success(Unit)
         } catch (e: Exception) {
             android.util.Log.e("SyncWorker", "Firebase sync failed: ${e.message}", e)
             Result.failure(e)
         }
+    }
+
+    // ── Real-time Snapshot Listeners ──────────────────────────────────────────
+
+    fun startRealtimeSync(uid: String) {
+        stopRealtimeSync()
+
+        // 1. Events Listener
+        val eventsReg = db.collection("users").document(uid).collection("events")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null || snapshot == null) return@addSnapshotListener
+                scope.launch {
+                    for (doc in snapshot.documents) {
+                        val data = doc.data ?: continue
+                        parseAndUpsertEvent(doc.id, data)
+                    }
+                }
+            }
+        activeListeners.add(eventsReg)
+
+        // 2. Bookings Listener
+        val bookingsReg = db.collection("users").document(uid).collection("bookings")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null || snapshot == null) return@addSnapshotListener
+                scope.launch {
+                    for (doc in snapshot.documents) {
+                        val data = doc.data ?: continue
+                        parseAndUpsertBooking(doc.id, data)
+                    }
+                }
+            }
+        activeListeners.add(bookingsReg)
+
+        // 3. Expenses Listener
+        val expensesReg = db.collection("users").document(uid).collection("expenses")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null || snapshot == null) return@addSnapshotListener
+                scope.launch {
+                    for (doc in snapshot.documents) {
+                        val data = doc.data ?: continue
+                        parseAndUpsertExpense(doc.id, data)
+                    }
+                }
+            }
+        activeListeners.add(expensesReg)
+
+        // 4. Invitees Listener
+        val inviteesReg = db.collection("users").document(uid).collection("invitees")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null || snapshot == null) return@addSnapshotListener
+                scope.launch {
+                    for (doc in snapshot.documents) {
+                        val data = doc.data ?: continue
+                        parseAndUpsertInvitee(doc.id, data)
+                    }
+                }
+            }
+        activeListeners.add(inviteesReg)
+
+        // 5. Tasks Listener
+        val tasksReg = db.collection("users").document(uid).collection("tasks")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null || snapshot == null) return@addSnapshotListener
+                scope.launch {
+                    for (doc in snapshot.documents) {
+                        val data = doc.data ?: continue
+                        parseAndUpsertTask(doc.id, data)
+                    }
+                }
+            }
+        activeListeners.add(tasksReg)
+    }
+
+    fun stopRealtimeSync() {
+        activeListeners.forEach { it.remove() }
+        activeListeners.clear()
     }
 
     // ── PIN Sync ─────────────────────────────────────────────────────────────
@@ -128,33 +213,7 @@ class FirestoreSyncRepository @Inject constructor(
             val snap = db.collection("users").document(uid).collection("events").get().await()
             for (doc in snap.documents) {
                 val data = doc.data ?: continue
-                val id = doc.id
-                val title = data["title"] as? String ?: continue
-                val eventName = (data["eventName"] as? String) ?: title
-                val dateStr = data["date"] as? String
-                val epochDay = dateStr?.let { runCatching { LocalDate.parse(it).toEpochDay() }.getOrNull() }
-                    ?: LocalDate.now().toEpochDay()
-                val iconKey = (data["icon"] as? String) ?: sabuj.m.myevents.core.icons.EventIcon.Other.name
-                val budgetPaise = (data["budgetPaise"] as? Number)?.toLong() ?: 0L
-                val inviteesRequired = (data["inviteesRequired"] as? Boolean) ?: false
-                val createdAt = (data["createdAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
-                val updatedAt = (data["updatedAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
-                val deleted = if ((data["deleted"] as? Boolean) == true) 1 else 0
-
-                val entity = EventEntity(
-                    id = id,
-                    title = title,
-                    eventName = eventName,
-                    date = epochDay,
-                    iconKey = iconKey,
-                    budgetPaise = budgetPaise,
-                    inviteesRequired = inviteesRequired,
-                    createdAt = createdAt,
-                    updatedAt = updatedAt,
-                    syncState = "SYNCED",
-                    deleted = deleted,
-                )
-                eventDao.upsert(entity)
+                parseAndUpsertEvent(doc.id, data)
             }
         } catch (e: Exception) {
             android.util.Log.w("SyncWorker", "pullEvents failed: ${e.message}")
@@ -166,62 +225,7 @@ class FirestoreSyncRepository @Inject constructor(
             val snap = db.collection("users").document(uid).collection("bookings").get().await()
             for (doc in snap.documents) {
                 val data = doc.data ?: continue
-                val id = doc.id
-                val eventId = data["eventId"] as? String ?: continue
-                val title = (data["title"] as? String) ?: ""
-                val bookingType = (data["bookingType"] as? String) ?: "Booking"
-                val bookingIconKey = (data["bookingIcon"] as? String) ?: bookingType
-                val contactName = (data["contactName"] as? String) ?: ""
-                val phone = (data["phone"] as? String) ?: ""
-                val totalAmountPaise = (data["totalAmountPaise"] as? Number)?.toLong() ?: 0L
-                val nextDueDateStr = data["nextDueDate"] as? String
-                val nextDueDateEpochDay = nextDueDateStr?.let { runCatching { LocalDate.parse(it).toEpochDay() }.getOrNull() }
-                val bookingMade = if ((data["bookingMade"] as? Boolean) == true) 1 else 0
-                val createdAt = (data["createdAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
-                val updatedAt = (data["updatedAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
-                val deleted = if ((data["deleted"] as? Boolean) == true) 1 else 0
-
-                val bookingEntity = BookingEntity(
-                    id = id,
-                    eventId = eventId,
-                    title = title,
-                    bookingType = bookingType,
-                    bookingIconKey = bookingIconKey,
-                    contactName = contactName,
-                    phone = phone,
-                    totalAmountPaise = totalAmountPaise,
-                    nextDueDateEpochDay = nextDueDateEpochDay,
-                    bookingMade = bookingMade,
-                    createdAt = createdAt,
-                    updatedAt = updatedAt,
-                    syncState = "SYNCED",
-                    deleted = deleted,
-                )
-
-                @Suppress("UNCHECKED_CAST")
-                val rawPayments = data["payments"] as? List<Map<String, Any?>> ?: emptyList()
-                val paymentEntities = rawPayments.mapNotNull { pMap ->
-                    val pId = pMap["id"] as? String ?: return@mapNotNull null
-                    val pDateStr = pMap["date"] as? String
-                    val pDateEpochDay = pDateStr?.let { runCatching { LocalDate.parse(it).toEpochDay() }.getOrNull() }
-                        ?: LocalDate.now().toEpochDay()
-                    val pAmountPaise = (pMap["amountPaise"] as? Number)?.toLong() ?: 0L
-                    val pNote = (pMap["note"] as? String) ?: ""
-                    val pCreatedAt = (pMap["createdAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
-                    val pUpdatedAt = (pMap["updatedAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
-
-                    BookingPaymentEntity(
-                        id = pId,
-                        bookingId = id,
-                        dateEpochDay = pDateEpochDay,
-                        amountPaise = pAmountPaise,
-                        note = pNote,
-                        createdAt = pCreatedAt,
-                        updatedAt = pUpdatedAt,
-                    )
-                }
-
-                bookingDao.updateBookingAndPayments(bookingEntity, paymentEntities)
+                parseAndUpsertBooking(doc.id, data)
             }
         } catch (e: Exception) {
             android.util.Log.w("SyncWorker", "pullBookings failed: ${e.message}")
@@ -233,34 +237,7 @@ class FirestoreSyncRepository @Inject constructor(
             val snap = db.collection("users").document(uid).collection("expenses").get().await()
             for (doc in snap.documents) {
                 val data = doc.data ?: continue
-                val id = doc.id
-                val eventId = data["eventId"] as? String ?: continue
-                val groupId = (data["groupId"] as? String) ?: id
-                val purpose = (data["purpose"] as? String) ?: ""
-                val amountPaise = (data["amountPaise"] as? Number)?.toLong() ?: 0L
-                val amountDuePaise = (data["amountDuePaise"] as? Number)?.toLong() ?: 0L
-                val rawItems = data["items"]
-                val itemsJson = if (rawItems is String) rawItems else if (rawItems is List<*>) rawItems.joinToString(",") else ""
-                val allReceived = if ((data["allReceived"] as? Boolean) == true) 1 else 0
-                val createdAt = (data["createdAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
-                val updatedAt = (data["updatedAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
-                val deleted = if ((data["deleted"] as? Boolean) == true) 1 else 0
-
-                val entity = ExpenseEntity(
-                    id = id,
-                    eventId = eventId,
-                    groupId = groupId,
-                    purpose = purpose,
-                    amountPaise = amountPaise,
-                    amountDuePaise = amountDuePaise,
-                    itemsJson = itemsJson,
-                    allReceived = allReceived,
-                    createdAt = createdAt,
-                    updatedAt = updatedAt,
-                    syncState = "SYNCED",
-                    deleted = deleted,
-                )
-                expenseDao.upsertExpense(entity)
+                parseAndUpsertExpense(doc.id, data)
             }
         } catch (e: Exception) {
             android.util.Log.w("SyncWorker", "pullExpenses failed: ${e.message}")
@@ -272,35 +249,7 @@ class FirestoreSyncRepository @Inject constructor(
             val snap = db.collection("users").document(uid).collection("invitees").get().await()
             for (doc in snap.documents) {
                 val data = doc.data ?: continue
-                val id = doc.id
-                val eventId = data["eventId"] as? String ?: continue
-                val groupId = (data["groupId"] as? String) ?: id
-                val name = (data["name"] as? String) ?: (data["relativeName"] as? String) ?: ""
-                val expectedCount = (data["expectedCount"] as? Number)?.toInt() ?: 1
-                val address = (data["address"] as? String) ?: ""
-                val invited = if ((data["invited"] as? Boolean) == true) 1 else 0
-                val note = (data["note"] as? String) ?: ""
-                val invitationType = (data["invitationType"] as? String) ?: "None"
-                val createdAt = (data["createdAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
-                val updatedAt = (data["updatedAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
-                val deleted = if ((data["deleted"] as? Boolean) == true) 1 else 0
-
-                val entity = InviteeEntity(
-                    id = id,
-                    eventId = eventId,
-                    groupId = groupId,
-                    name = name,
-                    expectedCount = expectedCount,
-                    address = address,
-                    invited = invited,
-                    note = note,
-                    createdAt = createdAt,
-                    updatedAt = updatedAt,
-                    syncState = "SYNCED",
-                    deleted = deleted,
-                    invitationType = invitationType,
-                )
-                inviteeDao.upsertInvitee(entity)
+                parseAndUpsertInvitee(doc.id, data)
             }
         } catch (e: Exception) {
             android.util.Log.w("SyncWorker", "pullInvitees failed: ${e.message}")
@@ -312,39 +261,192 @@ class FirestoreSyncRepository @Inject constructor(
             val snap = db.collection("users").document(uid).collection("tasks").get().await()
             for (doc in snap.documents) {
                 val data = doc.data ?: continue
-                val id = doc.id
-                val eventId = data["eventId"] as? String ?: continue
-                val title = (data["title"] as? String) ?: ""
-                val icon = (data["icon"] as? String) ?: "Cake"
-                val dueDateStr = data["dueDate"] as? String
-                val dueDateEpochDay = dueDateStr?.let { runCatching { LocalDate.parse(it).toEpochDay() }.getOrNull() }
-                val totalAmountPaise = (data["totalAmountPaise"] as? Number)?.toLong() ?: 0L
-                val rawItems = data["items"]
-                val itemsEncoded = if (rawItems is String) rawItems else ""
-                val completed = if ((data["completed"] as? Boolean) == true || (data["done"] as? Boolean) == true) 1 else 0
-                val createdAt = (data["createdAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
-                val updatedAt = (data["updatedAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
-                val deleted = if ((data["deleted"] as? Boolean) == true) 1 else 0
-
-                val entity = TaskEntity(
-                    id = id,
-                    eventId = eventId,
-                    title = title,
-                    icon = icon,
-                    dueDateEpochDay = dueDateEpochDay,
-                    totalAmountPaise = totalAmountPaise,
-                    itemsEncoded = itemsEncoded,
-                    completed = completed,
-                    createdAt = createdAt,
-                    updatedAt = updatedAt,
-                    syncState = "SYNCED",
-                    deleted = deleted,
-                )
-                taskDao.upsertTask(entity)
+                parseAndUpsertTask(doc.id, data)
             }
         } catch (e: Exception) {
             android.util.Log.w("SyncWorker", "pullTasks failed: ${e.message}")
         }
+    }
+
+    // ── Parsing & Room Upserts ───────────────────────────────────────────────
+
+    private suspend fun parseAndUpsertEvent(id: String, data: Map<String, Any?>) {
+        val title = data["title"] as? String ?: return
+        val eventName = (data["eventName"] as? String) ?: title
+        val dateStr = data["date"] as? String
+        val epochDay = dateStr?.let { runCatching { LocalDate.parse(it).toEpochDay() }.getOrNull() }
+            ?: LocalDate.now().toEpochDay()
+        val iconKey = (data["icon"] as? String) ?: sabuj.m.myevents.core.icons.EventIcon.Other.name
+        val budgetPaise = (data["budgetPaise"] as? Number)?.toLong() ?: 0L
+        val inviteesRequired = (data["inviteesRequired"] as? Boolean) ?: false
+        val createdAt = (data["createdAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
+        val updatedAt = (data["updatedAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
+        val deleted = if ((data["deleted"] as? Boolean) == true) 1 else 0
+
+        val entity = EventEntity(
+            id = id,
+            title = title,
+            eventName = eventName,
+            date = epochDay,
+            iconKey = iconKey,
+            budgetPaise = budgetPaise,
+            inviteesRequired = inviteesRequired,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+            syncState = "SYNCED",
+            deleted = deleted,
+        )
+        eventDao.upsert(entity)
+    }
+
+    private suspend fun parseAndUpsertBooking(id: String, data: Map<String, Any?>) {
+        val eventId = data["eventId"] as? String ?: return
+        val title = (data["title"] as? String) ?: ""
+        val bookingType = (data["bookingType"] as? String) ?: "Booking"
+        val bookingIconKey = (data["bookingIcon"] as? String) ?: bookingType
+        val contactName = (data["contactName"] as? String) ?: ""
+        val phone = (data["phone"] as? String) ?: ""
+        val totalAmountPaise = (data["totalAmountPaise"] as? Number)?.toLong() ?: 0L
+        val nextDueDateStr = data["nextDueDate"] as? String
+        val nextDueDateEpochDay = nextDueDateStr?.let { runCatching { LocalDate.parse(it).toEpochDay() }.getOrNull() }
+        val bookingMade = if ((data["bookingMade"] as? Boolean) == true) 1 else 0
+        val createdAt = (data["createdAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
+        val updatedAt = (data["updatedAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
+        val deleted = if ((data["deleted"] as? Boolean) == true) 1 else 0
+
+        val bookingEntity = BookingEntity(
+            id = id,
+            eventId = eventId,
+            title = title,
+            bookingType = bookingType,
+            bookingIconKey = bookingIconKey,
+            contactName = contactName,
+            phone = phone,
+            totalAmountPaise = totalAmountPaise,
+            nextDueDateEpochDay = nextDueDateEpochDay,
+            bookingMade = bookingMade,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+            syncState = "SYNCED",
+            deleted = deleted,
+        )
+
+        @Suppress("UNCHECKED_CAST")
+        val rawPayments = data["payments"] as? List<Map<String, Any?>> ?: emptyList()
+        val paymentEntities = rawPayments.mapNotNull { pMap ->
+            val pId = pMap["id"] as? String ?: return@mapNotNull null
+            val pDateStr = pMap["date"] as? String
+            val pDateEpochDay = pDateStr?.let { runCatching { LocalDate.parse(it).toEpochDay() }.getOrNull() }
+                ?: LocalDate.now().toEpochDay()
+            val pAmountPaise = (pMap["amountPaise"] as? Number)?.toLong() ?: 0L
+            val pNote = (pMap["note"] as? String) ?: ""
+            val pCreatedAt = (pMap["createdAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
+            val pUpdatedAt = (pMap["updatedAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
+
+            BookingPaymentEntity(
+                id = pId,
+                bookingId = id,
+                dateEpochDay = pDateEpochDay,
+                amountPaise = pAmountPaise,
+                note = pNote,
+                createdAt = pCreatedAt,
+                updatedAt = pUpdatedAt,
+            )
+        }
+
+        bookingDao.updateBookingAndPayments(bookingEntity, paymentEntities)
+    }
+
+    private suspend fun parseAndUpsertExpense(id: String, data: Map<String, Any?>) {
+        val eventId = data["eventId"] as? String ?: return
+        val groupId = (data["groupId"] as? String) ?: id
+        val purpose = (data["purpose"] as? String) ?: ""
+        val amountPaise = (data["amountPaise"] as? Number)?.toLong() ?: 0L
+        val amountDuePaise = (data["amountDuePaise"] as? Number)?.toLong() ?: 0L
+        val rawItems = data["items"]
+        val itemsJson = if (rawItems is String) rawItems else if (rawItems is List<*>) rawItems.joinToString(",") else ""
+        val allReceived = if ((data["allReceived"] as? Boolean) == true) 1 else 0
+        val createdAt = (data["createdAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
+        val updatedAt = (data["updatedAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
+        val deleted = if ((data["deleted"] as? Boolean) == true) 1 else 0
+
+        val entity = ExpenseEntity(
+            id = id,
+            eventId = eventId,
+            groupId = groupId,
+            purpose = purpose,
+            amountPaise = amountPaise,
+            amountDuePaise = amountDuePaise,
+            itemsJson = itemsJson,
+            allReceived = allReceived,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+            syncState = "SYNCED",
+            deleted = deleted,
+        )
+        expenseDao.upsertExpense(entity)
+    }
+
+    private suspend fun parseAndUpsertInvitee(id: String, data: Map<String, Any?>) {
+        val eventId = data["eventId"] as? String ?: return
+        val groupId = (data["groupId"] as? String) ?: id
+        val name = (data["name"] as? String) ?: (data["relativeName"] as? String) ?: ""
+        val expectedCount = (data["expectedCount"] as? Number)?.toInt() ?: 1
+        val address = (data["address"] as? String) ?: ""
+        val invited = if ((data["invited"] as? Boolean) == true) 1 else 0
+        val note = (data["note"] as? String) ?: ""
+        val invitationType = (data["invitationType"] as? String) ?: "None"
+        val createdAt = (data["createdAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
+        val updatedAt = (data["updatedAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
+        val deleted = if ((data["deleted"] as? Boolean) == true) 1 else 0
+
+        val entity = InviteeEntity(
+            id = id,
+            eventId = eventId,
+            groupId = groupId,
+            name = name,
+            expectedCount = expectedCount,
+            address = address,
+            invited = invited,
+            note = note,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+            syncState = "SYNCED",
+            deleted = deleted,
+            invitationType = invitationType,
+        )
+        inviteeDao.upsertInvitee(entity)
+    }
+
+    private suspend fun parseAndUpsertTask(id: String, data: Map<String, Any?>) {
+        val eventId = data["eventId"] as? String ?: return
+        val title = (data["title"] as? String) ?: ""
+        val icon = (data["icon"] as? String) ?: "Cake"
+        val dueDateStr = data["dueDate"] as? String
+        val dueDateEpochDay = dueDateStr?.let { runCatching { LocalDate.parse(it).toEpochDay() }.getOrNull() }
+        val totalAmountPaise = (data["totalAmountPaise"] as? Number)?.toLong() ?: 0L
+        val rawItems = data["items"]
+        val itemsEncoded = if (rawItems is String) rawItems else ""
+        val completed = if ((data["completed"] as? Boolean) == true || (data["done"] as? Boolean) == true) 1 else 0
+        val createdAt = (data["createdAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
+        val updatedAt = (data["updatedAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
+        val deleted = if ((data["deleted"] as? Boolean) == true) 1 else 0
+
+        val entity = TaskEntity(
+            id = id,
+            eventId = eventId,
+            title = title,
+            icon = icon,
+            dueDateEpochDay = dueDateEpochDay,
+            totalAmountPaise = totalAmountPaise,
+            itemsEncoded = itemsEncoded,
+            completed = completed,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+            syncState = "SYNCED",
+            deleted = deleted,
+        )
+        taskDao.upsertTask(entity)
     }
 
     // ── Push Local Pending Data ──────────────────────────────────────────────
