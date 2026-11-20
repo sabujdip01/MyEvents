@@ -12,7 +12,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import sabuj.m.myevents.core.theme.PaletteId
 import sabuj.m.myevents.core.util.CsvWriter
-import sabuj.m.myevents.data.sample.SampleDataManager
+import sabuj.m.myevents.data.remote.FirebaseAuthManager
+import sabuj.m.myevents.data.remote.FirestoreSyncRepository
 import sabuj.m.myevents.data.security.PinHasher
 import sabuj.m.myevents.data.security.PinStore
 import sabuj.m.myevents.data.settings.SettingsDataStore
@@ -35,6 +36,9 @@ data class SettingsUiState(
     val events: List<Event> = emptyList(),
     val isChangePinOpen: Boolean = false,
     val isExportDialogOpen: Boolean = false,
+    val isAuthDialogOpen: Boolean = false,
+    val userEmail: String? = null,
+    val isSignedIn: Boolean = false,
     val snackbarMessage: String? = null,
 )
 
@@ -43,7 +47,8 @@ class SettingsViewModel @Inject constructor(
     private val settingsDataStore: SettingsDataStore,
     private val pinStore: PinStore,
     private val pinHasher: PinHasher,
-    private val syncRepo: sabuj.m.myevents.data.remote.FirestoreSyncRepository,
+    private val authManager: FirebaseAuthManager,
+    private val syncRepo: FirestoreSyncRepository,
     private val eventRepo: EventRepository,
     private val bookingRepo: BookingRepository,
     private val taskRepo: TaskRepository,
@@ -59,6 +64,7 @@ class SettingsViewModel @Inject constructor(
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
     init {
+        checkUserAccount()
         viewModelScope.launch {
             settingsDataStore.userSettingsFlow.collect { userSettings ->
                 _uiState.update { it.copy(settings = userSettings) }
@@ -69,6 +75,62 @@ class SettingsViewModel @Inject constructor(
                 _uiState.update { it.copy(events = events) }
             }
         }
+    }
+
+    fun checkUserAccount() {
+        val user = authManager.currentUser
+        _uiState.update {
+            it.copy(
+                userEmail = user?.email?.ifBlank { null } ?: user?.displayName?.ifBlank { null },
+                isSignedIn = user != null && !user.isAnonymous,
+            )
+        }
+    }
+
+    fun showAuthDialog() {
+        _uiState.update { it.copy(isAuthDialogOpen = true) }
+    }
+
+    fun hideAuthDialog() {
+        _uiState.update { it.copy(isAuthDialogOpen = false) }
+    }
+
+    fun signInWithEmail(email: String, pass: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(snackbarMessage = "Signing in...") }
+            val result = authManager.signInWithEmail(email, pass)
+            if (result.isSuccess) {
+                hideAuthDialog()
+                checkUserAccount()
+                _uiState.update { it.copy(snackbarMessage = "Signed in successfully! Pulling cloud data...") }
+                syncNow()
+            } else {
+                val err = result.exceptionOrNull()?.localizedMessage ?: "Invalid email or password"
+                _uiState.update { it.copy(snackbarMessage = "Sign in failed: $err") }
+            }
+        }
+    }
+
+    fun signUpWithEmail(email: String, pass: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(snackbarMessage = "Creating account...") }
+            val result = authManager.signUpWithEmail(email, pass)
+            if (result.isSuccess) {
+                hideAuthDialog()
+                checkUserAccount()
+                _uiState.update { it.copy(snackbarMessage = "Account created! Syncing with cloud...") }
+                syncNow()
+            } else {
+                val err = result.exceptionOrNull()?.localizedMessage ?: "Could not create account"
+                _uiState.update { it.copy(snackbarMessage = "Sign up failed: $err") }
+            }
+        }
+    }
+
+    fun signOut() {
+        authManager.signOut()
+        checkUserAccount()
+        _uiState.update { it.copy(snackbarMessage = "Signed out") }
     }
 
     fun setThemeMode(mode: ThemeMode) {
@@ -115,19 +177,27 @@ class SettingsViewModel @Inject constructor(
     fun changePin(currentPin: String, newPin: String): Boolean {
         val hash = pinStore.getHash() ?: return false
         return if (pinHasher.verify(currentPin, hash)) {
-            pinStore.savePin(pinHasher.hash(newPin))
+            val newHash = pinHasher.hash(newPin)
+            pinStore.savePin(newHash)
             hideChangePinDialog()
             _uiState.update { it.copy(snackbarMessage = "PIN changed successfully") }
+
+            viewModelScope.launch {
+                runCatching {
+                    val uid = authManager.ensureSignedIn()
+                    syncRepo.pushPinToRemote(uid, newHash)
+                }
+            }
             true
         } else false
     }
 
     fun syncNow() {
         viewModelScope.launch {
-            _uiState.update { it.copy(snackbarMessage = "Syncing with cloud ...") }
+            _uiState.update { it.copy(snackbarMessage = "Syncing with cloud...") }
             val result = syncRepo.performSync()
             if (result.isSuccess) {
-                _uiState.update { it.copy(snackbarMessage = "Sync completed successfully") }
+                _uiState.update { it.copy(snackbarMessage = "Data sync completed successfully!") }
             } else {
                 val err = result.exceptionOrNull()?.localizedMessage ?: "Check connection"
                 _uiState.update { it.copy(snackbarMessage = "Sync failed: $err") }
@@ -177,15 +247,10 @@ class SettingsViewModel @Inject constructor(
                 val inputStream = context.contentResolver.openInputStream(uri) ?: return@launch
                 val data = sabuj.m.myevents.core.util.CsvReader.parse(inputStream)
                 if (data != null) {
-                    // Upsert imported event
                     eventRepo.upsert(data.event)
-                    // Upsert imported bookings
                     data.bookings.forEach { b -> bookingRepo.upsertBooking(b) }
-                    // Upsert imported tasks / item lists
                     data.tasks.forEach { t -> taskRepo.upsertTask(t) }
-                    // Upsert imported invitees / guests
                     data.invitees.forEach { inv -> inviteeRepo.upsertInvitee(inv) }
-                    // Set extra cards count
                     if (data.extraCards > 0) {
                         settingsDataStore.setExtraCards(data.extraCards)
                     }

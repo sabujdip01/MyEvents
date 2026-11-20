@@ -13,21 +13,22 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import sabuj.m.myevents.core.ui.AppSnackbar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -48,6 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import sabuj.m.myevents.core.preview.LightDarkPreviews
 import sabuj.m.myevents.core.theme.AppColor
@@ -59,8 +61,11 @@ import sabuj.m.myevents.core.theme.bodyM
 import sabuj.m.myevents.core.theme.labelL
 import sabuj.m.myevents.core.theme.labelM
 import sabuj.m.myevents.core.theme.paletteColors
+import sabuj.m.myevents.core.theme.titleM
 import sabuj.m.myevents.core.ui.AppButton
 import sabuj.m.myevents.core.ui.AppButtonTonal
+import sabuj.m.myevents.core.ui.AppField
+import sabuj.m.myevents.core.ui.AppSnackbar
 import sabuj.m.myevents.core.ui.AppTopBar
 import sabuj.m.myevents.core.ui.ScreenScaffold
 import sabuj.m.myevents.data.settings.ThemeMode
@@ -112,6 +117,11 @@ fun SettingsScreen(
         },
         onExportDismiss      = viewModel::hideExportDialog,
         onImportCsv          = { uri -> viewModel.importCsvData(context, uri) },
+        onShowAuthDialog     = viewModel::showAuthDialog,
+        onHideAuthDialog     = viewModel::hideAuthDialog,
+        onSignIn             = viewModel::signInWithEmail,
+        onSignUp             = viewModel::signUpWithEmail,
+        onSignOut            = viewModel::signOut,
         modifier             = modifier,
     )
 }
@@ -137,6 +147,11 @@ fun SettingsScreenContent(
     onExportConfirm: (String, String) -> Unit = { _, _ -> },
     onExportDismiss: () -> Unit = {},
     onImportCsv: (android.net.Uri) -> Unit = {},
+    onShowAuthDialog: () -> Unit = {},
+    onHideAuthDialog: () -> Unit = {},
+    onSignIn: (String, String) -> Unit = { _, _ -> },
+    onSignUp: (String, String) -> Unit = { _, _ -> },
+    onSignOut: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
@@ -155,7 +170,7 @@ fun SettingsScreenContent(
     Box(modifier = Modifier.fillMaxSize()) {
         ScreenScaffold(modifier = modifier, onMenuClick = null) {
             Column(modifier = Modifier.fillMaxSize()) {
-                // Fixed top bar (does not move while scrolling)
+                // Fixed top bar
                 AppTopBar(
                     titleText   = "Settings",
                     onMenuClick = onMenuClick,
@@ -204,7 +219,6 @@ fun SettingsScreenContent(
                         Text("Colour scheme", style = bodyM, color = AppColor.text2)
                         Spacer(Modifier.height(Spacing.xs))
 
-                        // Item I2: 56 dp 50%-50% circular swatches with 135 degree sharp split (no gradient)
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
                             modifier = Modifier.fillMaxWidth(),
@@ -241,6 +255,55 @@ fun SettingsScreenContent(
                                 onClick        = { onPaletteId(PaletteId.D) },
                                 modifier       = Modifier.weight(1f),
                             )
+                        }
+                    }
+
+                    Spacer(Modifier.height(Spacing.lg))
+
+                    // ACCOUNT & CLOUD SYNC
+                    SettingsSection("ACCOUNT & CLOUD SYNC") {
+                        val isSignedIn = uiState.isSignedIn
+                        val userEmail = uiState.userEmail ?: "Guest User (Not signed in)"
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.xs),
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(text = "Account", style = labelM, color = AppColor.text3)
+                                Text(text = userEmail, style = bodyM, color = AppColor.text, fontWeight = FontWeight.Bold)
+                            }
+                            if (isSignedIn) {
+                                AppButtonTonal("Sign Out", onClick = onSignOut)
+                            } else {
+                                AppButton("Sign In", onClick = onShowAuthDialog)
+                            }
+                        }
+
+                        Spacer(Modifier.height(Spacing.sm))
+                        HorizontalDivider(color = AppColor.outlineVariant)
+                        Spacer(Modifier.height(Spacing.sm))
+
+                        val lastSync = uiState.settings.lastSyncTimestamp
+                        val syncText = if (lastSync == 0L) "Never synced" else formatSyncTime(lastSync)
+
+                        val csvPickerLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+                            contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
+                        ) { uri: android.net.Uri? ->
+                            uri?.let { onImportCsv(it) }
+                        }
+
+                        Column(modifier = Modifier.padding(vertical = Spacing.xs)) {
+                            Text(text = "Last synced on: $syncText", style = bodyM, color = AppColor.text2)
+                            Spacer(Modifier.height(Spacing.md))
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                AppButtonTonal("Sync Now", onClick = onSyncNow, modifier = Modifier.weight(1f))
+                                AppButtonTonal("Export CSV", onClick = onShowExport, modifier = Modifier.weight(1f))
+                                AppButtonTonal("Import CSV", onClick = { csvPickerLauncher.launch("text/*") }, modifier = Modifier.weight(1f))
+                            }
                         }
                     }
 
@@ -284,48 +347,28 @@ fun SettingsScreenContent(
 
                     Spacer(Modifier.height(Spacing.lg))
 
-                    // SYNC AND EXPORT (Items I5, I6, I7)
-                    SettingsSection("SYNC AND EXPORT") {
-                        val lastSync = uiState.settings.lastSyncTimestamp
-                        val syncText = if (lastSync == 0L) "Never synced" else formatSyncTime(lastSync)
-
-                        val csvPickerLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-                            contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
-                        ) { uri: android.net.Uri? ->
-                            uri?.let { onImportCsv(it) }
-                        }
-
-                        Column(modifier = Modifier.padding(vertical = Spacing.xs)) {
-                            Text(text = "Last synced on: $syncText", style = bodyM, color = AppColor.text2)
-                            Spacer(Modifier.height(Spacing.md))
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
-                                modifier = Modifier.fillMaxWidth(),
-                            ) {
-                                AppButtonTonal("Sync Now", onClick = onSyncNow, modifier = Modifier.weight(1f))
-                                AppButtonTonal("Export CSV", onClick = onShowExport, modifier = Modifier.weight(1f))
-                                AppButtonTonal("Import CSV", onClick = { csvPickerLauncher.launch("text/*") }, modifier = Modifier.weight(1f))
-                            }
-                        }
-                    }
-
-                    Spacer(Modifier.height(Spacing.lg))
-
                     // ABOUT
                     SettingsSection("ABOUT") {
                         SettingsRow("Version", sabuj.m.myevents.BuildConfig.APP_VERSION)
                     }
 
-                    // Item 5: 8 dp gap after the end of the settings page
                     Spacer(Modifier.height(8.dp))
                 }
             }
         }
 
-        // Item 3: Sync toast positioned and designed same as the Undo toast
         AppSnackbar(
             hostState = snackbarHostState,
             modifier  = Modifier.align(Alignment.Center),
+        )
+    }
+
+    // Auth Dialog
+    if (uiState.isAuthDialogOpen) {
+        AuthDialog(
+            onDismiss = onHideAuthDialog,
+            onSignIn  = onSignIn,
+            onSignUp  = onSignUp,
         )
     }
 
@@ -347,12 +390,83 @@ fun SettingsScreenContent(
     }
 }
 
+@Composable
+private fun AuthDialog(
+    onDismiss: () -> Unit,
+    onSignIn: (String, String) -> Unit,
+    onSignUp: (String, String) -> Unit,
+) {
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var isSignUpMode by remember { mutableStateOf(false) }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            shape    = RoundedCornerShape(Radius.dialog),
+            colors   = CardDefaults.cardColors(containerColor = AppColor.surface),
+            modifier = Modifier.width(374.dp).padding(Spacing.sm),
+        ) {
+            Column(
+                modifier = Modifier.padding(Spacing.lg),
+                verticalArrangement = Arrangement.spacedBy(Spacing.sm),
+            ) {
+                Text(if (isSignUpMode) "Create Account" else "Sign In", style = titleM, color = AppColor.text)
+                Text(
+                    text = if (isSignUpMode) "Sign up to sync your events with cloud" else "Sign in with your email to pull your cloud data",
+                    style = labelM,
+                    color = AppColor.text2,
+                )
+                Spacer(Modifier.height(Spacing.xs))
+                AppField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = "Email Address",
+                    placeholder = "you@example.com",
+                )
+                AppField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = "Password",
+                    placeholder = "••••••••",
+                )
+                Spacer(Modifier.height(Spacing.xs))
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    AppButtonTonal(
+                        text = "Cancel",
+                        onClick = onDismiss,
+                        modifier = Modifier.weight(1f),
+                    )
+                    AppButton(
+                        text = if (isSignUpMode) "Sign Up" else "Sign In",
+                        onClick = {
+                            if (email.isNotBlank() && password.isNotBlank()) {
+                                if (isSignUpMode) onSignUp(email.trim(), password)
+                                else onSignIn(email.trim(), password)
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                Spacer(Modifier.height(Spacing.xs))
+                Text(
+                    text = if (isSignUpMode) "Already have an account? Sign In" else "Don't have an account? Sign Up",
+                    style = labelM,
+                    color = AppColor.primary,
+                    modifier = Modifier.clickable { isSignUpMode = !isSignUpMode }.align(Alignment.CenterHorizontally),
+                )
+            }
+        }
+    }
+}
+
 private fun formatSyncTime(epochMs: Long): String {
     val sdf = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
     return sdf.format(Date(epochMs))
 }
 
-/** Item I2: 56 dp circular swatch with 135 degree primary/soft split */
 @Composable
 private fun PaletteCircleSwatch(
     name: String,
@@ -437,7 +551,6 @@ private fun ThemeOptionChip(
     }
 }
 
-/** Item I1: Section Header font size increased by 40% (15 sp bold uppercase) */
 @Composable
 private fun SettingsSection(
     title: String,
@@ -449,42 +562,51 @@ private fun SettingsSection(
         color    = AppColor.text3,
         modifier = Modifier.padding(bottom = Spacing.sm),
     )
-    content()
-    Spacer(Modifier.height(Spacing.md))
-}
-
-/** Item I1: Item title font size decreased by 20% (bodyM) */
-@Composable
-private fun SettingsRow(label: String, value: String) {
-    Column(modifier = Modifier.padding(vertical = Spacing.sm)) {
-        Text(label, style = bodyM, color = AppColor.text, fontWeight = FontWeight.SemiBold)
-        if (value.isNotEmpty()) {
-            Text(value, style = bodyM, color = AppColor.text2)
+    Surface(
+        shape = RoundedCornerShape(Radius.card),
+        color = AppColor.surfaceVariant,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(modifier = Modifier.padding(Spacing.md)) {
+            content()
         }
     }
 }
 
-/** Item I1 & I3: Universal title color (AppColor.text) */
+@Composable
+private fun SettingsRow(
+    label: String,
+    value: String,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.xs),
+    ) {
+        Text(text = label, style = bodyM, color = AppColor.text, modifier = Modifier.weight(1f))
+        Text(text = value, style = bodyM, color = AppColor.text2)
+    }
+}
+
 @Composable
 private fun SettingsActionRow(
     label: String,
     subtext: String,
     onClick: () -> Unit,
 ) {
-    Column(
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(vertical = Spacing.sm),
+            .clickable(onClick = onClick)
+            .padding(vertical = Spacing.xs),
     ) {
-        Text(label, style = bodyM, color = AppColor.text, fontWeight = FontWeight.SemiBold)
-        if (subtext.isNotEmpty()) {
-            Text(subtext, style = bodyM, color = AppColor.text2)
+        Column(modifier = Modifier.weight(1f)) {
+            Text(text = label, style = bodyM, color = AppColor.text)
+            Text(text = subtext, style = labelM, color = AppColor.text3)
         }
     }
 }
 
-/** Item I1: Item title font size decreased by 20% (bodyM) */
 @Composable
 private fun SettingsToggleRow(
     label: String,
@@ -493,52 +615,22 @@ private fun SettingsToggleRow(
     onToggle: (Boolean) -> Unit,
 ) {
     Row(
-        modifier          = Modifier.fillMaxWidth().padding(vertical = Spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.xs),
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(label, style = bodyM, color = AppColor.text, fontWeight = FontWeight.SemiBold)
-            if (subtext.isNotEmpty()) {
-                Text(subtext, style = bodyM, color = AppColor.text2)
-            }
+            Text(text = label, style = bodyM, color = AppColor.text)
+            Text(text = subtext, style = labelM, color = AppColor.text3)
         }
         Switch(
-            checked         = isChecked,
+            checked = isChecked,
             onCheckedChange = onToggle,
-            colors          = SwitchDefaults.colors(
-                checkedThumbColor    = AppColor.onPrimary,
-                checkedTrackColor    = AppColor.primary,
-                uncheckedThumbColor  = AppColor.text3,
-                uncheckedTrackColor  = AppColor.surfaceVariant,
-                uncheckedBorderColor = AppColor.outline,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor   = AppColor.onPrimary,
+                checkedTrackColor   = AppColor.primary,
+                uncheckedThumbColor = AppColor.text3,
+                uncheckedTrackColor = AppColor.surface,
             ),
-        )
-    }
-}
-
-@LightDarkPreviews
-@Composable
-private fun SettingsScreenPreview() {
-    AppTheme {
-        SettingsScreenContent(
-            uiState               = SettingsUiState(),
-            onMenuClick           = {},
-            onThemeMode           = {},
-            onPaletteId           = {},
-            onShowChangePin       = {},
-            onFingerprint         = {},
-            onNotificationsMaster = {},
-            onNotifyCountdowns    = {},
-            onNotifyPaymentDues   = {},
-            onNotifyTasks         = {},
-            onNotifyBudgetAlerts  = {},
-            onSyncNow             = {},
-            onShowExport          = {},
-            onDismissSnackbar     = {},
-            onChangePinConfirm    = { _, _ -> true },
-            onChangePinDismiss    = {},
-            onExportConfirm       = { _, _ -> },
-            onExportDismiss       = {},
         )
     }
 }

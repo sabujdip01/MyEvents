@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import sabuj.m.myevents.data.remote.FirebaseAuthManager
+import sabuj.m.myevents.data.remote.FirestoreSyncRepository
 import sabuj.m.myevents.data.security.PinHasher
 import sabuj.m.myevents.data.security.PinStore
 import javax.inject.Inject
@@ -26,6 +28,8 @@ private const val LOCKOUT_SECS  = 30L
 class LockViewModel @Inject constructor(
     private val pinStore : PinStore,
     private val pinHasher: PinHasher,
+    private val authManager: FirebaseAuthManager,
+    private val syncRepo: FirestoreSyncRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(LockUiState())
@@ -33,6 +37,7 @@ class LockViewModel @Inject constructor(
 
     init {
         checkPersistedLockout()
+        checkRemotePinAndSync()
     }
 
     private fun checkPersistedLockout() {
@@ -43,6 +48,17 @@ class LockViewModel @Inject constructor(
             startLockout(secsLeft)
         } else {
             _state.update { it.copy(failedAttempts = pinStore.failedAttempts) }
+        }
+    }
+
+    private fun checkRemotePinAndSync() {
+        viewModelScope.launch {
+            runCatching {
+                val uid = authManager.currentUser?.uid
+                if (uid != null && !pinStore.isPinSet) {
+                    syncRepo.syncRemotePin(uid)
+                }
+            }
         }
     }
 
@@ -101,10 +117,20 @@ class LockViewModel @Inject constructor(
         } else {
             // Confirmation entry
             if (pin == s.setupFirstPin) {
-                pinStore.savePin(pinHasher.hash(pin))
+                val hash = pinHasher.hash(pin)
+                pinStore.savePin(hash)
                 pinStore.failedAttempts = 0
                 pinStore.lockoutUntilEpochMs = 0L
                 _state.update { it.copy(isUnlocked = true) }
+
+                // Sync PIN hash & pull/push data to Firebase
+                viewModelScope.launch {
+                    runCatching {
+                        val uid = authManager.ensureSignedIn()
+                        syncRepo.pushPinToRemote(uid, hash)
+                        syncRepo.performSync()
+                    }
+                }
             } else {
                 // Mismatch — shake and restart
                 _state.update { it.copy(pin = "", setupFirstPin = null, isConfirming = false, error = "PINs do not match. Try again.") }
