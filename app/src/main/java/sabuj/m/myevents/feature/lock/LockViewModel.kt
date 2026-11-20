@@ -134,6 +134,10 @@ class LockViewModel @Inject constructor(
         }
     }
 
+    fun setError(msg: String) {
+        _state.update { it.copy(error = msg, isLoading = false) }
+    }
+
     // -----------------------------------------------------------------------
     // Events
     // -----------------------------------------------------------------------

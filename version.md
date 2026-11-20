@@ -4,7 +4,8 @@ Current: 1.0.0
 
 | Version   | Phase              | Build | Commit    | Summary                                                                                             |
 | --------- | ------------------ | ----- | --------- | --------------------------------------------------------------------------------------------------- |
-| 1.0.0     | Release            | 16    | -         | refactor(settings): remove unused inline auth methods and add Sign Out action in SettingsScreen     |
+| 1.0.0     | Release            | 17    | -         | fix(auth): fix Google Sign-In intent result handling and display errors on PinScreen                |
+| 1.0.0     | Release            | 16    | 63e050a   | refactor(settings): remove unused inline auth methods and add Sign Out action in SettingsScreen     |
 | 1.0.0     | Release            | 15    | 6b360d3   | refactor(settings): remove unused inline auth methods from SettingsViewModel                        |
 | 1.0.0     | Release            | 14    | 7d06134   | refactor(settings): remove unused AuthDialog and add Sign Out action row in SettingsScreen          |
 | 1.0.0     | Release            | 13    | 2cfc71f   | fix(google-services): update google-services.json with web client ID and SHA-1 certificate hashes  |

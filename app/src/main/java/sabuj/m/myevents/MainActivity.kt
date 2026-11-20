@@ -101,9 +101,12 @@ class MainActivity : FragmentActivity() {
                     if (idToken != null) {
                         val credential = com.google.firebase.auth.GoogleAuthProvider.getCredential(idToken, null)
                         lockViewModel.signInWithCredential(credential)
+                    } else {
+                        lockViewModel.setError("Could not retrieve Google ID Token.")
                     }
                 } catch (e: Exception) {
                     android.util.Log.e("GoogleSignIn", "Google Sign-In Intent result failed: ${e.message}", e)
+                    lockViewModel.setError("Google Sign-In failed: ${e.localizedMessage}")
                 }
             }
 
@@ -267,11 +270,10 @@ class MainActivity : FragmentActivity() {
                 .build()
 
             val googleSignInClient = com.google.android.gms.auth.api.signin.GoogleSignIn.getClient(this, gso)
-            googleSignInClient.signOut().addOnCompleteListener {
-                launcher.launch(googleSignInClient.signInIntent)
-            }
+            launcher.launch(googleSignInClient.signInIntent)
         } catch (e: Exception) {
             android.util.Log.e("GoogleSignIn", "Fallback Google Sign-In failed: ${e.message}", e)
+            lockViewModel.setError("Google Sign-In failed: ${e.localizedMessage}")
         }
     }
 
